@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Registros - Controle Diário</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --body-bg-start: #4F81BD;
+            --body-bg-end: #dc3545;
+            --card-bg-color: rgba(255, 255, 255, 0.9);
+            --card-border-color: rgba(0, 0, 0, 0.1);
+            --text-color-light: #ffffff;
+            --text-color-dark: #333333;
+            --shadow-subtle: 0 6px 20px rgba(0, 0, 0, 0.25);
+            --border-radius-card: 1.5rem;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: linear-gradient(160deg, var(--body-bg-start) 0%, var(--body-bg-end) 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text-color-light);
+        }
+
+        .top-nav-bar {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 1.5rem 1rem;
+            box-sizing: border-box;
+        }
+
+        .btn-nav {
+            background-color: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .btn-nav:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+        }
+
+        header {
+            color: var(--text-color-light);
+            padding: 2rem 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+        header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+        }
+        .container {
+            max-width: 1200px; 
+            margin-bottom: 3rem;
+        }
+        .card {
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--card-border-color);
+            border-radius: var(--border-radius-card);
+            box-shadow: var(--shadow-subtle);
+            padding: 2rem; 
+            margin-bottom: 2rem;
+            color: var(--text-color-dark);
+        }
+        .registro-block-card {
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--card-border-color);
+            border-radius: var(--border-radius-card);
+            box-shadow: var(--shadow-subtle);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: var(--text-color-dark);
+        }
+        .registro-block-card h4 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+        }
+        .receitas-block-header { color: #28a745; }
+        .despesas-block-header { color: #dc3545; }
+        
+        .table {
+            color: var(--text-color-dark);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding: 1rem;
+            background-color: transparent;
+            color: var(--text-color-light);
+            opacity: 0.8;
+        }
+
+        .modal-section-card {
+            border: 1px solid #dee2e6;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .modal-section-card.receitas-bg { background-color: #eaf1f8; }
+        .modal-section-card.despesas-bg { background-color: #f8eded; }
+    </style>
+</head>
+<body>
+    <div class="top-nav-bar">
+        <a href="index.html" class="btn-nav"><i class="fas fa-home"></i> Home</a>
+    </div>
+    <header>
+        <h1 class="fw-bold">Gerenciar Registros</h1>
+        <p>Visualize, edite e exclua seus dados</p>
+    </header>
+
+    <div class="container">
+        <div class="card p-4 mb-4">
+            <h3 class="mb-3">Filtrar Registros</h3>
+            <div class="search-controls d-flex gap-2 mb-3 flex-wrap">
+                <input type="text" class="form-control" id="searchInput" placeholder="Buscar por data, categoria, etc.">
+                <select class="form-select w-auto" id="filterType">
+                    <option value="todos">Todos</option>
+                    <option value="receita">Apenas Receitas</option>
+                    <option value="despesa">Apenas Despesas</option>
+                </select>
+                <button class="btn btn-outline-secondary" type="button" id="clearSearch">Limpar Busca</button>
+            </div>
+            <p id="noRecordsOverallMessage" class="text-center text-muted mt-3 d-none">Nenhum registro encontrado. Comece a adicionar dados!</p>
+        </div>
+
+        <div class="registro-block-card" id="receitasBlock">
+            <h4 class="receitas-block-header">Registros de Receitas</h4>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Plataforma</th>
+                            <th>Valor Corrida (R$)</th>
+                            <th>Gorjetas (R$)</th>
+                            <th>Observações</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="receitasTableBody"></tbody>
+                </table>
+            </div>
+            <p id="noReceitasMessage" class="text-center text-muted mt-3 d-none">Nenhuma receita encontrada para o filtro atual.</p>
+        </div>
+
+        <div class="registro-block-card" id="despesasBlock">
+            <h4 class="despesas-block-header">Registros de Despesas</h4>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Valor Total (R$)</th>
+                            <th>Categoria</th>
+                            <th>Observações</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="despesasTableBody"></tbody>
+                </table>
+            </div>
+            <p id="noDespesasMessage" class="text-center text-muted mt-3 d-none">Nenhuma despesa encontrada para o filtro atual.</p>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Editar Registro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editRecordForm">
+                        <input type="hidden" id="editRecordId">
+                        <input type="hidden" id="editRecordType">
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label for="editData">Data</label>
+                                <input type="date" class="form-control" id="editData" required>
+                            </div>
+                            <div class="col-md-6 form-group" id="editPlataformaContainer">
+                                <label for="editPlataforma">Plataforma</label>
+                                <select class="form-select" id="editPlataforma" required>
+                                    <option value="Uber">Uber</option>
+                                    <option value="99">99</option>
+                                    <option value="Outra">Outra</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="modal-section-card receitas-bg mt-4" id="editBlocoReceita">
+                            <h5>Receitas</h5>
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <label for="editReceita">Valor da Corrida (R$)</label>
+                                    <input type="number" step="0.01" class="form-control" id="editReceita" value="0.00" required>
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label for="editGorjetas">Gorjetas (R$)</label>
+                                    <input type="number" step="0.01" class="form-control" id="editGorjetas" value="0.00">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-section-card despesas-bg mt-4" id="editBlocoDespesa">
+                            <h5>Despesas</h5>
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <label for="editDespesas">Valor Total (R$)</label>
+                                    <input type="number" step="0.01" class="form-control" id="editDespesas" value="0.00" required>
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label for="editCategoriaDespesa">Categoria</label>
+                                    <select class="form-select" id="editCategoriaDespesa" required>
+                                        <option value="">Selecione uma categoria</option>
+                                        <option value="Combustível">Combustível</option>
+                                        <option value="Manutenção">Manutenção</option>
+                                        <option value="Alimentação">Alimentação</option>
+                                        <option value="Estacionamento">Estacionamento</option>
+                                        <option value="Outros">Outros</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mt-4">
+                            <label for="editObservacoes">Observações</label>
+                            <input type="text" class="form-control" id="editObservacoes" placeholder="Outras informações">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveEditButton">Salvar Mudanças</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteConfirmModalLabel">Confirmar Exclusão</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Tem certeza de que deseja excluir este registro? Esta ação não pode ser desfeita.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteButton">Excluir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 - Anderson Rockenbach</p>
+    </footer>
+
+    <script src="firebase_init.js"></script>
+
+    <script>
+        // Agora você pode usar 'auth' e 'db' diretamente aqui
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUserId = user.uid;
+                // ... seu código que usa auth e db
+            } else {
+                // ...
+            }
+        });
+        // ... restante do seu código JavaScript
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const receitasTableBody = document.getElementById('receitasTableBody');
+        const despesasTableBody = document.getElementById('despesasTableBody');
+        const noReceitasMessage = document.getElementById('noReceitasMessage');
+        const noDespesasMessage = document.getElementById('noDespesasMessage');
+        const noRecordsOverallMessage = document.getElementById('noRecordsOverallMessage');
+        const receitasBlock = document.getElementById('receitasBlock');
+        const despesasBlock = document.getElementById('despesasBlock');
+
+        const searchInput = document.getElementById('searchInput');
+        const filterType = document.getElementById('filterType');
+        const clearSearchButton = document.getElementById('clearSearch');
+
+        const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+        const editRecordForm = document.getElementById('editRecordForm');
+        const editRecordId = document.getElementById('editRecordId');
+        const editRecordType = document.getElementById('editRecordType');
+        
+        const editData = document.getElementById('editData');
+        const editPlataformaContainer = document.getElementById('editPlataformaContainer');
+        const editPlataforma = document.getElementById('editPlataforma');
+        const editBlocoReceita = document.getElementById('editBlocoReceita');
+        const editReceita = document.getElementById('editReceita');
+        const editGorjetas = document.getElementById('editGorjetas');
+        const editBlocoDespesa = document.getElementById('editBlocoDespesa');
+        const editDespesas = document.getElementById('editDespesas');
+        const editCategoriaDespesa = document.getElementById('editCategoriaDespesa');
+        const editObservacoes = document.getElementById('editObservacoes');
+        const saveEditButton = document.getElementById('saveEditButton');
+
+        const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+        const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+        let recordToDeleteId = null;
+
+        const formatarMoeda = (valor) => `R$ ${parseFloat(valor).toFixed(2).replace('.', ',')}`;
+        const formatarData = (dataString) => {
+            if (!dataString) return 'N/A';
+            const [ano, mes, dia] = dataString.split('-');
+            return `${dia}/${mes}/${ano}`;
+        };
+
+        const carregarRegistros = () => {
+            const registros = JSON.parse(localStorage.getItem('registros')) || [];
+            return registros.map(registro => ({
+                id: registro.id || Date.now() + Math.random(),
+                tipo: registro.tipo || 'receita',
+                data: registro.data || '',
+                plataforma: registro.plataforma || '',
+                receita: parseFloat(registro.receita || 0),
+                gorjetas: parseFloat(registro.gorjetas || 0),
+                despesas: parseFloat(registro.despesas || 0),
+                categoriaDespesa: registro.categoriaDespesa || '',
+                kmRodados: parseFloat(registro.kmRodados || 0),
+                combustivelLitros: parseFloat(registro.combustivelLitros || 0),
+                observacoes: registro.observacoes || ''
+            })).sort((a, b) => new Date(b.data) - new Date(a.data));
+        };
+
+        const salvarRegistros = (registros) => {
+            localStorage.setItem('registros', JSON.stringify(registros));
+        };
+
+        const renderizarRegistros = () => {
+            const todosRegistros = carregarRegistros();
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const selectedType = filterType.value;
+
+            let receitasFiltradas = [];
+            let despesasFiltradas = [];
+
+            todosRegistros.forEach(registro => {
+                const matchesSearch = Object.values(registro).some(value => {
+                    if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                        return formatarData(value).toLowerCase().includes(searchTerm);
+                    }
+                    return String(value).toLowerCase().includes(searchTerm);
+                });
+
+                if (matchesSearch) {
+                    if (registro.tipo === 'receita' && (selectedType === 'receita' || selectedType === 'todos')) {
+                        receitasFiltradas.push(registro);
+                    } else if (registro.tipo === 'despesa' && (selectedType === 'despesa' || selectedType === 'todos')) {
+                        despesasFiltradas.push(registro);
+                    }
+                }
+            });
+
+            receitasTableBody.innerHTML = '';
+            despesasTableBody.innerHTML = '';
+
+            receitasBlock.style.display = (selectedType === 'despesa') ? 'none' : 'block';
+            despesasBlock.style.display = (selectedType === 'receita') ? 'none' : 'block';
+
+            if (receitasFiltradas.length === 0 && selectedType !== 'despesa') {
+                noReceitasMessage.classList.remove('d-none');
+            } else {
+                noReceitasMessage.classList.add('d-none');
+                receitasFiltradas.forEach(registro => {
+                    const row = receitasTableBody.insertRow();
+                    row.innerHTML = `
+                        <td>${formatarData(registro.data)}</td>
+                        <td>${registro.plataforma || 'N/A'}</td>
+                        <td>${formatarMoeda(registro.receita)}</td>
+                        <td>${formatarMoeda(registro.gorjetas)}</td>
+                        <td>${registro.observacoes || 'N/A'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary edit-btn" data-id="${registro.id}" data-type="receita">Editar</button>
+                            <button class="btn btn-sm btn-danger delete-btn" data-id="${registro.id}">Excluir</button>
+                        </td>`;
+                });
+            }
+
+            if (despesasFiltradas.length === 0 && selectedType !== 'receita') {
+                noDespesasMessage.classList.remove('d-none');
+            } else {
+                noDespesasMessage.classList.add('d-none');
+                despesasFiltradas.forEach(registro => {
+                    const row = despesasTableBody.insertRow();
+                    row.innerHTML = `
+                        <td>${formatarData(registro.data)}</td>
+                        <td>${formatarMoeda(registro.despesas)}</td>
+                        <td>${registro.categoriaDespesa || 'N/A'}</td>
+                        <td>${registro.observacoes || 'N/A'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary edit-btn" data-id="${registro.id}" data-type="despesa">Editar</button>
+                            <button class="btn btn-sm btn-danger delete-btn" data-id="${registro.id}">Excluir</button>
+                        </td>`;
+                });
+            }
+
+            if (todosRegistros.length === 0) {
+                noRecordsOverallMessage.classList.remove('d-none');
+            } else {
+                noRecordsOverallMessage.classList.add('d-none');
+            }
+
+            adicionarListenersAcoes();
+        };
+
+        const adicionarListenersAcoes = () => {
+            document.querySelectorAll('.edit-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const id = parseFloat(event.target.dataset.id);
+                    const type = event.target.dataset.type;
+                    abrirModalEdicao(id, type);
+                });
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const id = parseFloat(event.target.dataset.id);
+                    abrirModalExclusao(id);
+                });
+            });
+        };
+
+        const abrirModalEdicao = (id, type) => {
+            const registros = carregarRegistros();
+            const registro = registros.find(r => r.id === id);
+
+            if (registro) {
+                editRecordId.value = id;
+                editRecordType.value = type;
+                editData.value = registro.data;
+                editObservacoes.value = registro.observacoes || '';
+
+                if (type === 'receita') {
+                    editBlocoReceita.style.display = 'block';
+                    editReceita.required = true; 
+                    editBlocoDespesa.style.display = 'none';
+                    editDespesas.required = false;
+                    editCategoriaDespesa.required = false;
+                    editPlataformaContainer.style.display = 'block'; 
+                    editPlataforma.value = registro.plataforma || 'Outra';
+                    editReceita.value = parseFloat(registro.receita).toFixed(2);
+                    editGorjetas.value = parseFloat(registro.gorjetas).toFixed(2);
+                } else if (type === 'despesa') {
+                    editBlocoReceita.style.display = 'none';
+                    editReceita.required = false;
+                    editBlocoDespesa.style.display = 'block';
+                    editDespesas.required = true; 
+                    editCategoriaDespesa.required = true; 
+                    editPlataformaContainer.style.display = 'none';
+                    editDespesas.value = parseFloat(registro.despesas).toFixed(2);
+                    editCategoriaDespesa.value = registro.categoriaDespesa || '';
+                }
+                editModal.show();
+            }
+        };
+
+        saveEditButton.addEventListener('click', () => {
+            const id = parseFloat(editRecordId.value);
+            const type = editRecordType.value;
+            let registros = carregarRegistros();
+            const index = registros.findIndex(r => r.id === id);
+
+            if (index !== -1) {
+                const registroOriginal = { ...registros[index] }; 
+                if (!editData.value) { alert('A data é obrigatória.'); return; }
+                
+                if (type === 'receita') {
+                    if (!editPlataforma.value) { alert('A plataforma é obrigatória para receitas.'); return; }
+                    if (editReceita.value === '' || parseFloat(editReceita.value) < 0) { alert('O valor da corrida é obrigatório e deve ser maior ou igual a zero para receitas.'); return; }
+                    registroOriginal.plataforma = editPlataforma.value; 
+                    registroOriginal.receita = parseFloat(editReceita.value);
+                    registroOriginal.gorjetas = parseFloat(editGorjetas.value || 0);
+                } else if (type === 'despesa') {
+                    if (editDespesas.value === '' || parseFloat(editDespesas.value) < 0) { alert('O valor total da despesa é obrigatório e deve ser maior ou igual a zero.'); return; }
+                    if (!editCategoriaDespesa.value.trim()) { alert('A categoria da despesa é obrigatória.'); return; }
+                    registroOriginal.plataforma = ''; 
+                    registroOriginal.despesas = parseFloat(editDespesas.value);
+                    registroOriginal.categoriaDespesa = editCategoriaDespesa.value.trim();
+                    registroOriginal.kmRodados = 0; 
+                    registroOriginal.combustivelLitros = 0;
+                }
+                
+                registroOriginal.data = editData.value;
+                registroOriginal.observacoes = editObservacoes.value.trim();
+                
+                registros[index] = registroOriginal;
+                salvarRegistros(registros);
+                editModal.hide();
+                renderizarRegistros();
+            }
+        });
+
+        const abrirModalExclusao = (id) => {
+            recordToDeleteId = id;
+            deleteConfirmModal.show();
+        };
+
+        confirmDeleteButton.addEventListener('click', () => {
+            if (recordToDeleteId !== null) {
+                let registros = carregarRegistros();
+                registros = registros.filter(r => r.id !== recordToDeleteId);
+                salvarRegistros(registros);
+                deleteConfirmModal.hide();
+                recordToDeleteId = null;
+                renderizarRegistros();
+            }
+        });
+
+        searchInput.addEventListener('input', renderizarRegistros);
+        filterType.addEventListener('change', renderizarRegistros);
+        
+        clearSearchButton.addEventListener('click', () => {
+            searchInput.value = '';
+            filterType.value = 'todos';
+            renderizarRegistros();
+        });
+
+        document.addEventListener('DOMContentLoaded', renderizarRegistros);
+    </script>
+</body>
+</html>

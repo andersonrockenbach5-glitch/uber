@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Adicionar Despesa - Controle Diário</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    :root {
+      --body-bg-start: #4F81BD;
+      --body-bg-end: #dc3545;
+      --card-bg-color: rgba(255, 255, 255, 0.9);
+      --card-border-color: rgba(0, 0, 0, 0.1);
+      --text-color-light: #ffffff;
+      --text-color-dark: #333333;
+      --shadow-subtle: 0 6px 20px rgba(0, 0, 0, 0.25);
+      --border-radius-card: 1.5rem;
+    }
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: linear-gradient(160deg, var(--body-bg-start) 0%, var(--body-bg-end) 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: var(--text-color-light);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 1.5rem;
+      box-sizing: border-box;
+    }
+
+    .top-nav-bar {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 1.5rem 0;
+      box-sizing: border-box;
+    }
+
+    .btn-nav {
+      background-color: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 0.7rem 1.5rem;
+      border-radius: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+      box-shadow: var(--shadow-subtle);
+    }
+
+    .btn-nav:hover {
+      background-color: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.5);
+      color: white;
+    }
+
+    header {
+      color: var(--text-color-light);
+      padding: 2rem 1rem;
+      text-align: center;
+      margin-top: 1rem;
+      width: 100%;
+      max-width: 800px;
+    }
+    
+    header h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .container {
+      max-width: 800px;
+      margin-bottom: 3rem;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      width: 100%;
+    }
+    
+    .card {
+      background-color: var(--card-bg-color);
+      border: 1px solid var(--card-border-color);
+      border-radius: var(--border-radius-card);
+      box-shadow: var(--shadow-subtle);
+      padding: 2rem;
+      color: var(--text-color-dark);
+    }
+
+    .section-card {
+      border: 1px solid #dee2e6;
+      border-radius: var(--border-radius-card);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      background-color: #f8f9fa;
+    }
+    .section-card h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    input, select {
+        color: var(--text-color-dark);
+    }
+    
+    footer {
+      text-align: center;
+      margin-top: auto;
+      padding: 1rem;
+      background-color: transparent;
+      color: var(--text-color-light);
+      opacity: 0.8;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 800px;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-nav-bar">
+      <a href="index.html" class="btn-nav"><i class="fas fa-home"></i> Home</a>
+  </div>
+
+  <header>
+    <h1 class="fw-bold">Adicionar Despesa</h1>
+    <p>Registre seus gastos diários</p>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <form id="despesaForm">
+        <div class="row">
+          <div class="col-md-12 form-group mb-3">
+            <label for="dataDespesa">Data</label>
+            <input type="date" class="form-control" id="dataDespesa" required>
+          </div>
+        </div>
+
+        <div class="section-card mt-3">
+          <h3>Detalhes da Despesa</h3>
+          <div class="row">
+            <div class="col-md-6 form-group">
+              <label for="valorDespesa">Valor Total (R$)</label>
+              <input type="number" step="0.01" class="form-control" id="valorDespesa" value="0.00" required>
+            </div>
+            <div class="col-md-6 form-group">
+              <label for="categoriaDespesa">Categoria</label>
+              <select class="form-select" id="categoriaDespesa" required>
+                <option value="">Selecione uma categoria</option>
+                <option value="Combustível">Combustível</option>
+                <option value="Manutenção">Manutenção</option>
+                <option value="Alimentação">Alimentação</option>
+                <option value="Estacionamento">Estacionamento</option>
+                <option value="Outros">Outros</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group mt-3">
+          <label for="observacoesDespesa">Observações</label>
+          <input type="text" class="form-control" id="observacoesDespesa" placeholder="Ex: Posto Ipiranga, Almoço na rua">
+        </div>
+
+        <button type="submit" class="btn btn-danger w-100 mt-4">Adicionar Despesa</button>
+        <button type="button" class="btn btn-secondary w-100 mt-2" onclick="window.location.href='selecao.html'">Voltar</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 - Anderson Rockenbach</p>
+  </footer>
+
+  <script src="firebase_init.js"></script>
+
+    <script>
+        // Agora você pode usar 'auth' e 'db' diretamente aqui
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUserId = user.uid;
+                // ... seu código que usa auth e db
+            } else {
+                // ...
+            }
+        });
+        // ... restante do seu código JavaScript
+    </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const despesaForm = document.getElementById('despesaForm');
+    const dataDespesa = document.getElementById('dataDespesa');
+    const valorDespesa = document.getElementById('valorDespesa');
+    const categoriaDespesa = document.getElementById('categoriaDespesa');
+    const observacoesDespesa = document.getElementById('observacoesDespesa');
+
+    dataDespesa.valueAsDate = new Date();
+
+    despesaForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      if (categoriaDespesa.value === "") {
+        alert("Por favor, selecione uma categoria para a despesa.");
+        return;
+      }
+
+      const registros = JSON.parse(localStorage.getItem('registros')) || [];
+
+      const novoRegistro = {
+        id: Date.now(),
+        tipo: 'despesa',
+        data: dataDespesa.value,
+        plataforma: '',
+        receita: 0,
+        gorjetas: 0,
+        despesas: parseFloat(valorDespesa.value),
+        categoriaDespesa: categoriaDespesa.value,
+        kmRodados: 0,
+        combustivelLitros: 0,
+        observacoes: observacoesDespesa.value.trim()
+      };
+
+      registros.push(novoRegistro);
+      localStorage.setItem('registros', JSON.stringify(registros));
+
+      alert('Despesa adicionada com sucesso!');
+      despesaForm.reset();
+      dataDespesa.valueAsDate = new Date();
+      valorDespesa.value = '0.00';
+      categoriaDespesa.value = '';
+    });
+  </script>
+</body>
+</html>

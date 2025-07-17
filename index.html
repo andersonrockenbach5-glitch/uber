@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle Financeiro Para Motoristas de Aplicativo</title> 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <script src="firebase_init.js"></script>
+
+    <script>
+        // Agora você pode usar 'auth' e 'db' diretamente aqui
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUserId = user.uid;
+                // ... seu código que usa auth e db
+            } else {
+                // ...
+            }
+        });
+        // ... restante do seu código JavaScript
+    </script>
+
+    <style>
+        :root {
+            /* Cores para o degradê de fundo */
+            --body-bg-start: #4F81BD;
+            --body-bg-end: #dc3545;
+
+            /* Cores para texto e ícones dos cards */
+            --card-text-color: #ffffff;
+            --card-text-muted: rgba(255, 255, 255, 0.7);
+
+            /* Cores de destaque para ícones dos cards e hover */
+            --accent-green: #28a745;
+            --accent-red: #dc3545;
+            --accent-blue: #007bff;
+            --accent-yellow: #ffc107;
+
+            --shadow-subtle: 0 6px 20px rgba(0, 0, 0, 0.25);
+            --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.5);
+            --border-radius-card: 1.5rem;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: linear-gradient(160deg, var(--body-bg-start) 0%, var(--body-bg-end) 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: white;
+            display: flex;
+            flex-direction: column; 
+            align-items: center;
+            padding: 0 2rem; 
+            box-sizing: border-box;
+        }
+
+        .top-bar-wrapper {
+            width: 100%;
+            max-width: 1300px; 
+            display: flex;
+            /* Alterado para alinhar mensagem e botão em lados opostos */
+            justify-content: space-between; 
+            align-items: center;
+            padding: 1.5rem 0; 
+            box-sizing: border-box;
+        }
+
+        /* Estilo para a mensagem de saudação */
+        #greetingMessage {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--card-text-color);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            /* Adicionado margin-right para espaçar um pouco do botão em telas grandes */
+            margin-right: auto; 
+        }
+
+        /* Estilos do botão de sair */
+        .btn-logout { /* Renomeado de btn-login para btn-logout para clareza */
+            background-color: rgba(255, 255, 255, 0.15); 
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .btn-logout:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white; 
+        }
+
+        .main-content-wrapper {
+            display: flex;
+            flex-direction: row; 
+            gap: 4rem; 
+            width: 100%;
+            max-width: 1300px; 
+            align-items: center; 
+            justify-content: center; 
+            flex-grow: 1; 
+            margin-bottom: 2.5rem; 
+            padding-top: 1.5rem; 
+        }
+
+        header {
+            text-align: left;
+            color: white;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+            flex: 1.2; 
+            min-width: 350px; 
+            padding: 1rem 0; 
+            box-sizing: border-box; 
+        }
+
+        header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 4rem; 
+            line-height: 1; 
+            margin-bottom: 0.8rem; 
+            letter-spacing: -1.5px; 
+            max-width: 600px; 
+            display: block; 
+        }
+
+        header p {
+            font-weight: 400;
+            font-size: 1.15rem; 
+            line-height: 1.4; 
+            opacity: 0.85; 
+            max-width: 400px; 
+            margin: 0; 
+        }
+
+        .selection-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 2.5rem; 
+            flex: 1.8; 
+            padding: 1rem 0; 
+            box-sizing: border-box; 
+        }
+
+        .action-card {
+            background-color: transparent;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--border-radius-card);
+            padding: 1.5rem 1rem; 
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--card-text-color);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .action-card:hover {
+            transform: translateY(-20px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card-receita:hover { background-color: rgba(40, 167, 69, 0.25); }
+        .card-despesa:hover { background-color: rgba(220, 53, 69, 0.25); }
+        .card-gerenciar:hover { background-color: rgba(0, 123, 255, 0.25); }
+        .card-estatistica:hover { background-color: rgba(255, 193, 7, 0.25); }
+
+        .action-card i {
+            font-size: 4rem;
+            margin-bottom: 0.8rem; 
+            color: var(--card-text-color);
+            transition: color 0.3s ease;
+        }
+        .action-card.card-receita:hover i { color: var(--accent-green); }
+        .action-card.card-despesa:hover i { color: var(--accent-red); }
+        .action-card.card-gerenciar:hover i { color: var(--accent-blue); }
+        .action-card.card-estatistica:hover i { color: var(--accent-yellow); }
+
+        .action-card h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 1.8rem;
+            margin-bottom: 0.4rem; 
+            color: var(--card-text-color);
+        }
+
+        .action-card p {
+            font-size: 0.95rem; 
+            line-height: 1.4;
+            color: var(--card-text-muted);
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem 0;
+            color: white;
+            opacity: 0.8;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            margin-top: auto; 
+            width: 100%;
+            max-width: 1200px; 
+        }
+
+        /* Responsividade para tablets e desktops menores */
+        @media (max-width: 992px) {
+            .top-bar-wrapper {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            #greetingMessage {
+                margin-bottom: 10px; /* Espaço entre saudação e botão em telas menores */
+            }
+            .btn-logout {
+                width: 100%; /* Botão ocupa a largura total */
+            }
+            .main-content-wrapper {
+                flex-direction: column; 
+                gap: 3rem; 
+                align-items: center; 
+                margin-bottom: 2.5rem;
+                padding-top: 1rem; 
+            }
+
+            header {
+                text-align: center; 
+                max-width: 80%; 
+                min-width: unset; 
+                margin-bottom: 2.5rem; 
+                padding: 0 1rem;
+            }
+
+            header h1 {
+                font-size: 3.2rem; 
+                letter-spacing: -1px;
+            }
+
+            header p {
+                font-size: 1.1rem; 
+                max-width: 90%;
+            }
+
+            .selection-grid {
+                padding: 0; 
+                margin-bottom: 2.5rem;
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+                gap: 1.8rem; 
+            }
+            .action-card {
+                padding: 1.5rem 0.8rem; 
+            }
+            .action-card i {
+                font-size: 3.5rem; 
+            }
+            .action-card h3 {
+                font-size: 1.6rem; 
+            }
+        }
+
+        /* Responsividade para celulares */
+        @media (max-width: 768px) {
+            body {
+                padding: 0 1rem; 
+            }
+            .top-bar-wrapper {
+                padding: 0.8rem 0; 
+            }
+            .btn-logout {
+                padding: 0.6rem 1.2rem; 
+                font-size: 0.9rem;
+            }
+            .main-content-wrapper {
+                padding-top: 0.8rem; 
+            }
+            header h1 {
+                font-size: 2.5rem; 
+                line-height: 1.1; 
+                letter-spacing: -0.5px;
+            }
+            header p {
+                font-size: 0.95rem; 
+                max-width: 90%; 
+            }
+            .selection-grid {
+                gap: 1.2rem; 
+            }
+            .action-card {
+                padding: 1.2rem 0.6rem; 
+            }
+            .action-card i {
+                font-size: 2.8rem;
+            }
+            .action-card h3 {
+                font-size: 1.4rem;
+            }
+            .action-card p {
+                font-size: 0.85rem;
+            }
+            footer {
+                padding: 1rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar-wrapper">
+        <span id="greetingMessage"></span> <button id="logoutButton" class="btn-logout">
+            <i class="fas fa-sign-out-alt me-2"></i>Sair
+        </button>
+    </div>
+
+    <div class="main-content-wrapper">
+        <header>
+            <h1 class="fw-bold">Controle Financeiro Para<br>Motoristas de Aplicativo</h1>
+            <p>Sua plataforma completa para gerenciar ganhos e gastos de forma simples e eficiente, feita para quem roda com Uber e 99.</p>
+        </header>
+
+        <div class="selection-grid">
+            <a href="receitas.html" class="action-card card-receita">
+                <i class="fas fa-dollar-sign"></i> 
+                <h3>Adicionar Receita</h3>
+                <p>Registre seus valores recebidos e gorjetas diárias rapidamente.</p>
+            </a>
+
+            <a href="despesas.html" class="action-card card-despesa">
+                <i class="fas fa-hand-holding-dollar"></i> 
+                <h3>Registrar Despesa</h3>
+                <p>Categorize e adicione todos os seus gastos de forma organizada.</p>
+            </a>
+
+            <a href="gerenciar_registros.html" class="action-card card-gerenciar">
+                <i class="fas fa-list-check"></i> 
+                <h3>Gerenciar Registros</h3>
+                <p>Visualize, edite e organize todos os seus lançamentos financeiros.</p>
+            </a>
+
+            <a href="estatistica.html" class="action-card card-estatistica">
+                <i class="fas fa-chart-line"></i> 
+                <h3>Ver Estatísticas</h3>
+                <p>Acompanhe seu desempenho financeiro com gráficos e insights valiosos.</p>
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 - Anderson Rockenbach - Todos os direitos reservados.</p>
+        <p>Desenvolvido com foco na sua gestão financeira.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+       
+        // Elementos do DOM
+        const logoutButton = document.getElementById('logoutButton');
+        const greetingMessage = document.getElementById('greetingMessage');
+
+        // **FUNCIONALIDADE DE LOGOUT**
+        if (logoutButton) {
+            logoutButton.addEventListener('click', async () => {
+                try {
+                    await auth.signOut();
+                    alert('Logout realizado com sucesso!');
+                    window.location.href = 'login.html'; 
+                } catch (error) {
+                    console.error('Erro ao fazer logout:', error);
+                    alert('Erro ao fazer logout: ' + error.message);
+                }
+            });
+        }
+        
+        // **FUNCIONALIDADE DE SAUDAÇÃO E PROTEÇÃO DE PÁGINA**
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // Usuário está logado
+                console.log('Usuário logado:', user.email, 'UID:', user.uid);
+                
+                // Buscar o primeiro nome no Firestore
+                try {
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        if (userData.firstName) {
+                            greetingMessage.textContent = `Olá, ${userData.firstName}!`;
+                        } else {
+                            // Se não tiver firstName no Firestore, mostra o email (ou "Usuário")
+                            greetingMessage.textContent = `Olá, ${user.email.split('@')[0]}!`;
+                            console.warn("Primeiro nome não encontrado no Firestore para o usuário:", user.uid);
+                        }
+                    } else {
+                        // Caso o documento do usuário não exista (muito raro se o registro foi via app)
+                        greetingMessage.textContent = `Olá, Usuário!`;
+                        console.warn("Documento do usuário não encontrado no Firestore para o UID:", user.uid);
+                    }
+                } catch (error) {
+                    console.error("Erro ao buscar dados do usuário no Firestore:", error);
+                    greetingMessage.textContent = `Olá, Usuário!`; // Fallback em caso de erro
+                }
+                
+            } else {
+                // Usuário NÃO está logado, (anteriormente redirecionava para a página de login)
+                console.log('Nenhum usuário logado. Redirecionando para login.html');
+                // IMPORTANTE: Mantenha esta linha comentada temporariamente para depuração, se necessário.
+                // Mas o objetivo final é DESCOMENTAR para proteção da página.
+                window.location.href = 'login.html'; 
+            }
+        });
+    </script>
+</body>
+</html>

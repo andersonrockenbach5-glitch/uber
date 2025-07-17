@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Adicionar Receita - Controle Diário</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --body-bg-start: #4F81BD;
+            --body-bg-end: #dc3545;
+            --card-bg-color: rgba(255, 255, 255, 0.9);
+            --card-border-color: rgba(0, 0, 0, 0.1);
+            --text-color-light: #ffffff;
+            --text-color-dark: #333333;
+            --shadow-subtle: 0 6px 20px rgba(0, 0, 0, 0.25);
+            --border-radius-card: 1.5rem;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: linear-gradient(160deg, var(--body-bg-start) 0%, var(--body-bg-end) 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text-color-light);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 1.5rem;
+            box-sizing: border-box;
+        }
+
+        .top-nav-bar {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 1.5rem 0;
+            box-sizing: border-box;
+        }
+
+        .btn-nav {
+            background-color: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .btn-nav:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+        }
+
+        header {
+            color: var(--text-color-light);
+            padding: 2rem 1rem;
+            text-align: center;
+            margin-top: 1rem;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .container {
+            max-width: 800px;
+            margin-bottom: 3rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .card {
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--card-border-color);
+            border-radius: var(--border-radius-card);
+            box-shadow: var(--shadow-subtle);
+            padding: 2rem;
+            color: var(--text-color-dark);
+        }
+
+        .section-card {
+            border: 1px solid #dee2e6;
+            border-radius: var(--border-radius-card);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background-color: #f8f9fa;
+        }
+        .section-card h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: auto;
+            padding: 1rem;
+            background-color: transparent;
+            color: var(--text-color-light);
+            opacity: 0.8;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 800px;
+        }
+
+        /* Estilos para o Modal de Mensagens */
+        .custom-modal-header {
+            background-color: var(--body-bg-start);
+            color: var(--text-color-light);
+            border-bottom: none;
+            border-top-left-radius: calc(var(--border-radius-card) - 0.5rem);
+            border-top-right-radius: calc(var(--border-radius-card) - 0.5rem);
+        }
+
+        .custom-modal-body {
+            color: var(--text-color-dark);
+        }
+
+        .custom-modal-footer {
+            border-top: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-nav-bar">
+        <a href="index.html" class="btn-nav"><i class="fas fa-home"></i> Home</a>
+    </div>
+
+    <header>
+        <h1 class="fw-bold">Adicionar Receita</h1>
+        <p>Registe os seus ganhos diários</p>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <form id="receitaForm">
+                <div class="row">
+                    <div class="col-md-6 form-group mb-3">
+                        <label for="dataReceita">Data</label>
+                        <input type="date" class="form-control" id="dataReceita" required>
+                    </div>
+                    <div class="col-md-6 form-group mb-3">
+                        <label for="plataforma">Plataforma</label>
+                        <select class="form-select" id="plataforma" required>
+                            <option value="Uber">Uber</option>
+                            <option value="99">99</option>
+                            <option value="Outra">Outra</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section-card mt-3">
+                    <h3>Detalhes da Receita</h3>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label for="valorCorrida">Valor Recebido (R$)</label>
+                            <input type="number" step="0.01" class="form-control" id="valorCorrida" value="0.00" required>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="gorjetas">Gorjetas (R$)</label>
+                            <input type="number" step="0.01" class="form-control" id="gorjetas" value="0.00">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="observacoesReceita">Observações</label>
+                    <input type="text" class="form-control" id="observacoesReceita" placeholder="Ex: Corrida longa, Horário de pico">
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 mt-4">Adicionar Receita</button>
+                <button type="button" class="btn btn-secondary w-100 mt-2" onclick="window.location.href='index.html'">Voltar</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 - Anderson Rockenbach</p>
+    </footer>
+
+    <!-- Modal de Mensagens Personalizado -->
+    <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content rounded-4 shadow">
+                <div class="modal-header custom-modal-header">
+                    <h5 class="modal-title" id="messageModalLabel">Mensagem</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body custom-modal-body" id="messageModalBody">
+                    <!-- Conteúdo da mensagem aqui -->
+                </div>
+                <div class="modal-footer custom-modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="firebase_init.js"></script>
+
+    <script>
+        // Agora você pode usar 'auth' e 'db' diretamente aqui
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUserId = user.uid;
+                // ... seu código que usa auth e db
+            } else {
+                // ...
+            }
+        });
+        // ... restante do seu código JavaScript
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+    
+        // Elementos do formulário
+        const receitaForm = document.getElementById('receitaForm');
+        const dataReceita = document.getElementById('dataReceita');
+        const plataforma = document.getElementById('plataforma');
+        const valorCorrida = document.getElementById('valorCorrida');
+        const gorjetas = document.getElementById('gorjetas');
+        const observacoesReceita = document.getElementById('observacoesReceita');
+
+        // Elementos do modal de mensagens
+        const messageModal = new bootstrap.Modal(document.getElementById('messageModal'));
+        const messageModalBody = document.getElementById('messageModalBody');
+
+        /**
+         * Exibe uma mensagem num modal personalizado.
+         * @param {string} message - A mensagem a ser exibida.
+         */
+        function showMessageModal(message) {
+            messageModalBody.textContent = message;
+            messageModal.show();
+        }
+
+        // Define a data atual como padrão no campo de data
+        dataReceita.valueAsDate = new Date();
+
+        // Listener para o envio do formulário
+        receitaForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Previne o comportamento padrão de envio do formulário
+
+            try {
+                const userId = auth.currentUser?.uid || crypto.randomUUID(); // Obtém o UID do utilizador ou gera um ID aleatório
+
+                // Cria o novo objeto de registo de receita
+                const novoRegistro = {
+                    tipo: 'receita',
+                    data: dataReceita.value,
+                    plataforma: plataforma.value,
+                    receita: parseFloat(valorCorrida.value),
+                    gorjetas: parseFloat(gorjetas.value || 0),
+                    despesas: 0, // Receita não tem despesa
+                    categoriaDespesa: '', // Receita não tem categoria de despesa
+                    kmRodados: 0, // Não aplicável para receita neste formulário
+                    combustivelLitros: 0, // Não aplicável para receita neste formulário
+                    observacoes: observacoesReceita.value.trim(),
+                    // Adiciona o userId para associar o registo ao utilizador
+                    userId: userId,
+                    createdAt: new Date() // Carimbo de data/hora para ordenação e auditoria
+                };
+
+                // Adiciona o documento à coleção 'registros' sob o caminho do utilizador
+                const docRef = await addDoc(collection(db, `artifacts/${appId}/users/${userId}/registros`), novoRegistro);
+                
+                showMessageModal('Receita adicionada com sucesso!');
+                receitaForm.reset(); // Limpa o formulário
+                dataReceita.valueAsDate = new Date(); // Redefine a data para hoje
+                valorCorrida.value = '0.00'; // Redefine o valor da corrida
+                gorjetas.value = '0.00'; // Redefine gorjetas
+            } catch (error) {
+                console.error('Erro ao adicionar receita:', error);
+                showMessageModal(`Erro ao adicionar receita: ${error.message}`);
+            }
+        });
+    </script>
+</body>
+</html>
