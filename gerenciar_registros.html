@@ -131,6 +131,8 @@
     </header>
 
     <div class="container">
+        <div id="statusMessage" class="alert d-none mt-3" role="alert"></div>
+
         <div class="card p-4 mb-4">
             <h3 class="mb-3">Filtrar Registros</h3>
             <div class="search-controls d-flex gap-2 mb-3 flex-wrap">
@@ -153,7 +155,7 @@
                         <tr>
                             <th>Data</th>
                             <th>Plataforma</th>
-                            <th>Valor Corrida (R$)</th>
+                            <th>Valor Recebido (R$)</th>
                             <th>Gorjetas (R$)</th>
                             <th>Observações</th>
                             <th>Ações</th>
@@ -185,7 +187,6 @@
         </div>
     </div>
 
-    <!-- Edit Modal -->
     <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -216,7 +217,7 @@
                             <h5>Receitas</h5>
                             <div class="row">
                                 <div class="col-md-6 form-group">
-                                    <label for="editReceita">Valor da Corrida (R$)</label>
+                                    <label for="editReceita">Valor Recebido (R$)</label>
                                     <input type="number" step="0.01" class="form-control" id="editReceita" value="0.00" required>
                                 </div>
                                 <div class="col-md-6 form-group">
@@ -261,7 +262,6 @@
         </div>
     </div>
 
-    <!-- Delete Modal -->
     <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -284,22 +284,14 @@
         <p>&copy; 2025 - Anderson Rockenbach</p>
     </footer>
 
-    <script src="firebase_init.js"></script>
-
-    <script>
-        // Agora você pode usar 'auth' e 'db' diretamente aqui
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                currentUserId = user.uid;
-                // ... seu código que usa auth e db
-            } else {
-                // ...
-            }
-        });
-        // ... restante do seu código JavaScript
-    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+    <script type="module">
+        // Importar módulos do Firebase
+        import { auth, db, appId } from './firebase_init.js';
+        import { collection, getDocs, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js';
+
+        let currentUserId = null;
+
         const receitasTableBody = document.getElementById('receitasTableBody');
         const despesasTableBody = document.getElementById('despesasTableBody');
         const noReceitasMessage = document.getElementById('noReceitasMessage');
@@ -333,6 +325,17 @@
         const confirmDeleteButton = document.getElementById('confirmDeleteButton');
         let recordToDeleteId = null;
 
+        const statusMessageDiv = document.getElementById('statusMessage');
+
+        const displayStatusMessage = (message, type) => {
+            statusMessageDiv.textContent = message;
+            statusMessageDiv.classList.remove('d-none', 'alert-success', 'alert-danger', 'alert-warning', 'alert-info');
+            statusMessageDiv.classList.add(`alert-${type}`);
+            setTimeout(() => {
+                statusMessageDiv.classList.add('d-none');
+            }, 5000); // Mensagem some após 5 segundos
+        };
+
         const formatarMoeda = (valor) => `R$ ${parseFloat(valor).toFixed(2).replace('.', ',')}`;
         const formatarData = (dataString) => {
             if (!dataString) return 'N/A';
@@ -340,29 +343,29 @@
             return `${dia}/${mes}/${ano}`;
         };
 
-        const carregarRegistros = () => {
-            const registros = JSON.parse(localStorage.getItem('registros')) || [];
-            return registros.map(registro => ({
-                id: registro.id || Date.now() + Math.random(),
-                tipo: registro.tipo || 'receita',
-                data: registro.data || '',
-                plataforma: registro.plataforma || '',
-                receita: parseFloat(registro.receita || 0),
-                gorjetas: parseFloat(registro.gorjetas || 0),
-                despesas: parseFloat(registro.despesas || 0),
-                categoriaDespesa: registro.categoriaDespesa || '',
-                kmRodados: parseFloat(registro.kmRodados || 0),
-                combustivelLitros: parseFloat(registro.combustivelLitros || 0),
-                observacoes: registro.observacoes || ''
-            })).sort((a, b) => new Date(b.data) - new Date(a.data));
+        const carregarRegistros = async () => {
+            if (!currentUserId) {
+                console.warn('currentUserId não está disponível. Não é possível carregar registros.');
+                return [];
+            }
+            try {
+                const registrosCol = collection(db, 'artifacts', appId, 'users', currentUserId, 'registros');
+                const registroSnapshot = await getDocs(registrosCol);
+                const registrosList = registroSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                // Ordenar por data mais recente
+                return registrosList.sort((a, b) => new Date(b.data) - new Date(a.data));
+            } catch (error) {
+                console.error('Erro ao carregar registros:', error);
+                displayStatusMessage('Erro ao carregar registros. Tente novamente.', 'danger');
+                return [];
+            }
         };
 
-        const salvarRegistros = (registros) => {
-            localStorage.setItem('registros', JSON.stringify(registros));
-        };
-
-        const renderizarRegistros = () => {
-            const todosRegistros = carregarRegistros();
+        const renderizarRegistros = async () => {
+            const todosRegistros = await carregarRegistros();
             const searchTerm = searchInput.value.toLowerCase().trim();
             const selectedType = filterType.value;
 
@@ -441,7 +444,7 @@
         const adicionarListenersAcoes = () => {
             document.querySelectorAll('.edit-btn').forEach(button => {
                 button.addEventListener('click', (event) => {
-                    const id = parseFloat(event.target.dataset.id);
+                    const id = event.target.dataset.id; // Firestore ID é string
                     const type = event.target.dataset.type;
                     abrirModalEdicao(id, type);
                 });
@@ -449,14 +452,14 @@
 
             document.querySelectorAll('.delete-btn').forEach(button => {
                 button.addEventListener('click', (event) => {
-                    const id = parseFloat(event.target.dataset.id);
+                    const id = event.target.dataset.id; // Firestore ID é string
                     abrirModalExclusao(id);
                 });
             });
         };
 
-        const abrirModalEdicao = (id, type) => {
-            const registros = carregarRegistros();
+        const abrirModalEdicao = async (id, type) => {
+            const registros = await carregarRegistros();
             const registro = registros.find(r => r.id === id);
 
             if (registro) {
@@ -473,8 +476,8 @@
                     editCategoriaDespesa.required = false;
                     editPlataformaContainer.style.display = 'block'; 
                     editPlataforma.value = registro.plataforma || 'Outra';
-                    editReceita.value = parseFloat(registro.receita).toFixed(2);
-                    editGorjetas.value = parseFloat(registro.gorjetas).toFixed(2);
+                    editReceita.value = parseFloat(registro.receita || 0).toFixed(2);
+                    editGorjetas.value = parseFloat(registro.gorjetas || 0).toFixed(2);
                 } else if (type === 'despesa') {
                     editBlocoReceita.style.display = 'none';
                     editReceita.required = false;
@@ -482,62 +485,102 @@
                     editDespesas.required = true; 
                     editCategoriaDespesa.required = true; 
                     editPlataformaContainer.style.display = 'none';
-                    editDespesas.value = parseFloat(registro.despesas).toFixed(2);
+                    editDespesas.value = parseFloat(registro.despesas || 0).toFixed(2);
                     editCategoriaDespesa.value = registro.categoriaDespesa || '';
                 }
                 editModal.show();
+            } else {
+                displayStatusMessage('Registro não encontrado para edição.', 'danger');
             }
         };
 
-        saveEditButton.addEventListener('click', () => {
-            const id = parseFloat(editRecordId.value);
+        saveEditButton.addEventListener('click', async () => {
+            const id = editRecordId.value; // Firestore ID é string
             const type = editRecordType.value;
-            let registros = carregarRegistros();
-            const index = registros.findIndex(r => r.id === id);
+            
+            try {
+                if (!editData.value) { 
+                    displayStatusMessage('A data é obrigatória.', 'warning'); 
+                    return; 
+                }
 
-            if (index !== -1) {
-                const registroOriginal = { ...registros[index] }; 
-                if (!editData.value) { alert('A data é obrigatória.'); return; }
+                const docRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'registros', id);
+                let updateData = {
+                    data: editData.value,
+                    observacoes: editObservacoes.value.trim()
+                };
                 
                 if (type === 'receita') {
-                    if (!editPlataforma.value) { alert('A plataforma é obrigatória para receitas.'); return; }
-                    if (editReceita.value === '' || parseFloat(editReceita.value) < 0) { alert('O valor da corrida é obrigatório e deve ser maior ou igual a zero para receitas.'); return; }
-                    registroOriginal.plataforma = editPlataforma.value; 
-                    registroOriginal.receita = parseFloat(editReceita.value);
-                    registroOriginal.gorjetas = parseFloat(editGorjetas.value || 0);
+                    if (!editPlataforma.value) { 
+                        displayStatusMessage('A plataforma é obrigatória para receitas.', 'warning'); 
+                        return; 
+                    }
+                    const receitaVal = parseFloat(editReceita.value);
+                    if (isNaN(receitaVal) || receitaVal < 0) { 
+                        displayStatusMessage('O valor da corrida é obrigatório e deve ser maior ou igual a zero para receitas.', 'warning'); 
+                        return; 
+                    }
+                    const gorjetasVal = parseFloat(editGorjetas.value || 0);
+                    if (isNaN(gorjetasVal) || gorjetasVal < 0) {
+                        displayStatusMessage('As gorjetas devem ser maior ou igual a zero.', 'warning');
+                        return;
+                    }
+
+                    Object.assign(updateData, {
+                        plataforma: editPlataforma.value, 
+                        receita: receitaVal,
+                        gorjetas: gorjetasVal,
+                        despesas: 0, // Zera campos de despesa para receita
+                        categoriaDespesa: '',
+                    });
                 } else if (type === 'despesa') {
-                    if (editDespesas.value === '' || parseFloat(editDespesas.value) < 0) { alert('O valor total da despesa é obrigatório e deve ser maior ou igual a zero.'); return; }
-                    if (!editCategoriaDespesa.value.trim()) { alert('A categoria da despesa é obrigatória.'); return; }
-                    registroOriginal.plataforma = ''; 
-                    registroOriginal.despesas = parseFloat(editDespesas.value);
-                    registroOriginal.categoriaDespesa = editCategoriaDespesa.value.trim();
-                    registroOriginal.kmRodados = 0; 
-                    registroOriginal.combustivelLitros = 0;
+                    const despesasVal = parseFloat(editDespesas.value);
+                    if (isNaN(despesasVal) || despesasVal < 0) { 
+                        displayStatusMessage('O valor total da despesa é obrigatório e deve ser maior ou igual a zero.', 'warning'); 
+                        return; 
+                    }
+                    if (!editCategoriaDespesa.value.trim()) { 
+                        displayStatusMessage('A categoria da despesa é obrigatória.', 'warning'); 
+                        return; 
+                    }
+
+                    Object.assign(updateData, {
+                        plataforma: '', // Zera campos de receita para despesa
+                        receita: 0,
+                        gorjetas: 0,
+                        despesas: despesasVal,
+                        categoriaDespesa: editCategoriaDespesa.value.trim(),
+                    });
                 }
                 
-                registroOriginal.data = editData.value;
-                registroOriginal.observacoes = editObservacoes.value.trim();
-                
-                registros[index] = registroOriginal;
-                salvarRegistros(registros);
+                await updateDoc(docRef, updateData);
+                displayStatusMessage('Registro atualizado com sucesso!', 'success');
                 editModal.hide();
                 renderizarRegistros();
+            } catch (error) {
+                console.error('Erro ao salvar edição:', error);
+                displayStatusMessage('Erro ao salvar as mudanças. Tente novamente.', 'danger');
             }
         });
 
         const abrirModalExclusao = (id) => {
-            recordToDeleteId = id;
+            recordToDeleteId = id; // Firestore ID é string
             deleteConfirmModal.show();
         };
 
-        confirmDeleteButton.addEventListener('click', () => {
-            if (recordToDeleteId !== null) {
-                let registros = carregarRegistros();
-                registros = registros.filter(r => r.id !== recordToDeleteId);
-                salvarRegistros(registros);
-                deleteConfirmModal.hide();
-                recordToDeleteId = null;
-                renderizarRegistros();
+        confirmDeleteButton.addEventListener('click', async () => {
+            if (recordToDeleteId) {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'registros', recordToDeleteId);
+                    await deleteDoc(docRef);
+                    displayStatusMessage('Registro excluído com sucesso!', 'success');
+                    deleteConfirmModal.hide();
+                    recordToDeleteId = null;
+                    renderizarRegistros();
+                } catch (error) {
+                    console.error('Erro ao excluir registro:', error);
+                    displayStatusMessage('Erro ao excluir o registro. Tente novamente.', 'danger');
+                }
             }
         });
 
@@ -550,7 +593,16 @@
             renderizarRegistros();
         });
 
-        document.addEventListener('DOMContentLoaded', renderizarRegistros);
+        // Autenticação e carregamento inicial
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUserId = user.uid;
+                renderizarRegistros(); // Carrega registros após o usuário estar logado
+            } else {
+                // Redireciona para a página de login se não houver usuário logado
+                window.location.href = 'login.html'; 
+            }
+        });
     </script>
 </body>
 </html>

@@ -393,7 +393,62 @@
         // ... restante do seu código JavaScript
     </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
+  <script type="module"> // Mudei para type="module" para usar import/export do Firebase
+            import { collection, query, getDocs, orderBy } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js'; // Importação explícita
+            import { auth, db, firebaseConfig } from './firebase_init.js'; // Importa de firebase_init.js
+
+        let currentUserId = null;
+        let appId = firebaseConfig.appId; // Definir appId aqui ou passá-lo para firebase_init.js
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUserId = user.uid;
+                console.log('Usuário logado em estatistica.html:', currentUserId);
+                // Chame as funções de inicialização dos gráficos APÓS o usuário estar logado
+                popularSeletoresAno();
+                const currentMonth = new Date().getMonth();
+                const currentYear = new Date().getFullYear();
+
+                filtroMes.value = currentMonth;
+                filtroMesResumoMensal.value = currentMonth;
+                filtroMesTabela.value = currentMonth;
+
+                filtroAnoMensal.value = currentYear;
+                filtroAnoAnual.value = currentYear;
+                filtroAnoResumoMensal.value = currentYear;
+                filtroAnoTabela.value = currentYear;
+
+                alternarSeletoresFiltro();
+                atualizarGraficos(); // Esta função agora lida com o carregamento e passa para as outras
+            } else {
+                console.log('Nenhum usuário logado em estatistica.html. Redirecionando...');
+                window.location.href = 'login.html';
+            }
+        });
+
+        const carregarRegistros = async () => {
+            if (!currentUserId) return [];
+            try {
+                const registrosRef = collection(db, `artifacts/${appId}/users/${currentUserId}/registros`);
+                const q = query(registrosRef, orderBy('data', 'desc'), orderBy('createdAt', 'desc'));
+                const querySnapshot = await getDocs(q);
+                const registros = [];
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    registros.push({ 
+                        id: doc.id, 
+                        ...data,
+                        // Converter a string de data para objeto Date no momento do carregamento
+                        data: data.data ? new Date(data.data + 'T00:00:00') : new Date() // Garantir que 'data' é um objeto Date
+                    });
+                });
+                return registros;
+            } catch (error) {
+                console.error('Erro ao carregar registros do Firestore para estatísticas:', error);
+                return [];
+            }
+        };
+
     Chart.defaults.color = '#333';
     Chart.defaults.borderColor = 'rgba(0, 0, 0, 0.1)';
 
@@ -402,7 +457,6 @@
     const filtroMes = document.getElementById('filtroMes');
     const filtroAnoMensal = document.getElementById('filtroAnoMensal');
 
-    // Elementos de filtro Semanal e Diário agora não são mais usados no filtro principal
     const opcoesFiltroSemanal = document.getElementById('opcoesFiltroSemanal'); 
     const opcoesFiltroAnual = document.getElementById('opcoesFiltroAnual');
     const filtroAnoAnual = document.getElementById('filtroAnoAnual');
@@ -412,7 +466,6 @@
     const gastosContainer = document.getElementById('gastosContainer');
     const plataformaContainer = document.getElementById('plataformaContainer');
 
-    // Elementos para o card de Resumo Mensal
     const filtroMesResumoMensal = document.getElementById('filtroMesResumoMensal');
     const filtroAnoResumoMensal = document.getElementById('filtroAnoResumoMensal');
     const totalReceitaMensalElement = document.getElementById('totalReceitaMensal');
@@ -420,14 +473,11 @@
     const totalLucroMensalElement = document.getElementById('totalLucroMensal');
     const diasTrabalhadosMensalElement = document.getElementById('diasTrabalhadosMensal'); 
 
-    // Elementos para a tabela de resumo diário
     const filtroMesTabela = document.getElementById('filtroMesTabela');
     const filtroAnoTabela = document.getElementById('filtroAnoTabela');
-    const dailySummaryTableBody = document.getElementById('dailySummaryTableBody'); // ATUALIZADO
+    const dailySummaryTableBody = document.getElementById('dailySummaryTableBody');
     const noDataTabela = document.getElementById('noDataTabela');
 
-
-    // Elementos para as mensagens de "Nenhum dado"
     const noDataReceitaLucro = document.getElementById('noDataReceitaLucro');
     const noDataGastos = document.getElementById('noDataGastos');
     const noDataPlataforma = document.getElementById('noDataPlataforma');
@@ -437,7 +487,6 @@
     let graficoPlataforma = null;
     let graficoGastos = null;
 
-    // Paleta de cores para categorias de gastos (tons de vermelho/laranja/neutros)
     const categoryColors = [
         '#dc3545', // Vermelho principal (despesas)
         '#fd7e14', // Laranja
@@ -453,22 +502,8 @@
 
     const formatarMoeda = (valor) => `R$ ${parseFloat(valor).toFixed(2).replace('.', ',')}`;
 
-    function obterDadosLocalStorage() {
-      const registros = JSON.parse(localStorage.getItem('registros')) || [];
-      return registros.map(item => {
-        const date = new Date(item.data + 'T00:00:00'); 
-        return {
-          ...item,
-          receita: parseFloat(item.receita || 0),
-          gorjetas: parseFloat(item.gorjetas || 0),
-          despesas: parseFloat(item.despesas || 0),
-          data: date
-        };
-      });
-    }
-
-    function obterAnosDisponiveis() {
-        const registros = obterDadosLocalStorage();
+    // Esta função agora recebe os registros já carregados do Firebase
+    function obterAnosDisponiveis(registros) {
         const anos = new Set();
         registros.forEach(r => anos.add(r.data.getFullYear()));
         const anosOrdenados = Array.from(anos).sort((a, b) => b - a); 
@@ -480,8 +515,9 @@
         return anosOrdenados;
     }
 
-    function popularSeletoresAno() {
-        const anos = obterAnosDisponiveis();
+    // popularSeletoresAno agora é chamado dentro de atualizarGraficos
+    function popularSeletoresAnoComRegistros(registros) {
+        const anos = obterAnosDisponiveis(registros);
         const anoAtual = new Date().getFullYear();
 
         [filtroAnoMensal, filtroAnoAnual, filtroAnoResumoMensal, filtroAnoTabela].forEach(seletorAno => {
@@ -496,8 +532,8 @@
         });
     }
 
-    function agruparDadosPorPeriodo() {
-        const registrosComData = obterDadosLocalStorage();
+    // Esta função agora recebe os registros já carregados do Firebase
+    function agruparDadosPorPeriodo(registros) {
         const dadosAgrupados = {};
         
         const periodoSelecionado = filtroPeriodo.value;
@@ -511,7 +547,7 @@
         let registrosFiltrados = [];
 
         if (periodoSelecionado === 'mensal') {
-            registrosFiltrados = registrosComData.filter(({ data }) =>
+            registrosFiltrados = registros.filter(({ data }) =>
                 data.getMonth() === mesSelecionado && data.getFullYear() === anoMensalSelecionado
             );
             const diasNoMes = new Date(anoMensalSelecionado, mesSelecionado + 1, 0).getDate();
@@ -519,7 +555,7 @@
                 labelsParaGrafico.push(String(i).padStart(2, '0'));
             }
         } else if (periodoSelecionado === 'anual') {
-            registrosFiltrados = registrosComData.filter(({ data }) =>
+            registrosFiltrados = registros.filter(({ data }) =>
                 data.getFullYear() === anoAnualSelecionado
             );
             labelsParaGrafico = mesesAno;
@@ -539,8 +575,8 @@
         };
 
         registrosFiltrados.forEach(({ data, receita, gorjetas, despesas, plataforma, categoriaDespesa }) => {
-            const lucro = (receita + gorjetas) - despesas; 
-            const receitaTotalDia = receita + gorjetas; 
+            const lucro = (parseFloat(receita || 0) + parseFloat(gorjetas || 0)) - parseFloat(despesas || 0); 
+            const receitaTotalDia = parseFloat(receita || 0) + parseFloat(gorjetas || 0); 
             let chave;
 
             if (periodoSelecionado === 'mensal') {
@@ -552,8 +588,8 @@
             if (dadosAgrupados[chave]) {
                 dadosAgrupados[chave].receita += receitaTotalDia; 
                 dadosAgrupados[chave].lucro += lucro;
-                dadosAgrupados[chave].gorjetas += gorjetas; 
-                dadosAgrupados[chave].despesas += despesas;
+                dadosAgrupados[chave].gorjetas += parseFloat(gorjetas || 0); 
+                dadosAgrupados[chave].despesas += parseFloat(despesas || 0);
                 if (plataforma === 'Uber' || plataforma === '99') dadosAgrupados[chave].plataformas[plataforma]++;
 
                 if (categoriaDespesa) {
@@ -565,7 +601,7 @@
                     if (!dadosAgrupados[chave].categorias[categoriaKey]) {
                         dadosAgrupados[chave].categorias[categoriaKey] = 0;
                     }
-                    dadosAgrupados[chave].categorias[categoriaKey] += despesas;
+                    dadosAgrupados[chave].categorias[categoriaKey] += parseFloat(despesas || 0);
                 }
             }
         });
@@ -573,14 +609,13 @@
         return { dados: dadosAgrupados, labels: labelsParaGrafico };
     }
 
-    function calcularResumoMensal() {
-        const registros = obterDadosLocalStorage();
+    // Esta função agora recebe os registros já carregados do Firebase
+    function calcularResumoMensal(registros) {
         const mesSelecionado = parseInt(filtroMesResumoMensal.value);
         const anoSelecionado = parseInt(filtroAnoResumoMensal.value);
 
         let totalReceita = 0;
         let totalDespesas = 0;
-        let totalLucro = 0;
         const diasTrabalhados = new Set(); 
 
         const registrosMensais = registros.filter(registro =>
@@ -589,16 +624,16 @@
         );
 
         registrosMensais.forEach(registro => {
-            const receitaDoRegistro = (registro.receita + registro.gorjetas);
+            const receitaDoRegistro = (parseFloat(registro.receita || 0) + parseFloat(registro.gorjetas || 0));
             totalReceita += receitaDoRegistro;
-            totalDespesas += registro.despesas;
+            totalDespesas += parseFloat(registro.despesas || 0);
 
-            if (receitaDoRegistro > 0) {
+            if (receitaDoRegistro > 0 || parseFloat(registro.despesas || 0) > 0) { // Considerar dia trabalhado se tiver receita ou despesa
                 diasTrabalhados.add(registro.data.toISOString().slice(0, 10)); 
             }
         });
 
-        totalLucro = totalReceita - totalDespesas;
+        const totalLucro = totalReceita - totalDespesas;
 
         totalReceitaMensalElement.textContent = formatarMoeda(totalReceita);
         totalGastosMensalElement.textContent = formatarMoeda(totalDespesas);
@@ -607,8 +642,8 @@
     }
 
     // Função para renderizar a tabela de resumo diário
-    function renderizarTabelaRegistros() {
-        const registros = obterDadosLocalStorage();
+    // Esta função agora recebe os registros já carregados do Firebase
+    function renderizarTabelaRegistros(registros) {
         const mesSelecionado = parseInt(filtroMesTabela.value);
         const anoSelecionado = parseInt(filtroAnoTabela.value);
 
@@ -617,7 +652,6 @@
             registro.data.getFullYear() === anoSelecionado
         );
 
-        // Agrupar por dia e calcular totais
         const resumoDiario = new Map(); // Map<string (data), {receita: number, despesa: number, lucro: number}>
 
         registrosFiltrados.forEach(registro => {
@@ -627,20 +661,26 @@
             }
             const daySummary = resumoDiario.get(dateString);
             
-            const receitaTotalRegistro = registro.receita + registro.gorjetas;
+            const receitaTotalRegistro = parseFloat(registro.receita || 0) + parseFloat(registro.gorjetas || 0);
             
             daySummary.receita += receitaTotalRegistro;
-            daySummary.despesa += registro.despesas;
-            daySummary.lucro += (receitaTotalRegistro - registro.despesas);
+            daySummary.despesa += parseFloat(registro.despesas || 0);
+            daySummary.lucro += (receitaTotalRegistro - parseFloat(registro.despesas || 0));
         });
 
-        // Converter Map para Array e ordenar por data
         const dadosTabela = Array.from(resumoDiario.entries()).map(([data, totais]) => ({
             data,
             receita: totais.receita,
             gastos: totais.despesa,
             lucro: totais.lucro
-        })).sort((a, b) => new Date(a.data.split('/').reverse().join('-')) - new Date(b.data.split('/').reverse().join('-'))); // Ordena por data (dd/mm/yyyy para yyyy-mm-dd para comparação)
+        })).sort((a, b) => {
+            // Converte "dd/mm/yyyy" para "yyyy-mm-dd" para uma comparação de data correta
+            const [dA, mA, yA] = a.data.split('/');
+            const [dB, mB, yB] = b.data.split('/');
+            const dateA = new Date(`${yA}-${mA}-${dA}`);
+            const dateB = new Date(`${yB}-${mB}-${dB}`);
+            return dateA - dateB;
+        });
 
         dailySummaryTableBody.innerHTML = ''; // Limpa o corpo da tabela
 
@@ -655,7 +695,8 @@
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${dia.data}</td>
-                <td class="text-primary-blue">${formatarMoeda(dia.receita)}</td> <td class="text-danger">${formatarMoeda(dia.gastos)}</td>
+                <td class="text-primary-blue">${formatarMoeda(dia.receita)}</td> 
+                <td class="text-danger">${formatarMoeda(dia.gastos)}</td>
                 <td class="${dia.lucro >= 0 ? 'text-success' : 'text-danger'}">${formatarMoeda(dia.lucro)}</td>
             `;
             dailySummaryTableBody.appendChild(row);
@@ -679,7 +720,7 @@
         }
     }
 
-    function atualizarGraficos() { 
+    async function atualizarGraficos() { 
       if (graficoReceitaLucro) graficoReceitaLucro.destroy();
       if (graficoGastos) graficoGastos.destroy();
       if (graficoPlataforma) graficoPlataforma.destroy();
@@ -691,10 +732,13 @@
       noDataPlataforma.classList.add('hidden');
       document.getElementById('graficoPlataforma').style.display = 'block';
 
-      calcularResumoMensal(); 
-      renderizarTabelaRegistros(); // Chamada para a nova função de resumo diário
+      const registros = await carregarRegistros(); // Carrega os registros do Firebase UMA VEZ
+      popularSeletoresAnoComRegistros(registros); // Popula anos com base nos dados do Firebase
+      
+      calcularResumoMensal(registros); // Passa registros para a função
+      renderizarTabelaRegistros(registros); // Passa registros para a função
 
-      const { dados: dadosAgrupadosPorPeriodo, labels: labelsParaGrafico } = agruparDadosPorPeriodo(); 
+      const { dados: dadosAgrupadosPorPeriodo, labels: labelsParaGrafico } = agruparDadosPorPeriodo(registros); // Passa registros para a função
       
       const receita = labelsParaGrafico.map(k => dadosAgrupadosPorPeriodo[k]?.receita || 0);
       const lucro = labelsParaGrafico.map(k => dadosAgrupadosPorPeriodo[k]?.lucro || 0);
@@ -748,7 +792,7 @@
                       return c.charAt(0).toUpperCase() + c.slice(1).replace(/_/g, ' ');
                   }),
                   datasets: [{ 
-                    label: 'Valor (R$)', // Rótulo genérico para as barras
+                    label: 'Valor (R$)', 
                     data: valoresGastos, 
                     backgroundColor: backgroundColorsForCategories 
                   }]
@@ -759,14 +803,13 @@
                 maintainAspectRatio: false, 
                 plugins: { 
                   legend: { 
-                    display: false, // Ocultar legenda padrão, pois as cores são para as barras individuais
+                    display: false, 
                     labels: {
                         generateLabels: function(chart) {
-                            // Criar uma legenda customizada se desejar, ou apenas omitir
                             return [{
                                 text: `Total de Gastos: ${formatarMoeda(valoresGastos.reduce((sum, current) => sum + current, 0))}`,
-                                fillStyle: 'rgba(0,0,0,0)', // Sem cor de preenchimento para o item
-                                strokeStyle: 'rgba(0,0,0,0)', // Sem borda
+                                fillStyle: 'rgba(0,0,0,0)', 
+                                strokeStyle: 'rgba(0,0,0,0)', 
                                 fontColor: Chart.defaults.color
                             }];
                         }
@@ -820,35 +863,35 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        popularSeletoresAno();
+        // popularSeletoresAno(); // Removido daqui, chamado após o carregamento dos registros
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
 
         filtroMes.value = currentMonth; 
         filtroMesResumoMensal.value = currentMonth; 
-        filtroMesTabela.value = currentMonth; // Define o mês atual para a tabela
+        filtroMesTabela.value = currentMonth; 
         
         filtroAnoMensal.value = currentYear;
         filtroAnoAnual.value = currentYear;
         filtroAnoResumoMensal.value = currentYear;
-        filtroAnoTabela.value = currentYear; // Define o ano atual para a tabela
+        filtroAnoTabela.value = currentYear; 
         
         alternarSeletoresFiltro(); 
-        atualizarGraficos(); 
+        // atualizarGraficos() é chamado dentro de onAuthStateChanged
     });
 
-    filtroPeriodo.addEventListener('change', () => { alternarSeletoresFiltro(); atualizarGraficos(); });
+    filtroPeriodo.addEventListener('change', atualizarGraficos);
     filtroMes.addEventListener('change', atualizarGraficos);
     filtroAnoMensal.addEventListener('change', atualizarGraficos);
     filtroAnoAnual.addEventListener('change', atualizarGraficos);
     
     // Event listeners para o card de Resumo Mensal
-    filtroMesResumoMensal.addEventListener('change', calcularResumoMensal);
-    filtroAnoResumoMensal.addEventListener('change', calcularResumoMensal);
+    filtroMesResumoMensal.addEventListener('change', atualizarGraficos); // Fará o reload completo dos gráficos
+    filtroAnoResumoMensal.addEventListener('change', atualizarGraficos); // Fará o reload completo dos gráficos
 
     // Event listeners para o novo card de Tabela de Registros
-    filtroMesTabela.addEventListener('change', renderizarTabelaRegistros);
-    filtroAnoTabela.addEventListener('change', renderizarTabelaRegistros);
+    filtroMesTabela.addEventListener('change', atualizarGraficos); // Fará o reload completo dos gráficos
+    filtroAnoTabela.addEventListener('change', atualizarGraficos); // Fará o reload completo dos gráficos
   </script>
 </body>
 </html>
