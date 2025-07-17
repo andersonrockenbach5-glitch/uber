@@ -29,10 +29,16 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 0 1.5rem;
+      padding: 0 1rem;
       box-sizing: border-box;
     }
-    
+
+    @media (max-width: 576px) { /* Para extra small devices (phones) */
+      body {
+        padding: 0 0.5rem;
+      }
+    }
+
     .top-nav-bar {
         width: 100%;
         max-width: 960px;
@@ -69,19 +75,31 @@
       width: 100%;
       max-width: 960px;
     }
-    
+
     header h1 {
       font-family: 'Montserrat', sans-serif;
       font-weight: 700;
       text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
     }
 
+    @media (max-width: 767px) {
+      header h1 {
+        font-size: 1.8rem;
+      }
+    }
+    @media (max-width: 575px) {
+      header h1 {
+        font-size: 1.5rem;
+      }
+    }
+
     .container {
       max-width: 960px;
       margin-bottom: 3rem;
       width: 100%;
+      padding: 0 0.5rem;
     }
-    
+
     .card {
       background-color: var(--card-bg-color);
       border: 1px solid var(--card-border-color);
@@ -93,37 +111,119 @@
     }
 
     /* Otimização de fontes para simetria e alinhamento de títulos */
-    .card h3 { /* Aplica-se a todos os títulos h3 dentro de cards */
-        font-size: 1.75rem; /* Tamanho padrão e consistente para títulos de cards */
+    .card h3 {
+        font-size: 1.75rem;
         font-family: 'Montserrat', sans-serif;
         font-weight: 600;
-        text-align: left; /* Alinha todos os títulos dos cards à esquerda */
+        text-align: left;
     }
 
+    @media (max-width: 767px) {
+      .card h3 {
+        font-size: 1.4rem;
+      }
+    }
+    @media (max-width: 575px) {
+      .card h3 {
+        font-size: 1.2rem;
+      }
+    }
+
+    /* General styling for the header/filter container in cards */
+    .card > .d-flex.justify-content-between.align-items-center {
+        /* Default for larger screens */
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem; /* Adjusted margin for consistency */
+    }
+
+    /* Specific adjustments for filter containers within these headers */
+    .card .d-flex.flex-wrap.gap-2, /* For "Receita vs Lucro" */
+    .card .monthly-summary-options { /* For "Resumo Mensal" and "Resumo Diário" */
+        display: flex; /* Ensure it's a flex container */
+        flex-wrap: wrap; /* Allow wrapping */
+        gap: 10px; /* Space between filter elements */
+        justify-content: flex-end; /* Align filters to the right on large screens */
+        width: auto; /* Allow content-based width */
+    }
+
+    /* Individual form-select elements */
+    .card .form-select {
+        flex-grow: 0; /* Do not grow unnecessarily */
+        width: auto; /* Natural width */
+        min-width: 120px; /* Minimum width for readability */
+        max-width: 180px; /* Maximum width */
+        font-size: 1rem; /* Default font size */
+    }
+
+    /* --- Media Queries for Smaller Screens (less than 768px) --- */
+    @media (max-width: 767px) {
+        /* Parent container of h3 and filters */
+        .card > .d-flex.justify-content-between.align-items-center {
+            flex-direction: column; /* Stack title and filters */
+            align-items: flex-start; /* Align stacked items to the left */
+            justify-content: flex-start; /* No space-between when stacked */
+            margin-bottom: 1rem; /* Consistent margin */
+            gap: 0.5rem; /* Space between title and filter block */
+        }
+
+        /* Titles within these card headers */
+        .card > .d-flex.justify-content-between.align-items-center h3 {
+            margin-bottom: 0; /* Remove bottom margin to reduce extra space when stacked */
+            width: 100%; /* Make title take full width for consistent alignment */
+            text-align: left; /* Ensure title is left-aligned */
+        }
+
+        /* Filter containers within these card headers */
+        .card .d-flex.flex-wrap.gap-2, /* For "Receita vs Lucro" */
+        .card .monthly-summary-options { /* For "Resumo Mensal" and "Resumo Diário" */
+            flex-direction: column; /* Stack individual filters */
+            width: 100%; /* Make the filter block take full width */
+            gap: 0.5rem; /* Space between stacked filters */
+            justify-content: flex-start; /* Align filters to the left when stacked */
+        }
+
+        /* Individual form-select elements on small screens */
+        .card .form-select {
+            width: 100%; /* Make each filter take full width */
+            max-width: none; /* Remove max-width constraint */
+            font-size: 0.85rem; /* Smaller font size */
+            padding: 0.375rem 0.75rem; /* Adjust padding */
+        }
+    }
+
+
     .chart-container-placeholder {
-        position: relative; 
-        min-height: 200px; 
+        position: relative;
+        min-height: 250px;
         display: flex;
         align-items: center;
         justify-content: center;
-        flex-direction: column; 
+        flex-direction: column;
         text-align: center;
         color: #6c757d;
     }
-    
+
+    @media (max-width: 767px) {
+        .chart-container-placeholder {
+            min-height: 280px;
+        }
+    }
+
     .no-data-message {
-        position: absolute; 
+        position: absolute;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: var(--card-bg-color); 
+        background-color: var(--card-bg-color);
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 1.1rem;
         color: #6c757d;
-        z-index: 10; 
+        z-index: 10;
     }
     .no-data-message.hidden {
         display: none;
@@ -131,65 +231,80 @@
 
     .summary-grid {
         display: flex;
-        justify-content: space-around;
+        justify-content: center;
         flex-wrap: wrap;
-        gap: 1rem; 
+        gap: 1rem;
         margin-top: 1rem;
     }
 
     .summary-item {
-        flex: 1 1 200px; /* Ajustado para 4 itens por linha ou 2 por linha em telas menores */
+        flex: 1 1 calc(50% - 1rem);
+        max-width: calc(50% - 1rem);
         padding: 1.2rem;
         border-radius: 0.8rem;
-        background-color: #f8f9fa; /* Slightly different background */
-        border: 1px solid rgba(0, 0, 0, 0.05); /* Subtle border */
+        background-color: #f8f9fa;
+        border: 1px solid rgba(0, 0, 0, 0.05);
         transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        text-align: center; 
+        text-align: center;
     }
-    .summary-item:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+
+    @media (min-width: 768px) {
+      .summary-item {
+        flex: 1 1 calc(33.333% - 1rem);
+        max-width: calc(33.333% - 1rem);
+      }
     }
+
+    @media (min-width: 992px) {
+      .summary-item {
+        flex: 1 1 calc(25% - 1rem);
+        max-width: calc(25% - 1rem);
+      }
+    }
+
     .summary-label {
-        font-size: 1rem; /* Ajustado para melhor legibilidade */
+        font-size: 1rem;
         color: #6c757d;
         margin-bottom: 0.5rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px; /* Space between icon and text */
+        gap: 8px;
     }
     .summary-value {
-        font-size: 2rem; /* Padronizado para todos os valores para simetria */
+        font-size: 2rem;
         font-weight: bold;
     }
+
+    @media (max-width: 767px) {
+        .summary-label {
+            font-size: 0.85rem;
+        }
+        .summary-value {
+            font-size: 1.6rem;
+        }
+    }
+    @media (max-width: 575px) {
+        .summary-label {
+            font-size: 0.75rem;
+        }
+        .summary-value {
+            font-size: 1.4rem;
+        }
+    }
+
     .summary-value.receita { color: #007bff; }
-    .summary-value.gastos { color: #dc3545; } 
-    .summary-value.lucro { 
-      color: #28a745; 
-      /* Removido o tamanho de fonte maior para alinhamento simétrico */
+    .summary-value.gastos { color: #dc3545; }
+    .summary-value.lucro {
+        color: #28a745;
     }
     .summary-value.dias-trabalhados {
-        color: #6c757d; 
-    }
-
-
-    .monthly-summary-options {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 15px;
-        justify-content: flex-end; /* Alinha filtros à direita */
-        flex-wrap: wrap;
-    }
-    .monthly-summary-options .form-select {
-        flex-grow: 0; 
-        width: auto; 
-        min-width: 120px; 
+        color: #6c757d;
     }
 
     /* Estilos para a tabela de resumo diário */
     .table-container {
-        overflow-x: auto; /* Permite rolagem horizontal em telas pequenas */
+        overflow-x: auto;
         margin-top: 1.5rem;
     }
 
@@ -203,7 +318,14 @@
         padding: 0.75rem;
         vertical-align: top;
         border-top: 1px solid #dee2e6;
-        text-align: center; /* Centraliza o texto nas células */
+        text-align: center;
+    }
+
+    @media (max-width: 767px) {
+        .daily-summary-table th, .daily-summary-table td {
+            font-size: 0.8rem;
+            padding: 0.5rem;
+        }
     }
 
     .daily-summary-table th {
@@ -218,7 +340,7 @@
 
     .daily-summary-table .text-success { color: #28a745; }
     .daily-summary-table .text-danger { color: #dc3545; }
-    .daily-summary-table .text-primary-blue { color: #007bff; } /* Nova classe para azul */
+    .daily-summary-table .text-primary-blue { color: #007bff; }
 
 
     footer {
@@ -243,23 +365,25 @@
 
   <div class="container">
     <div class="card monthly-summary-card">
-        <h3 class="summary-title mb-3">Resumo Mensal</h3>
-        <div class="monthly-summary-options">
-            <select class="form-select" id="filtroMesResumoMensal">
-                <option value="0">Janeiro</option>
-                <option value="1">Fevereiro</option>
-                <option value="2">Março</option>
-                <option value="3">Abril</option>
-                <option value="4">Maio</option>
-                <option value="5">Junho</option>
-                <option value="6">Julho</option>
-                <option value="7">Agosto</option>
-                <option value="8">Setembro</option>
-                <option value="9">Outubro</option>
-                <option value="10">Novembro</option>
-                <option value="11">Dezembro</option>
-            </select>
-            <select class="form-select" id="filtroAnoResumoMensal"></select>
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+            <h3 class="summary-title mb-0">Resumo Mensal</h3>
+            <div class="monthly-summary-options">
+                <select class="form-select" id="filtroMesResumoMensal">
+                    <option value="0">Janeiro</option>
+                    <option value="1">Fevereiro</option>
+                    <option value="2">Março</option>
+                    <option value="3">Abril</option>
+                    <option value="4">Maio</option>
+                    <option value="5">Junho</option>
+                    <option value="6">Julho</option>
+                    <option value="7">Agosto</option>
+                    <option value="8">Setembro</option>
+                    <option value="9">Outubro</option>
+                    <option value="10">Novembro</option>
+                    <option value="11">Dezembro</option>
+                </select>
+                <select class="form-select" id="filtroAnoResumoMensal"></select>
+            </div>
         </div>
         <div class="summary-grid">
             <div class="summary-item">
@@ -308,7 +432,7 @@
                 <select class="form-select w-auto" id="filtroAnoMensal"></select>
             </div>
 
-            <div id="opcoesFiltroSemanal" class="d-none"></div> 
+            <div id="opcoesFiltroSemanal" class="d-none"></div>
             <div id="opcoesFiltroAnual" class="d-none">
                 <select class="form-select w-auto" id="filtroAnoAnual"></select>
             </div>
@@ -337,23 +461,25 @@
     </div>
 
     <div class="card detailed-records-card">
-        <h3 class="mb-3">Resumo Diário</h3>
-        <div class="monthly-summary-options">
-            <select class="form-select" id="filtroMesTabela">
-                <option value="0">Janeiro</option>
-                <option value="1">Fevereiro</option>
-                <option value="2">Março</option>
-                <option value="3">Abril</option>
-                <option value="4">Maio</option>
-                <option value="5">Junho</option>
-                <option value="6">Julho</option>
-                <option value="7">Agosto</option>
-                <option value="8">Setembro</option>
-                <option value="9">Outubro</option>
-                <option value="10">Novembro</option>
-                <option value="11">Dezembro</option>
-            </select>
-            <select class="form-select" id="filtroAnoTabela"></select>
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+            <h3 class="mb-0">Resumo Diário</h3>
+            <div class="monthly-summary-options">
+                <select class="form-select" id="filtroMesTabela">
+                    <option value="0">Janeiro</option>
+                    <option value="1">Fevereiro</option>
+                    <option value="2">Março</option>
+                    <option value="3">Abril</option>
+                    <option value="4">Maio</option>
+                    <option value="5">Junho</option>
+                    <option value="6">Julho</option>
+                    <option value="7">Agosto</option>
+                    <option value="8">Setembro</option>
+                    <option value="9">Outubro</option>
+                    <option value="10">Novembro</option>
+                    <option value="11">Dezembro</option>
+                </select>
+                <select class="form-select" id="filtroAnoTabela"></select>
+            </div>
         </div>
         <div class="table-container">
             <table class="table table-striped daily-summary-table">
@@ -381,18 +507,17 @@
   <script src="firebase_init.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script type="module"> // Mudei para type="module" para usar import/export do Firebase
-            import { collection, query, getDocs, orderBy } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js'; // Importação explícita
-            import { auth, db, firebaseConfig } from './firebase_init.js'; // Importa de firebase_init.js
+  <script type="module">
+            import { collection, query, getDocs, orderBy } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+            import { auth, db, firebaseConfig } from './firebase_init.js';
 
         let currentUserId = null;
-        let appId = firebaseConfig.appId; // Definir appId aqui ou passá-lo para firebase_init.js
+        let appId = firebaseConfig.appId;
 
         auth.onAuthStateChanged(user => {
             if (user) {
                 currentUserId = user.uid;
                 console.log('Usuário logado em estatistica.html:', currentUserId);
-                // Chame as funções de inicialização dos gráficos APÓS o usuário estar logado
                 
                 const currentMonth = new Date().getMonth();
                 const currentYear = new Date().getFullYear();
@@ -407,7 +532,7 @@
                 filtroAnoTabela.value = currentYear;
 
                 alternarSeletoresFiltro();
-                atualizarGraficos(); // Esta função agora lida com o carregamento e passa para as outras
+                atualizarGraficos();
             } else {
                 console.log('Nenhum usuário logado em estatistica.html. Redirecionando...');
                 window.location.href = 'login.html';
@@ -426,8 +551,7 @@
                     registros.push({ 
                         id: doc.id, 
                         ...data,
-                        // Converter a string de data para objeto Date no momento do carregamento
-                        data: data.data ? new Date(data.data + 'T00:00:00') : new Date() // Garantir que 'data' é um objeto Date
+                        data: data.data ? new Date(data.data + 'T00:00:00') : new Date()
                     });
                 });
                 return registros;
@@ -476,21 +600,20 @@
     let graficoGastos = null;
 
     const categoryColors = [
-        '#dc3545', // Vermelho principal (despesas)
-        '#fd7e14', // Laranja
-        '#ffc107', // Amarelo/Laranja
-        '#6c757d', // Cinza
-        '#343a40', // Cinza escuro
-        '#8d1f2e', // Vermelho mais escuro
-        '#e0505b', // Vermelho mais claro
-        '#ff9933', // Laranja vibrante
-        '#a04a4a', // Vermelho amarronzado
-        '#495057'  // Outro cinza escuro
+        '#dc3545',
+        '#fd7e14',
+        '#ffc107',
+        '#6c757d',
+        '#343a40',
+        '#8d1f2e',
+        '#e0505b',
+        '#ff9933',
+        '#a04a4a',
+        '#495057'
     ];
 
     const formatarMoeda = (valor) => `R$ ${parseFloat(valor).toFixed(2).replace('.', ',')}`;
 
-    // Esta função agora recebe os registros já carregados do Firebase
     function obterAnosDisponiveis(registros) {
         const anos = new Set();
         registros.forEach(r => anos.add(r.data.getFullYear()));
@@ -503,7 +626,6 @@
         return anosOrdenados;
     }
 
-    // popularSeletoresAno agora é chamado dentro de atualizarGraficos
     function popularSeletoresAnoComRegistros(registros) {
         const anos = obterAnosDisponiveis(registros);
         const anoAtual = new Date().getFullYear();
@@ -520,12 +642,11 @@
         });
     }
 
-    // Esta função agora recebe os registros já carregados do Firebase
     function agruparDadosPorPeriodo(registros) {
         const dadosAgrupados = {};
         
         const periodoSelecionado = filtroPeriodo.value;
-        const mesSelecionado = parseInt(filtroMes.value); // 0-indexed
+        const mesSelecionado = parseInt(filtroMes.value);
         const anoMensalSelecionado = parseInt(filtroAnoMensal.value);
         const anoAnualSelecionado = parseInt(filtroAnoAnual.value);
         
@@ -597,7 +718,6 @@
         return { dados: dadosAgrupados, labels: labelsParaGrafico };
     }
 
-    // Esta função agora recebe os registros já carregados do Firebase
     function calcularResumoMensal(registros) {
         const mesSelecionado = parseInt(filtroMesResumoMensal.value);
         const anoSelecionado = parseInt(filtroAnoResumoMensal.value);
@@ -616,7 +736,7 @@
             totalReceita += receitaDoRegistro;
             totalDespesas += parseFloat(registro.despesas || 0);
 
-            if (receitaDoRegistro > 0 || parseFloat(registro.despesas || 0) > 0) { // Considerar dia trabalhado se tiver receita ou despesa
+            if (receitaDoRegistro > 0 || parseFloat(registro.despesas || 0) > 0) {
                 diasTrabalhados.add(registro.data.toISOString().slice(0, 10)); 
             }
         });
@@ -629,8 +749,6 @@
         diasTrabalhadosMensalElement.textContent = diasTrabalhados.size; 
     }
 
-    // Função para renderizar a tabela de resumo diário
-    // Esta função agora recebe os registros já carregados do Firebase
     function renderizarTabelaRegistros(registros) {
         const mesSelecionado = parseInt(filtroMesTabela.value);
         const anoSelecionado = parseInt(filtroAnoTabela.value);
@@ -640,7 +758,7 @@
             registro.data.getFullYear() === anoSelecionado
         );
 
-        const resumoDiario = new Map(); // Map<string (data), {receita: number, despesa: number, lucro: number}>
+        const resumoDiario = new Map();
 
         registrosFiltrados.forEach(registro => {
             const dateString = registro.data.toLocaleDateString('pt-BR');
@@ -662,7 +780,6 @@
             gastos: totais.despesa,
             lucro: totais.lucro
         })).sort((a, b) => {
-            // Converte "dd/mm/yyyy" para "yyyy-mm-dd" para uma comparação de data correta
             const [dA, mA, yA] = a.data.split('/');
             const [dB, mB, yB] = b.data.split('/');
             const dateA = new Date(`${yA}-${mA}-${dA}`);
@@ -670,7 +787,7 @@
             return dateA - dateB;
         });
 
-        dailySummaryTableBody.innerHTML = ''; // Limpa o corpo da tabela
+        dailySummaryTableBody.innerHTML = '';
 
         if (dadosTabela.length === 0) {
             noDataTabela.classList.remove('hidden');
@@ -683,7 +800,7 @@
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${dia.data}</td>
-                <td class="text-primary-blue">${formatarMoeda(dia.receita)}</td> 
+                <td class="text-primary-blue">${formatarMoeda(dia.receita)}</td>
                 <td class="text-danger">${formatarMoeda(dia.gastos)}</td>
                 <td class="${dia.lucro >= 0 ? 'text-success' : 'text-danger'}">${formatarMoeda(dia.lucro)}</td>
             `;
@@ -702,13 +819,13 @@
         const periodo = filtroPeriodo.value;
         if (periodo === 'mensal') {
             opcoesFiltroMensal.classList.remove('d-none');
-            opcoesFiltroMensal.classList.add('d-flex'); 
+            opcoesFiltroMensal.classList.add('d-flex');
         } else if (periodo === 'anual') {
             opcoesFiltroAnual.classList.remove('d-none');
         }
     }
 
-    async function atualizarGraficos() { 
+    async function atualizarGraficos() {
       if (graficoReceitaLucro) graficoReceitaLucro.destroy();
       if (graficoGastos) graficoGastos.destroy();
       if (graficoPlataforma) graficoPlataforma.destroy();
@@ -720,13 +837,13 @@
       noDataPlataforma.classList.add('hidden');
       document.getElementById('graficoPlataforma').style.display = 'block';
 
-      const registros = await carregarRegistros(); // Carrega os registros do Firebase UMA VEZ
-      popularSeletoresAnoComRegistros(registros); // Popula anos com base nos dados do Firebase
+      const registros = await carregarRegistros();
+      popularSeletoresAnoComRegistros(registros);
       
-      calcularResumoMensal(registros); // Passa registros para a função
-      renderizarTabelaRegistros(registros); // Passa registros para a função
+      calcularResumoMensal(registros);
+      renderizarTabelaRegistros(registros);
 
-      const { dados: dadosAgrupadosPorPeriodo, labels: labelsParaGrafico } = agruparDadosPorPeriodo(registros); // Passa registros para a função
+      const { dados: dadosAgrupadosPorPeriodo, labels: labelsParaGrafico } = agruparDadosPorPeriodo(registros);
       
       const receita = labelsParaGrafico.map(k => dadosAgrupadosPorPeriodo[k]?.receita || 0);
       const lucro = labelsParaGrafico.map(k => dadosAgrupadosPorPeriodo[k]?.lucro || 0);
@@ -741,14 +858,14 @@
           });
       });
 
-      let chartTypeReceitaLucro = 'line'; // Manter como linha para tendência
+      let chartTypeReceitaLucro = 'line';
 
       // --- GRÁFICO RECEITA VS LUCRO ---
       if (receita.some(v => v > 0) || lucro.some(v => v > 0)) {
           graficoReceitaLucro = new Chart(document.getElementById('graficoReceitaLucro'), {
             type: chartTypeReceitaLucro,
             data: {
-              labels: labelsParaGrafico, 
+              labels: labelsParaGrafico,
               datasets: [
                 { label: 'Receita (R$)', data: receita, borderColor: '#007bff', backgroundColor: 'rgba(0, 123, 255, 0.5)', tension: 0.4, fill: true, order: 1 },
                 { label: 'Lucro (R$)', data: lucro, borderColor: '#28a745', backgroundColor: 'rgba(40, 167, 69, 0.5)', tension: 0.4, fill: true, order: 0 }
@@ -765,7 +882,6 @@
       const categorias = Object.keys(categoriasGastosTotal);
       const valoresGastos = Object.values(categoriasGastosTotal);
 
-      // Mapeia categorias para cores da paleta
       const backgroundColorsForCategories = categorias.map((_, index) => 
           categoryColors[index % categoryColors.length]
       );
@@ -851,21 +967,19 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        // popularSeletoresAno(); // Removido daqui, chamado após o carregamento dos registros
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
 
-        filtroMes.value = currentMonth; 
-        filtroMesResumoMensal.value = currentMonth; 
-        filtroMesTabela.value = currentMonth; 
+        filtroMes.value = currentMonth;
+        filtroMesResumoMensal.value = currentMonth;
+        filtroMesTabela.value = currentMonth;
         
         filtroAnoMensal.value = currentYear;
         filtroAnoAnual.value = currentYear;
         filtroAnoResumoMensal.value = currentYear;
-        filtroAnoTabela.value = currentYear; 
+        filtroAnoTabela.value = currentYear;
         
-        alternarSeletoresFiltro(); 
-        // atualizarGraficos() é chamado dentro de onAuthStateChanged
+        alternarSeletoresFiltro();
     });
 
     filtroPeriodo.addEventListener('change', atualizarGraficos);
@@ -873,13 +987,11 @@
     filtroAnoMensal.addEventListener('change', atualizarGraficos);
     filtroAnoAnual.addEventListener('change', atualizarGraficos);
     
-    // Event listeners para o card de Resumo Mensal
-    filtroMesResumoMensal.addEventListener('change', atualizarGraficos); // Fará o reload completo dos gráficos
-    filtroAnoResumoMensal.addEventListener('change', atualizarGraficos); // Fará o reload completo dos gráficos
+    filtroMesResumoMensal.addEventListener('change', atualizarGraficos);
+    filtroAnoResumoMensal.addEventListener('change', atualizarGraficos);
 
-    // Event listeners para o novo card de Tabela de Registros
-    filtroMesTabela.addEventListener('change', atualizarGraficos); // Fará o reload completo dos gráficos
-    filtroAnoTabela.addEventListener('change', atualizarGraficos); // Fará o reload completo dos gráficos
+    filtroMesTabela.addEventListener('change', atualizarGraficos);
+    filtroAnoTabela.addEventListener('change', atualizarGraficos);
   </script>
 </body>
 </html>
