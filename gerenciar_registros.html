@@ -14,7 +14,7 @@
             --card-bg-color: rgba(255, 255, 255, 0.9);
             --card-border-color: rgba(0, 0, 0, 0.1);
             --text-color-light: #ffffff;
-            --text-color-dark: #333333;
+            --text-color-dark: #333333; /* Cor de texto padrão para elementos claros */
             --shadow-subtle: 0 6px 20px rgba(0, 0, 0, 0.25);
             --border-radius-card: 1.5rem;
         }
@@ -24,7 +24,7 @@
             background: linear-gradient(160deg, var(--body-bg-start) 0%, var(--body-bg-end) 100%);
             background-attachment: fixed;
             min-height: 100vh;
-            color: var(--text-color-light);
+            color: var(--text-color-light); /* Texto principal da página claro */
         }
 
         .top-nav-bar {
@@ -78,7 +78,7 @@
             box-shadow: var(--shadow-subtle);
             padding: 2rem; 
             margin-bottom: 2rem;
-            color: var(--text-color-dark);
+            color: var(--text-color-dark); /* Texto dentro dos cards escuro */
         }
         .registro-block-card {
             background-color: var(--card-bg-color);
@@ -87,7 +87,7 @@
             box-shadow: var(--shadow-subtle);
             padding: 2rem;
             margin-bottom: 2rem;
-            color: var(--text-color-dark);
+            color: var(--text-color-dark); /* Texto dentro dos cards de registro escuro */
         }
         .registro-block-card h4 {
             font-family: 'Montserrat', sans-serif;
@@ -99,7 +99,7 @@
         .despesas-block-header { color: #dc3545; }
         
         .table {
-            color: var(--text-color-dark);
+            color: var(--text-color-dark); /* Texto das tabelas escuro */
         }
         
         footer {
@@ -111,14 +111,47 @@
             opacity: 0.8;
         }
 
+        /* --- Estilos para as Modais --- */
+        .modal-content {
+            background-color: var(--card-bg-color); /* Fundo da modal claro */
+            border-radius: var(--border-radius-card);
+            color: var(--text-color-dark); /* Texto dentro da modal escuro por padrão */
+        }
+
+        .modal-header, .modal-body, .modal-footer {
+            border-color: rgba(0, 0, 0, 0.1); /* Cor da borda da modal */
+        }
+
+        .modal-title {
+            color: var(--text-color-dark); /* Título da modal escuro */
+        }
+        
         .modal-section-card {
             border: 1px solid #dee2e6;
             border-radius: 0.75rem;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
+            color: var(--text-color-dark); /* Garante que o texto nas seções da modal seja escuro */
         }
         .modal-section-card.receitas-bg { background-color: #eaf1f8; }
         .modal-section-card.despesas-bg { background-color: #f8eded; }
+
+        /* Garante que os inputs dentro das modais tenham texto escuro */
+        .modal-body .form-control,
+        .modal-body .form-select {
+            color: var(--text-color-dark);
+            background-color: #fff; /* Fundo branco para inputs */
+            border-color: rgba(0, 0, 0, 0.2);
+        }
+        /* Para o placeholder dos inputs */
+        .modal-body .form-control::placeholder {
+            color: #6c757d; /* Cor mais clara para o placeholder */
+        }
+        /* Para labels dentro das modais */
+        .modal-body label {
+            color: var(--text-color-dark);
+        }
+
     </style>
 </head>
 <body>
@@ -287,10 +320,11 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
         // Importar módulos do Firebase
-        import { auth, db, appId } from './firebase_init.js';
-        import { collection, getDocs, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js';
+        import { auth, db, firebaseConfig } from './firebase_init.js'; // Importa firebaseConfig
+        import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
 
         let currentUserId = null;
+        const appId = firebaseConfig.appId; // Acessa appId da configuração importada
 
         const receitasTableBody = document.getElementById('receitasTableBody');
         const despesasTableBody = document.getElementById('despesasTableBody');
@@ -337,10 +371,24 @@
         };
 
         const formatarMoeda = (valor) => `R$ ${parseFloat(valor).toFixed(2).replace('.', ',')}`;
-        const formatarData = (dataString) => {
-            if (!dataString) return 'N/A';
-            const [ano, mes, dia] = dataString.split('-');
-            return `${dia}/${mes}/${ano}`;
+        // Ajuste para formatar datas que podem ser string ou Timestamp do Firestore
+        const formatarData = (dataInput) => {
+            if (!dataInput) return 'N/A';
+            let date;
+            if (typeof dataInput === 'string') {
+                date = new Date(dataInput + 'T00:00:00'); // Garante que a data seja interpretada em UTC para evitar desvios
+            } else if (dataInput && typeof dataInput.toDate === 'function') { // Se for um objeto Timestamp do Firebase
+                date = dataInput.toDate();
+            } else {
+                return 'N/A';
+            }
+
+            if (isNaN(date.getTime())) return 'N/A'; // Verifica se a data é válida
+
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
         };
 
         const carregarRegistros = async () => {
@@ -349,14 +397,27 @@
                 return [];
             }
             try {
-                const registrosCol = collection(db, 'artifacts', appId, 'users', currentUserId, 'registros');
-                const registroSnapshot = await getDocs(registrosCol);
-                const registrosList = registroSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                // Ordenar por data mais recente
-                return registrosList.sort((a, b) => new Date(b.data) - new Date(a.data));
+                // Consulta a coleção de registros do usuário, ordenando por 'createdAt' (campo que você está a usar)
+                // Se 'createdAt' não existir ou não for um Timestamp em todos os documentos,
+                // você pode ordenar por 'data' (string), mas Timestamp é mais robusto.
+                const registrosColRef = collection(db, 'artifacts', appId, 'users', currentUserId, 'registros');
+                const q = query(registrosColRef, orderBy('createdAt', 'desc')); // Ordena por data de criação descendente
+                
+                console.log(`Buscando registros para o usuário: ${currentUserId} no caminho: artifacts/${appId}/users/${currentUserId}/registros`);
+
+                const registroSnapshot = await getDocs(q);
+                console.log('Snapshot de registros recebido:', registroSnapshot.docs.length, 'documentos');
+
+                const registrosList = registroSnapshot.docs.map(doc => {
+                    const data = {
+                        id: doc.id,
+                        ...doc.data()
+                    };
+                    console.log('Registro carregado:', data); // Loga cada registro carregado
+                    return data;
+                });
+                
+                return registrosList; // Já vem ordenado pelo Firestore
             } catch (error) {
                 console.error('Erro ao carregar registros:', error);
                 displayStatusMessage('Erro ao carregar registros. Tente novamente.', 'danger');
@@ -365,29 +426,34 @@
         };
 
         const renderizarRegistros = async () => {
+            console.log('Iniciando renderização de registros...');
             const todosRegistros = await carregarRegistros();
+            console.log('Registros totais após carregamento:', todosRegistros);
+
             const searchTerm = searchInput.value.toLowerCase().trim();
             const selectedType = filterType.value;
 
             let receitasFiltradas = [];
             let despesasFiltradas = [];
+            let totalRecordsFound = 0;
 
             todosRegistros.forEach(registro => {
-                const matchesSearch = Object.values(registro).some(value => {
-                    if (typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                        return formatarData(value).toLowerCase().includes(searchTerm);
-                    }
-                    return String(value).toLowerCase().includes(searchTerm);
-                });
+                const searchString = `${registro.data || ''} ${registro.plataforma || ''} ${registro.categoriaDespesa || ''} ${registro.observacoes || ''} ${registro.receita || ''} ${registro.gorjetas || ''} ${registro.despesas || ''}`.toLowerCase();
+                const matchesSearch = searchString.includes(searchTerm);
 
                 if (matchesSearch) {
                     if (registro.tipo === 'receita' && (selectedType === 'receita' || selectedType === 'todos')) {
                         receitasFiltradas.push(registro);
+                        totalRecordsFound++;
                     } else if (registro.tipo === 'despesa' && (selectedType === 'despesa' || selectedType === 'todos')) {
                         despesasFiltradas.push(registro);
+                        totalRecordsFound++;
                     }
                 }
             });
+
+            console.log('Receitas filtradas:', receitasFiltradas);
+            console.log('Despesas filtradas:', despesasFiltradas);
 
             receitasTableBody.innerHTML = '';
             despesasTableBody.innerHTML = '';
@@ -432,7 +498,7 @@
                 });
             }
 
-            if (todosRegistros.length === 0) {
+            if (totalRecordsFound === 0) { // Verifica se algum registro foi encontrado após a filtragem
                 noRecordsOverallMessage.classList.remove('d-none');
             } else {
                 noRecordsOverallMessage.classList.add('d-none');
@@ -465,7 +531,14 @@
             if (registro) {
                 editRecordId.value = id;
                 editRecordType.value = type;
-                editData.value = registro.data;
+                
+                // Adapte para lidar com Timestamp ou string
+                if (registro.data && typeof registro.data.toDate === 'function') {
+                    editData.value = registro.data.toDate().toISOString().split('T')[0];
+                } else {
+                    editData.value = registro.data || '';
+                }
+
                 editObservacoes.value = registro.observacoes || '';
 
                 if (type === 'receita') {
@@ -597,9 +670,10 @@
         auth.onAuthStateChanged(user => {
             if (user) {
                 currentUserId = user.uid;
+                console.log('Usuário logado em gerenciar_registros.html:', currentUserId);
                 renderizarRegistros(); // Carrega registros após o usuário estar logado
             } else {
-                // Redireciona para a página de login se não houver usuário logado
+                console.log('Nenhum usuário logado em gerenciar_registros.html. Redirecionando...');
                 window.location.href = 'login.html'; 
             }
         });

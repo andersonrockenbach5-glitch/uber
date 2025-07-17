@@ -380,18 +380,6 @@
 
   <script src="firebase_init.js"></script>
 
-    <script>
-        // Agora você pode usar 'auth' e 'db' diretamente aqui
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                currentUserId = user.uid;
-                // ... seu código que usa auth e db
-            } else {
-                // ...
-            }
-        });
-        // ... restante do seu código JavaScript
-    </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script type="module"> // Mudei para type="module" para usar import/export do Firebase
             import { collection, query, getDocs, orderBy } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js'; // Importação explícita
@@ -405,7 +393,7 @@
                 currentUserId = user.uid;
                 console.log('Usuário logado em estatistica.html:', currentUserId);
                 // Chame as funções de inicialização dos gráficos APÓS o usuário estar logado
-                popularSeletoresAno();
+                
                 const currentMonth = new Date().getMonth();
                 const currentYear = new Date().getFullYear();
 

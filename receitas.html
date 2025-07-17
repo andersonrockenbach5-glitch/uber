@@ -171,11 +171,11 @@
                     <div class="row">
                         <div class="col-md-6 form-group">
                             <label for="valorCorrida">Valor Recebido (R$)</label>
-                            <input type="number" step="0.01" class="form-control" id="valorCorrida" value="0.00" required>
+                            <input type="number" step="0.01" class="form-control" id="valorCorrida" placeholder="0.00" required>
                         </div>
                         <div class="col-md-6 form-group">
                             <label for="gorjetas">Gorjetas (R$)</label>
-                            <input type="number" step="0.01" class="form-control" id="gorjetas" value="0.00">
+                            <input type="number" step="0.01" class="form-control" id="gorjetas" placeholder="0.00">
                         </div>
                     </div>
                 </div>
@@ -211,15 +211,15 @@
         </div>
     </div>
 
-    <script src="firebase_init.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script type="module">
-        // Importações explícitas do Firebase
-        import { addDoc, collection } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
-        import { auth, db, firebaseConfig } from './firebase_init.js'; // Importa firebaseConfig também
+        // Importações explícitas do Firebase e do seu arquivo de inicialização
+        import { addDoc, collection, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+        import { auth, db, firebaseConfig } from './firebase_init.js';
 
         let currentUserId = null;
-        let appId = firebaseConfig.appId; // Define appId aqui
+        let appId = firebaseConfig.appId;
 
         // O bloco onAuthStateChanged deve controlar o acesso à página
         auth.onAuthStateChanged(user => {
@@ -241,6 +241,7 @@
         const observacoesReceita = document.getElementById('observacoesReceita');
 
         // Elementos do modal de mensagens
+        // Agora, 'bootstrap' já deve estar definido aqui
         const messageModal = new bootstrap.Modal(document.getElementById('messageModal'));
         const messageModalBody = document.getElementById('messageModalBody');
 
@@ -253,8 +254,18 @@
             messageModal.show();
         }
 
-        // Define a data atual como padrão no campo de data
-        dataReceita.valueAsDate = new Date();
+        // Função para formatar a data para YYYY-MM-DD (formato necessário para input type="date")
+        function getFormattedDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Meses são 0-indexed
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Define a data atual como padrão no campo de data quando a página carrega
+        document.addEventListener('DOMContentLoaded', () => {
+            dataReceita.value = getFormattedDate(new Date());
+        });
 
         // Listener para o envio do formulário
         receitaForm.addEventListener('submit', async (event) => {
@@ -274,10 +285,11 @@
                 // Cria o novo objeto de registo de receita
                 const novoRegistro = {
                     tipo: 'receita',
-                    data: dataReceita.value,
+                    data: dataReceita.value, // A data já estará no formato correto YYYY-MM-DD
                     plataforma: plataforma.value,
-                    receita: parseFloat(valorCorrida.value),
-                    gorjetas: parseFloat(gorjetas.value || 0),
+                    // Garante que o valor seja 0 se o campo estiver vazio ou não for um número válido
+                    receita: parseFloat(valorCorrida.value) || 0, 
+                    gorjetas: parseFloat(gorjetas.value) || 0,
                     despesas: 0, // Receita não tem despesa
                     categoriaDespesa: '', // Receita não tem categoria de despesa
                     kmRodados: 0, // Não aplicável para receita neste formulário
@@ -285,7 +297,7 @@
                     observacoes: observacoesReceita.value.trim(),
                     // Adiciona o userId para associar o registo ao utilizador
                     userId: userId,
-                    createdAt: new Date() // Carimbo de data/hora para ordenação e auditoria
+                    createdAt: serverTimestamp() // Carimbo de data/hora do servidor
                 };
 
                 // Adiciona o documento à coleção 'registros' sob o caminho do utilizador
@@ -293,9 +305,10 @@
                 
                 showMessageModal('Receita adicionada com sucesso!');
                 receitaForm.reset(); // Limpa o formulário
-                dataReceita.valueAsDate = new Date(); // Redefine a data para hoje
-                valorCorrida.value = '0.00'; // Redefine o valor da corrida
-                gorjetas.value = '0.00'; // Redefine gorjetas
+                
+                // Redefine a data para hoje após o reset do formulário
+                dataReceita.value = getFormattedDate(new Date());
+
             } catch (error) {
                 console.error('Erro ao adicionar receita:', error);
                 showMessageModal(`Erro ao adicionar receita: ${error.message}`);
