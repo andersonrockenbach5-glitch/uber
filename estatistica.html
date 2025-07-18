@@ -20,6 +20,26 @@
       --border-radius-card: 1.5rem;
     }
 
+    /* No seu CSS existente, dentro do bloco <style> */
+
+    .chart-container-placeholder {
+        position: relative;
+        min-height: 250px; /* Mantém um bom mínimo para telas maiores */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
+        color: #6c757d;
+    }
+
+    @media (max-width: 767px) {
+        .chart-container-placeholder {
+            min-height: 200px; /* Pode reduzir um pouco mais para celulares, se necessário, mas 250px já é um bom equilíbrio */
+            /* Considerar um aspecto de largura para o gráfico, se o height for fixo. */
+        }
+    }
+
     body {
       font-family: 'Open Sans', sans-serif;
       background: linear-gradient(160deg, var(--body-bg-start) 0%, var(--body-bg-end) 100%);
@@ -501,7 +521,7 @@
   </div>
 
   <footer>
-    <p>&copy; 2025 - Anderson Rockenbach</p>
+    <p>&copy; 2025 - Anderson Rockenbach - Todos os Direitos Reservados</p>
   </footer>
 
   <script src="firebase_init.js"></script>
@@ -861,6 +881,7 @@
       let chartTypeReceitaLucro = 'line';
 
       // --- GRÁFICO RECEITA VS LUCRO ---
+      // --- GRÁFICO RECEITA VS LUCRO ---
       if (receita.some(v => v > 0) || lucro.some(v => v > 0)) {
           graficoReceitaLucro = new Chart(document.getElementById('graficoReceitaLucro'), {
             type: chartTypeReceitaLucro,
@@ -871,7 +892,62 @@
                 { label: 'Lucro (R$)', data: lucro, borderColor: '#28a745', backgroundColor: 'rgba(40, 167, 69, 0.5)', tension: 0.4, fill: true, order: 0 }
               ]
             },
-            options: { responsive: true, maintainAspectRatio: false }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom', // Mover a legenda para baixo para liberar espaço horizontal
+                        labels: {
+                            font: {
+                                size: 12 // Tamanho da fonte da legenda
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += formatarMoeda(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            font: {
+                                size: 10 // Tamanho da fonte dos rótulos do eixo X
+                            },
+                            autoSkip: true, // Habilita o pulo automático de rótulos
+                            maxTicksLimit: 10 // Limita o número máximo de rótulos no eixo X
+                        },
+                        grid: {
+                            display: false // Oculta as linhas de grade verticais para menos "barulho" visual
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value, index, values) {
+                                return formatarMoeda(value); // Formata os rótulos do eixo Y como moeda
+                            },
+                            font: {
+                                size: 10 // Tamanho da fonte dos rótulos do eixo Y
+                            }
+                        },
+                        grid: {
+                            // display: false // Você pode ocultar as linhas de grade horizontais se quiser, mas geralmente são úteis
+                        }
+                    }
+                }
+            }
           });
       } else {
           document.getElementById('graficoReceitaLucro').style.display = 'none';

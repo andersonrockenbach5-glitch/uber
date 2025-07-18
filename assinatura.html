@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escolha seu Plano - Controle Diário</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script type="module" src="firebase_init.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        /* Seus estilos CSS */
+        body {
+            background: linear-gradient(135deg, var(--body-bg-start), var(--body-bg-end));
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-color-light);
+        }
+        .card {
+            background-color: var(--card-bg-color);
+            border-radius: var(--border-radius-card);
+            box-shadow: var(--shadow-subtle);
+            color: var(--text-color-dark);
+            margin: 15px;
+            padding: 30px;
+            text-align: center;
+        }
+        .card-header h3 {
+            color: var(--accent-green); /* Ou outra cor */
+            margin-bottom: 20px;
+        }
+        .price {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .price small {
+            font-size: 0.5em;
+            font-weight: normal;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 30px;
+        }
+        ul li {
+            margin-bottom: 10px;
+        }
+        .btn-primary {
+            background-color: var(--accent-green);
+            border-color: var(--accent-green);
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container text-center">
+        <h2 class="mb-5" style="color: var(--text-color-light);">Escolha seu Plano</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Plano Gratuito</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="price">R$ 0<small>/mês</small></div>
+                        <ul>
+                            <li><i class="fas fa-check-circle text-success me-2"></i> Adicionar 5 registros/mês</li>
+                            <li><i class="fas fa-times-circle text-danger me-2"></i> Sem relatórios avançados</li>
+                            <li><i class="fas fa-times-circle text-danger me-2"></i> Sem suporte prioritário</li>
+                        </ul>
+                        <button class="btn btn-secondary disabled">Plano Atual</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Plano Premium</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="price">R$ 9,99<small>/mês</small></div>
+                        <ul>
+                            <li><i class="fas fa-check-circle text-success me-2"></i> Registros ilimitados</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i> Relatórios avançados</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i> Suporte prioritário</li>
+                        </ul>
+                        <button id="subscribePremiumBtn" class="btn btn-primary">Assinar Premium</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from './firebase_init.js';
+        import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-functions.js';
+        import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+
+        const stripe = Stripe('pk_test_SUA_PUBLIC_KEY_DO_STRIPE'); // Sua chave pública do Stripe
+
+        const subscribePremiumBtn = document.getElementById('subscribePremiumBtn');
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // Checar o status da assinatura do usuário no Firestore
+                const userDocRef = doc(db, 'users', user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists() && userDocSnap.data().subscriptionStatus === 'active' && userDocSnap.data().subscriptionPlan === 'premium') {
+                    subscribePremiumBtn.textContent = 'Plano Atual';
+                    subscribePremiumBtn.disabled = true;
+                    subscribePremiumBtn.classList.remove('btn-primary');
+                    subscribePremiumBtn.classList.add('btn-success');
+                }
+
+                subscribePremiumBtn.addEventListener('click', async () => {
+                    // Substitua 'price_12345' pelo ID real do preço do Stripe que você criou para o plano Premium
+                    const priceId = 'price_SEU_ID_DE_PRECO_STRIPE'; 
+                    const createCheckoutSession = httpsCallable(getFunctions(), 'createStripeCheckoutSession');
+
+                    try {
+                        const result = await createCheckoutSession({ priceId: priceId });
+                        const { url } = result.data;
+                        if (url) {
+                            window.location.href = url; // Redireciona para o Stripe Checkout
+                        }
+                    } catch (error) {
+                        console.error('Erro ao iniciar checkout:', error);
+                        alert('Erro ao processar sua solicitação de assinatura. Tente novamente.');
+                    }
+                });
+
+            } else {
+                // Usuário não logado, redireciona para login
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>
