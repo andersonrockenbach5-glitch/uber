@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gerenciar Metas - Controle Diário</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
+  <style>
+    :root {
+      --body-bg-start: #4F81BD; /* Azul médio */
+      --body-bg-end: #dc3545; /* Vermelho vibrante */
+      --card-bg-color: rgba(255, 255, 255, 0.95); /* Quase branco, leve transparência */
+      --card-border-color: rgba(0, 0, 0, 0.1);
+      --text-color-light: #ffffff;
+      --text-color-dark: #333333;
+      --shadow-subtle: 0 8px 25px rgba(0, 0, 0, 0.3); /* Sombra mais pronunciada */
+      --border-radius-large: 1.8rem; /* Cantos mais arredondados */
+      --border-radius-medium: 1rem;
+      --primary-color: #4F81BD; /* Cor principal da paleta */
+      --success-color: #28a745; /* Verde para sucesso */
+      --info-color: #17a2b8; /* Azul claro para informações */
+      /* Removidas variáveis de aba pois a estrutura de abas foi removida */
+    }
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: linear-gradient(160deg, var(--body-bg-start) 0%, var(--body-bg-end) 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: var(--text-color-light);
+      display: flex;
+      flex-direction: column;
+      align-items: center; 
+      padding: 0 1.5rem 2rem; 
+      box-sizing: border-box;
+    }
+
+    .top-nav-bar {
+      width: 100%;
+      max-width: 900px; 
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 1.5rem 0;
+      box-sizing: border-box;
+      margin: 0 auto;
+    }
+
+    .btn-nav {
+      background-color: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 0.7rem 1.5rem;
+      border-radius: var(--border-radius-medium);
+      font-weight: 600;
+      text-decoration: none;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-nav:hover {
+      background-color: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.5);
+      color: white;
+    }
+
+    header {
+      color: var(--text-color-light);
+      padding: 2rem 1rem;
+      text-align: center;
+      margin-top: 1rem;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    header h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+      font-size: 2.8rem; 
+    }
+
+    .container {
+      margin-bottom: 3rem;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      width: 100%;
+      max-width: 900px; 
+      margin: 0 auto;
+    }
+    
+    .card {
+      background-color: var(--card-bg-color);
+      border: 1px solid var(--card-border-color);
+      border-radius: var(--border-radius-large);
+      box-shadow: var(--shadow-subtle);
+      padding: 2.5rem; 
+      color: var(--text-color-dark);
+      transition: all 0.3s ease;
+      max-width: 900px;
+      width: 100%;
+    }
+
+    .section-card {
+      border: 1px solid #e0e0e0; 
+      border-radius: var(--border-radius-medium);
+      padding: 1.8rem; 
+      margin-bottom: 2rem; 
+      background-color: #fcfcfc; 
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
+    }
+    .section-card:last-child {
+      margin-bottom: 0; /* Remove margin-bottom do último section-card dentro do card */
+    }
+    .section-card h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 1.8rem; 
+      margin-bottom: 1.5rem; 
+      color: var(--primary-color);
+      text-align: center; 
+    }
+    
+    input, select, textarea { 
+        color: var(--text-color-dark);
+        border-radius: 0.5rem; 
+        padding: 0.7rem 1rem;
+        border: 1px solid #ced4da;
+    }
+    input:focus, select:focus, textarea:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(79, 129, 189, 0.25);
+    }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--text-color-dark);
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        font-weight: 600;
+        padding: 0.8rem 1.5rem;
+        border-radius: var(--border-radius-medium);
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    .btn-primary:hover {
+        background-color: #3e6a99; 
+        border-color: #3e6a99;
+    }
+    
+    footer {
+      text-align: center;
+      margin-top: auto;
+      padding: 1.5rem;
+      background-color: transparent;
+      color: var(--text-color-light);
+      opacity: 0.9;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* Estilos para o Modal de Sucesso */
+    .modal-content.success-modal {
+        background: linear-gradient(135deg, var(--success-color), #218838);
+        color: white;
+        border-radius: var(--border-radius-large);
+        border: none;
+        box-shadow: var(--shadow-subtle);
+    }
+    .modal-content.success-modal .modal-header {
+        border-bottom: none;
+    }
+    .modal-content.success-modal .modal-body {
+        text-align: center;
+        padding: 2.5rem;
+    }
+    .modal-content.success-modal .modal-body .fas {
+        font-size: 3.5rem;
+        margin-bottom: 1.5rem;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    .modal-content.success-modal .modal-body h4 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        margin-bottom: 0.8rem;
+        font-size: 1.8rem;
+    }
+    .modal-content.success-modal .modal-footer {
+        border-top: none;
+        justify-content: center;
+        padding-bottom: 2rem;
+    }
+    .modal-content.success-modal .btn-secondary {
+        background-color: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
+        color: white;
+        transition: background-color 0.3s ease;
+        padding: 0.6rem 1.2rem;
+        border-radius: 0.6rem;
+    }
+    .modal-content.success-modal .btn-secondary:hover {
+        background-color: rgba(255, 255, 255, 0.5);
+        border-color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* Estilos para lista de metas (geral) */
+    .goal-item {
+        background-color: #ffffff; 
+        border: 1px solid rgba(0, 0, 0, 0.08); 
+        border-radius: var(--border-radius-medium);
+        padding: 1.5rem;
+        margin-bottom: 1.2rem;
+        color: var(--text-color-dark);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        position: relative; 
+    }
+    .goal-item:last-child {
+      margin-bottom: 0; /* Remove margin-bottom do último item da lista */
+    }
+
+    .goal-item h5 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.6rem;
+        width: 100%;
+        font-size: 1.3rem;
+    }
+
+    .goal-item p {
+        margin-bottom: 0.3rem;
+        font-size: 0.95rem;
+        color: #555;
+        width: 100%;
+    }
+
+    .goal-actions {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-action {
+        background-color: #6c757d; 
+        border: 1px solid #6c757d;
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+        font-size: 0.85rem;
+    }
+    .btn-action.btn-edit {
+        background-color: var(--info-color); 
+        border-color: var(--info-color);
+    }
+    .btn-action.btn-danger {
+        background-color: var(--body-bg-end); 
+        border-color: var(--body-bg-end);
+    }
+    .btn-action:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+
+    /* Otimizações para telas menores (celulares) */
+    @media (max-width: 767.98px) {
+        .card {
+            padding: 1.8rem;
+        }
+        .section-card {
+            padding: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        body {
+            padding: 0 0.8rem 1.5rem;
+        }
+        header h1 {
+            font-size: 2.2rem;
+        }
+        .goal-item {
+            padding: 1rem;
+        }
+        .goal-actions {
+            position: static; 
+            justify-content: flex-end;
+            margin-top: 0.8rem;
+            gap: 0.4rem;
+        }
+        .btn-action {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+        }
+    }
+
+    /* Nova media query para dispositivos extra pequenos */
+    @media (max-width: 575.98px) {
+        .card {
+            padding: 1rem;
+        }
+        .section-card {
+            padding: 0.8rem;
+        }
+        body {
+            padding: 0 0.4rem 1rem;
+        }
+        header h1 {
+            font-size: 1.8rem;
+        }
+    }
+  </style>
+  
+</head>
+<body>
+  <div class="top-nav-bar">
+      <a href="index.html" class="btn-nav"><i class="fas fa-home"></i> Home</a>
+  </div>
+
+  <header>
+    <h1 class="fw-bold">Gerenciar Metas</h1>
+    <p>Defina e acompanhe suas metas financeiras com clareza e controle.</p>
+  </header>
+
+  <div class="container">
+    <div class="card">
+        <div class="section-card mb-4">
+            <h3>Definir Nova Meta</h3>
+            <form id="goalForm">
+                <div class="mb-3">
+                    <label for="goalType" class="form-label">Tipo de Meta</label>
+                    <select class="form-select" id="goalType" required>
+                        <option value="">Selecione...</option>
+                        <option value="ganhos_diarios">Ganhos Diários</option>
+                        <option value="ganhos_semanais">Ganhos Semanais</option>
+                        <option value="ganhos_mensais">Ganhos Mensais</option>
+                    </select>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label for="goalValue" class="form-label">Valor da Meta (R$)</label>
+                        <input type="number" step="0.01" class="form-control" id="goalValue" placeholder="0.00" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 mt-3">Salvar Meta</button>
+            </form>
+        </div>
+
+        <div class="section-card">
+            <h3>Metas de Ganhos</h3>
+            <div id="gainsGoalsList">
+                <p class="text-center text-muted">Nenhuma meta de ganhos cadastrada ainda.</p>
+            </div>
+        </div>
+    </div>
+
+  <footer>
+    <p>&copy; 2025 - Anderson Rockenbach - Todos os direitos reservados</p>
+  </footer>
+
+  
+  <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content success-modal">
+        <div class="modal-body">
+          <i class="fas fa-check-circle"></i>
+          <h4 id="successModalLabel">Sucesso!</h4>
+          <p id="successModalMessage">Operação realizada com sucesso.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module">
+    import { addDoc, collection, getDocs, deleteDoc, doc, updateDoc, query, where, serverTimestamp, getDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+    import { auth, db, firebaseConfig } from './firebase_init.js';
+
+    let currentUserId = null;
+    const appId = firebaseConfig.appId;
+
+    // Elementos do formulário
+    const goalForm = document.getElementById('goalForm');
+    const goalType = document.getElementById('goalType');
+    const goalValue = document.getElementById('goalValue');
+
+    // Listas de exibição
+    const gainsGoalsList = document.getElementById('gainsGoalsList');
+
+    // Elementos do Modal de Sucesso
+    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+    const successModalLabel = document.getElementById('successModalLabel');
+    const successModalMessage = document.getElementById('successModalMessage');
+
+    let editingGoalId = null;
+
+    // Função para mostrar o modal de sucesso
+    function showSuccessModal(title, message) {
+        successModalLabel.textContent = title;
+        successModalMessage.textContent = message;
+        successModal.show();
+    }
+
+    // Listener para o estado de autenticação
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            currentUserId = user.uid;
+            console.log('Usuário logado em metas.html:', currentUserId);
+            renderGoals();
+        } else {
+            console.log('Nenhum usuário logado em metas.html. Redirecionando...');
+            window.location.href = 'login.html';
+        }
+    });
+    
+    // Lógica para adicionar/editar Meta
+    goalForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        if (!currentUserId) {
+            alert("Erro: Usuário não autenticado. Por favor, faça login novamente.");
+            return;
+        }
+
+        const selectedType = goalType.value;
+        const newGoalData = {
+            tipo: selectedType,
+            valorMeta: parseFloat(goalValue.value) || 0,
+            userId: currentUserId,
+            updatedAt: serverTimestamp()
+        };
+
+        if (editingGoalId) {
+            try {
+                const updateData = {
+                    tipo: newGoalData.tipo,
+                    valorMeta: newGoalData.valorMeta,
+                    updatedAt: serverTimestamp()
+                };
+                
+                // CORREÇÃO APLICADA AQUI: updateDoc
+                await updateDoc(doc(db, `users/${currentUserId}/metas`, editingGoalId), updateData);
+                showSuccessModal('Sucesso!', 'Meta atualizada com sucesso!');
+                editingGoalId = null;
+                goalForm.querySelector('button[type="submit"]').textContent = 'Salvar Meta';
+            } catch (error) {
+                console.error('Erro ao atualizar meta:', error);
+                alert(`Erro ao atualizar meta: ${error.message}`);
+            }
+        } else {
+            newGoalData.createdAt = serverTimestamp();
+            try {
+                // CORREÇÃO APLICADA AQUI: addDoc
+                await addDoc(collection(db, `users/${currentUserId}/metas`), newGoalData);
+                showSuccessModal('Sucesso!', 'Meta adicionada com sucesso!');
+            } catch (error) {
+                console.error('Erro ao adicionar meta:', error);
+                alert(`Erro ao adicionar meta: ${error.message}`);
+            }
+        }
+
+        goalForm.reset();
+        renderGoals();
+    });
+
+    // Função para renderizar as metas
+    const renderGoals = async () => {
+        gainsGoalsList.innerHTML = '<p class="text-center text-muted">Carregando metas...</p>';
+
+        if (!currentUserId) {
+            gainsGoalsList.innerHTML = '<p class="text-center text-muted">Nenhuma meta de ganhos cadastrada ainda.</p>';
+            return;
+        }
+
+        try {
+            // CORREÇÃO APLICADA AQUI: query
+            const q = query(collection(db, `users/${currentUserId}/metas`));
+            const querySnapshot = await getDocs(q);
+
+            gainsGoalsList.innerHTML = '';
+
+            let hasGainsGoals = false;
+
+            querySnapshot.forEach((docItem) => {
+                const goal = docItem.data();
+                const goalId = docItem.id;
+                
+                // Filtra para exibir apenas metas de ganhos
+                const isGainsGoal = ['ganhos_diarios', 'ganhos_semanais', 'ganhos_mensais'].includes(goal.tipo);
+
+                if (isGainsGoal) {
+                    hasGainsGoals = true;
+                    const goalDisplayName = goal.tipo.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+
+                    gainsGoalsList.innerHTML += `
+                        <div class="goal-item" data-id="${goalId}">
+                            <h5>${goalDisplayName}</h5>
+                            <p><strong>Tipo:</strong> ${goal.tipo.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</p>
+                            <p><strong>Valor da Meta:</strong> R$ ${goal.valorMeta.toFixed(2)}</p>
+                            <div class="goal-actions">
+                                <button class="btn-action btn-edit" data-id="${goalId}"><i class="fas fa-edit"></i></button>
+                                <button class="btn-action btn-danger" data-id="${goalId}"><i class="fas fa-trash-alt"></i></button>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            if (!hasGainsGoals) {
+                gainsGoalsList.innerHTML = '<p class="text-center text-muted">Nenhuma meta de ganhos cadastrada ainda.</p>';
+            }
+
+            // Adiciona event listeners aos botões de editar e excluir dentro de gainsGoalsList
+            gainsGoalsList.querySelectorAll('.btn-edit').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    const idToEdit = e.target.dataset.id || e.target.closest('button').dataset.id;
+                    // CORREÇÃO APLICADA AQUI: getDoc
+                    const goalDoc = await getDoc(doc(db, `users/${currentUserId}/metas`, idToEdit));
+                    if (goalDoc.exists()) {
+                        const goal = goalDoc.data();
+                        goalType.value = goal.tipo;
+                        goalValue.value = goal.valorMeta;
+                        
+                        editingGoalId = idToEdit;
+                        goalForm.querySelector('button[type="submit"]').textContent = 'Atualizar Meta';
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                });
+            });
+
+            gainsGoalsList.querySelectorAll('.btn-danger').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    const idToDelete = e.target.dataset.id || e.target.closest('button').dataset.id;
+                    if (confirm('Tem certeza que deseja excluir esta meta?')) {
+                        try {
+                            // CORREÇÃO APLICADA AQUI: deleteDoc
+                            await deleteDoc(doc(db, `users/${currentUserId}/metas`, idToDelete));
+                            showSuccessModal('Sucesso!', 'Meta excluída com sucesso!');
+                            renderGoals();
+                        } catch (error) {
+                            console.error('Erro ao excluir meta:', error);
+                            alert(`Erro ao excluir meta: ${error.message}`);
+                        }
+                    }
+                });
+            });
+
+        } catch (error) {
+            console.error('Erro ao buscar metas:', error);
+            gainsGoalsList.innerHTML = '<p class="text-center text-danger">Erro ao carregar metas de ganhos.</p>';
+        }
+    };
+  </script>
+</body>
+</html>

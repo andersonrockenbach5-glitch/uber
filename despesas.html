@@ -17,7 +17,8 @@
       --text-color-light: #ffffff;
       --text-color-dark: #333333;
       --shadow-subtle: 0 6px 20px rgba(0, 0, 0, 0.25);
-      --border-radius-card: 1.5rem;
+      --border-radius-large: 1.5rem; /* Renomeado para uso mais geral */
+      --border-radius-medium: 0.8rem; /* Novo para elementos menores */
     }
 
     body {
@@ -28,14 +29,14 @@
       color: var(--text-color-light);
       display: flex;
       flex-direction: column;
-      align-items: center;
-      padding: 0 1.5rem;
+      align-items: center; /* Centraliza o conteúdo principal horizontalmente */
+      padding: 0 1.5rem; /* Padding nas laterais do body */
       box-sizing: border-box;
     }
 
     .top-nav-bar {
       width: 100%;
-      max-width: 800px;
+      max-width: 800px; /* Limita a largura da barra de navegação */
       display: flex;
       justify-content: flex-start;
       align-items: center;
@@ -67,7 +68,7 @@
       text-align: center;
       margin-top: 1rem;
       width: 100%;
-      max-width: 800px;
+      max-width: 800px; /* Limita a largura do cabeçalho */
     }
     
     header h1 {
@@ -77,28 +78,31 @@
     }
 
     .container {
-      max-width: 800px;
+      /* REMOVIDO: max-width: 800px; - A largura máxima agora é controlada pelo .card */
       margin-bottom: 3rem;
       flex-grow: 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      width: 100%;
+      width: 100%; /* Garante que o container ocupe a largura total disponível */
     }
     
     .card {
       background-color: var(--card-bg-color);
       border: 1px solid var(--card-border-color);
-      border-radius: var(--border-radius-card);
+      border-radius: var(--border-radius-large);
       box-shadow: var(--shadow-subtle);
-      padding: 2rem;
+      padding: 2rem; /* Padding padrão para desktop */
       color: var(--text-color-dark);
+      transition: all 0.3s ease;
+      max-width: 800px; /* Limita a largura máxima do card em telas grandes */
+      width: 100%; /* Garante que o card ocupe 100% da largura do container (que é 100% do body - padding) */
     }
 
     .section-card {
       border: 1px solid #dee2e6;
-      border-radius: var(--border-radius-card);
-      padding: 1.5rem;
+      border-radius: var(--border-radius-large);
+      padding: 1.5rem; /* Padding padrão para desktop */
       margin-bottom: 1.5rem;
       background-color: #f8f9fa;
     }
@@ -122,7 +126,7 @@
       opacity: 0.8;
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
       width: 100%;
-      max-width: 800px;
+      max-width: 800px; /* Limita a largura do rodapé */
     }
 
     /* Estilos para as abas */
@@ -130,8 +134,8 @@
         color: var(--text-color-dark);
         background-color: rgba(255, 255, 255, 0.7);
         border: 1px solid rgba(0, 0, 0, 0.1);
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
+        border-radius: var(--border-radius-medium) var(--border-radius-medium) 0 0; /* Arredondamento superior */
+        border-bottom: none; /* Remove a borda inferior para conectar com o conteúdo */
     }
     .nav-tabs .nav-link.active {
         color: white;
@@ -141,6 +145,10 @@
     }
     .tab-content {
         padding-top: 1.5rem;
+        background-color: white;
+        border-radius: 0 0 var(--border-radius-large) var(--border-radius-large); /* Arredondar só embaixo */
+        padding: 2.5rem; /* Padding padrão para desktop */
+        box-shadow: var(--shadow-subtle);
     }
     .expense-item {
         background-color: rgba(255, 255, 255, 0.95);
@@ -153,13 +161,13 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        flex-wrap: wrap;
+        flex-wrap: wrap; /* Permite que itens quebrem a linha */
     }
     .expense-item h5 {
         font-family: 'Montserrat', sans-serif;
         font-weight: 600;
         color: #dc3545;
-        width: 100%;
+        width: 100%; /* Ocupa a largura total para o título */
         margin-bottom: 0.5rem;
     }
     .expense-item p {
@@ -220,18 +228,97 @@
         border-color: rgba(255, 255, 255, 0.7);
     }
 
-    /* Estilo para os textos explicativos (caixa informativa) */
+    /* Otimizações para telas menores (celulares) */
+    @media (max-width: 767.98px) {
+        .card {
+            padding: 1.5rem; /* Reduzir padding do card principal */
+        }
+        .section-card {
+            padding: 1.5rem; /* Reduzir padding da seção interna */
+        }
+
+        /* Ajustes para as Abas de Navegação: lado a lado e responsivas */
+        .nav-tabs {
+            display: flex; /* Garante que seja um container flexível */
+            flex-wrap: wrap; /* Permite que os itens quebrem para a próxima linha se não houver espaço */
+            justify-content: center; /* Centraliza as abas */
+            margin-bottom: 1rem; /* Um pouco menos de margem para mobile */
+        }
+        .nav-tabs .nav-item {
+            /* Remove width: 100%; para permitir que fiquem lado a lado */
+            margin-right: 0.5rem; /* Mantém alguma margem entre as abas */
+            margin-bottom: 0.5rem; /* Adiciona margem inferior caso quebrem a linha */
+            flex-grow: 1; /* Permite que os itens cresçam e ocupem o espaço disponível */
+            flex-basis: 0; /* Essencial para flex-grow funcionar corretamente */
+            min-width: fit-content; /* Garante que o conteúdo não seja cortado */
+        }
+        .nav-tabs .nav-link {
+            text-align: center;
+            /* Reverte border-radius para mobile para manter a aparência de aba */
+            border-radius: var(--border-radius-medium) var(--border-radius-medium) 0 0;
+            padding: 0.7rem 1.2rem; /* Reduz o preenchimento para caber mais na linha */
+            white-space: nowrap; /* Impede que o texto quebre dentro do botão da aba */
+        }
+        .nav-tabs .nav-link.active {
+            /* Reverte border-radius para a aba ativa no mobile */
+            border-radius: var(--border-radius-medium) var(--border-radius-medium) 0 0;
+        }
+        .tab-content {
+            padding: 1.5rem;
+            /* Remove arredondamentos superiores adicionados anteriormente, mantendo o padrão */
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+
+        .expense-item {
+            flex-direction: column; /* Empilha conteúdo do item de despesa */
+            align-items: flex-start; /* Alinha itens ao início */
+            padding: 1rem; /* Reduz padding do item de despesa */
+        }
+        .expense-item h5 {
+            margin-bottom: 0.5rem; /* Ajusta margem do título */
+        }
+        .btn-danger-custom {
+                margin-left: 0; /* Remove margem esquerda do botão de exclusão */
+                margin-top: 0.8rem; /* Adiciona margem superior para espaçamento */
+                width: 100%; /* Faz com que o botão ocupe a largura total */
+            }
+    }
+
+    /* Nova media query para dispositivos extra pequenos (como celulares muito pequenos) */
+    @media (max-width: 575.98px) {
+        .card {
+            padding: 1rem; /* Preenchimento ainda menor para telas muito pequenas */
+        }
+        .section-card {
+            padding: 1rem;
+        }
+        .tab-content {
+            padding: 1rem;
+        }
+        /* Reduz o tamanho da fonte e o preenchimento dos links das abas se ainda houver sobreposição */
+        .nav-tabs .nav-link {
+            font-size: 0.9rem; /* Fonte ligeiramente menor para caber */
+            padding: 0.6rem 1rem; /* Preenchimento ainda menor */
+        }
+        
+        /* Reduz o padding lateral do body para telas muito estreitas */
+        body {
+            padding: 0 0.4rem; /* Reduzido de 0.8rem para 0.4rem */
+        }
+    }
+
+    /* NOVO: Estilo para destacar o texto explicativo em um bloco sutil */
     .explanation-text {
-        background-color: rgba(240, 240, 240, 0.7); /* Fundo um pouco menos transparente */
-        border: 1px solid rgba(0, 0, 0, 0.1); /* Borda sutil para definição */
-        border-radius: var(--border-radius-medium);
-        padding: 1.2rem;
-        margin-bottom: 1.8rem;
-        color: var(--text-color-dark);
-        font-size: 1rem;
-        line-height: 1.6;
+        background-color: rgba(79, 129, 189, 0.05); /* Um azul muito claro e transparente */
+        padding: 0.8rem 1rem;
+        border-left: 4px solid var(--body-bg-start); /* Borda lateral azul */
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem; /* Espaço abaixo do bloco */
+        color: var(--text-color-dark); /* Garante que o texto seja escuro dentro do bloco */
     }
   </style>
+  
 </head>
 <body>
   <div class="top-nav-bar">
@@ -280,6 +367,7 @@
                                     <option value="Manutenção">Manutenção</option>
                                     <option value="Alimentação">Alimentação</option>
                                     <option value="Estacionamento">Estacionamento</option>
+                                    <option value="Lavagem">Lavagem</option>
                                     <option value="Outros">Outros</option>
                                 </select>
                             </div>

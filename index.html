@@ -11,299 +11,428 @@
 
     <script type="module" src="firebase_init.js"></script>
     
-    <style>
-        :root {
-            /* Cores para o degradê de fundo */
-            --body-bg-start: #4F81BD;
-            --body-bg-end: #dc3545;
+<style>
+    :root {
+        /* Cores para o degradê de fundo */
+        --body-bg-start: #4F81BD;
+        --body-bg-end: #dc3545;
 
-            /* Cores para texto e ícones dos cards */
-            --card-text-color: #ffffff;
-            --card-text-muted: rgba(255, 255, 255, 0.7);
+        /* Cores para texto e ícones dos cards */
+        --card-text-color: #ffffff;
+        --card-text-muted: rgba(255, 255, 255, 0.7);
 
-            /* Cores de destaque para ícones dos cards e hover */
-            --accent-green: #28a745;
-            --accent-red: #dc3545;
-            --accent-blue: #007bff;
-            --accent-yellow: #ffc107;
+        /* Cores de destaque para ícones dos cards e hover */
+        --accent-green: #28a745;
+        --accent-red: #dc3545;
+        --accent-blue: #007bff;
+        --accent-yellow: #ffc107;
 
-            --shadow-subtle: 0 6px 20px rgba(0, 0, 0, 0.25);
-            --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.5);
-            --border-radius-card: 1.5rem;
+        --shadow-subtle: 0 6px 20px rgba(0, 0, 0, 0.25);
+        --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.5);
+        --border-radius-card: 1.5rem;
+    }
+
+    body {
+        font-family: 'Open Sans', sans-serif;
+        background: linear-gradient(160deg, var(--body-bg-start) 0%, var(--body-bg-end) 100%);
+        background-attachment: fixed;
+        min-height: 100vh;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0 2rem;
+        box-sizing: border-box;
+    }
+
+    .top-bar-wrapper {
+        width: 100%;
+        max-width: 1300px;
+        display: flex;
+        flex-direction: row; /* Garante que sempre seja uma linha */
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 0;
+        box-sizing: border-box;
+    }
+
+    #greetingMessage {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 600;
+        font-size: 1.2rem;
+        color: var(--card-text-color);
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        margin-right: auto; /* Empurra o logout para a direita */
+        flex-grow: 1; /* Permite que ocupe o espaço restante */
+    }
+
+    .btn-logout {
+        background-color: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 0.7rem 1.5rem;
+        border-radius: 0.8rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+        box-shadow: var(--shadow-subtle);
+        width: auto; /* Impede que ocupe a largura total */
+        flex-shrink: 0; /* Impede que ele encolha */
+    }
+
+    .main-content-wrapper {
+        display: flex;
+        flex-direction: row;
+        gap: 4rem;
+        width: 100%;
+        max-width: 1300px;
+        align-items: flex-start;
+        justify-content: center;
+        flex-grow: 1;
+        margin-bottom: 2.5rem;
+        padding-top: 1rem;
+        box-sizing: border-box;
+    }
+
+    header {
+        text-align: left;
+        color: white;
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+        flex: 1.2;
+        min-width: 350px;
+        padding: 0.8rem 0;
+        box-sizing: border-box;
+    }
+
+    header h1 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        font-size: 3.5rem;
+        line-height: 1;
+        margin-bottom: 0.8rem;
+        letter-spacing: -1.5px;
+        max-width: 600px;
+        display: block;
+    }
+
+    header p {
+        font-weight: 400;
+        font-size: 1.15rem;
+        line-height: 1.4;
+        opacity: 0.85;
+        max-width: 400px;
+        margin: 0;
+    }
+
+    .selection-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-auto-rows: 1fr; /* Garante que as linhas do grid tenham a mesma altura */
+        gap: 2.5rem;
+        flex: 1.8;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .action-card {
+        background-color: transparent;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: var(--border-radius-card);
+        padding: 1.2rem; /* Aumentado e unificado o padding */
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        color: var(--card-text-color);
+        position: relative;
+        box-shadow: var(--shadow-subtle);
+        min-height: 250px; /* Volta para min-height para permitir que o conteúdo se ajuste */
+        box-sizing: border-box; /* Garante que padding e borda não aumentem o tamanho final */
+    }
+
+    .action-card:hover {
+        transform: translateY(-20px);
+        box-shadow: var(--shadow-hover);
+    }
+
+    .card-receita:hover { background-color: rgba(40, 167, 69, 0.25); }
+    .card-despesa:hover { background-color: rgba(220, 53, 69, 0.25); }
+    .card-gerenciar:hover { background-color: rgba(0, 123, 255, 0.25); }
+    .card-estatistica:hover { background-color: rgba(255, 193, 7, 0.25); }
+    .card-metas-progress:hover { background-color: rgba(76, 175, 80, 0.25); }
+
+
+    .action-card i {
+        font-size: 4rem;
+        margin-bottom: 0.8rem;
+        color: var(--card-text-color);
+        transition: color 0.3s ease;
+    }
+    .action-card.card-receita:hover i { color: var(--accent-green); }
+    .action-card.card-despesa:hover i { color: var(--accent-red); }
+    .action-card.card-gerenciar:hover i { color: var(--accent-blue); }
+    .action-card.card-estatistica:hover i { color: var(--accent-yellow); }
+
+    .action-card h3 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 600;
+        font-size: 1.6rem; /* Font size ajustado para títulos dos cards */
+        margin-bottom: 0.4rem;
+        color: var(--card-text-color);
+    }
+
+    .action-card p {
+        font-size: 0.95rem;
+        line-height: 1.4;
+        color: var(--card-text-muted);
+    }
+
+    footer {
+        text-align: center;
+        padding: 1.5rem 0;
+        color: white;
+        opacity: 0.8;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        margin-top: auto;
+        width: 100%;
+        max-width: 1200px;
+    }
+
+    /* Responsividade para tablets e desktops menores (max-width: 992px) */
+    @media (max-width: 992px) {
+        .btn-logout {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
         }
-
-        body {
-            font-family: 'Open Sans', sans-serif;
-            background: linear-gradient(160deg, var(--body-bg-start) 0%, var(--body-bg-end) 100%);
-            background-attachment: fixed;
-            min-height: 100vh;
-            color: white;
-            display: flex;
-            flex-direction: column; 
+        .main-content-wrapper {
+            flex-direction: column;
+            gap: 3rem;
             align-items: center;
-            padding: 0 2rem; 
-            box-sizing: border-box;
+            margin-bottom: 2.5rem;
+            padding-top: 1rem;
+            width: 100%;
         }
 
         .top-bar-wrapper {
             width: 100%;
-            max-width: 1300px; 
-            display: flex;
-            /* Alterado para alinhar mensagem e botão em lados opostos */
-            justify-content: space-between; 
-            align-items: center;
-            padding: 1.5rem 0; 
-            box-sizing: border-box;
-        }
-
-        /* Estilo para a mensagem de saudação */
-        #greetingMessage {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            font-size: 1.2rem;
-            color: var(--card-text-color);
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
-            /* Adicionado margin-right para espaçar um pouco do botão em telas grandes */
-            margin-right: auto; 
-        }
-
-        /* Estilos do botão de sair */
-        .btn-logout { /* Renomeado de btn-login para btn-logout para clareza */
-            background-color: rgba(255, 255, 255, 0.15); 
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 0.7rem 1.5rem;
-            border-radius: 0.8rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-            box-shadow: var(--shadow-subtle);
-        }
-
-        .btn-logout:hover {
-            background-color: rgba(255, 255, 255, 0.25);
-            border-color: rgba(255, 255, 255, 0.5);
-            color: white; 
-        }
-
-        .main-content-wrapper {
-            display: flex;
-            flex-direction: row; 
-            gap: 4rem; 
-            width: 100%;
-            max-width: 1300px; 
-            align-items: center; 
-            justify-content: center; 
-            flex-grow: 1; 
-            margin-bottom: 2.5rem; 
-            padding-top: 1.5rem; 
         }
 
         header {
-            text-align: left;
-            color: white;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
-            flex: 1.2; 
-            min-width: 350px; 
-            padding: 1rem 0; 
-            box-sizing: border-box; 
+            text-align: center;
+            max-width: 80%;
+            min-width: unset;
+            margin-bottom: 2.5rem;
+            padding: 0 1rem;
+            flex: unset;
+        }
+        header h1, header p {
+            text-align: center;
         }
 
         header h1 {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-            font-size: 4rem; 
-            line-height: 1; 
-            margin-bottom: 0.8rem; 
-            letter-spacing: -1.5px; 
-            max-width: 600px; 
-            display: block; 
+            font-size: 3rem;
+            letter-spacing: -1px;
         }
 
         header p {
-            font-weight: 400;
-            font-size: 1.15rem; 
-            line-height: 1.4; 
-            opacity: 0.85; 
-            max-width: 400px; 
-            margin: 0; 
+            font-size: 1.1rem;
+            max-width: 90%;
         }
 
         .selection-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 2.5rem; 
-            flex: 1.8; 
-            padding: 1rem 0; 
-            box-sizing: border-box; 
+            padding: 0;
+            margin-bottom: 2.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.8rem;
         }
-
         .action-card {
-            background-color: transparent;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: var(--border-radius-card);
-            padding: 1.5rem 1rem; 
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-            cursor: pointer;
-            text-decoration: none;
-            color: var(--card-text-color);
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow-subtle);
+            padding: 0.6rem;
+            min-height: 220px;
         }
-
-        .action-card:hover {
-            transform: translateY(-20px);
-            box-shadow: var(--shadow-hover);
-        }
-
-        .card-receita:hover { background-color: rgba(40, 167, 69, 0.25); }
-        .card-despesa:hover { background-color: rgba(220, 53, 69, 0.25); }
-        .card-gerenciar:hover { background-color: rgba(0, 123, 255, 0.25); }
-        .card-estatistica:hover { background-color: rgba(255, 193, 7, 0.25); }
-
-        .action-card i {
-            font-size: 4rem;
-            margin-bottom: 0.8rem; 
-            color: var(--card-text-color);
-            transition: color 0.3s ease;
-        }
-        .action-card.card-receita:hover i { color: var(--accent-green); }
-        .action-card.card-despesa:hover i { color: var(--accent-red); }
-        .action-card.card-gerenciar:hover i { color: var(--accent-blue); }
-        .action-card.card-estatistica:hover i { color: var(--accent-yellow); }
-
         .action-card h3 {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            font-size: 1.8rem;
-            margin-bottom: 0.4rem; 
-            color: var(--card-text-color);
+            font-size: 1.4rem;
         }
-
-        .action-card p {
-            font-size: 0.95rem; 
-            line-height: 1.4;
-            color: var(--card-text-muted);
+        .card-metas-progress {
+            min-height: 220px;
+            padding: 0.6rem;
         }
-
-        footer {
-            text-align: center;
-            padding: 1.5rem 0;
-            color: white;
-            opacity: 0.8;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-            margin-top: auto; 
-            width: 100%;
-            max-width: 1200px; 
+        .card-metas-progress h3.mb-3 {
+            font-size: 1.4rem;
         }
-
-        /* Responsividade para tablets e desktops menores */
-        @media (max-width: 992px) {
-            .top-bar-wrapper {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            #greetingMessage {
-                margin-bottom: 10px; /* Espaço entre saudação e botão em telas menores */
-            }
-            .btn-logout {
-                width: 100%; /* Botão ocupa a largura total */
-            }
-            .main-content-wrapper {
-                flex-direction: column; 
-                gap: 3rem; 
-                align-items: center; 
-                margin-bottom: 2.5rem;
-                padding-top: 1rem; 
-            }
-
-            header {
-                text-align: center; 
-                max-width: 80%; 
-                min-width: unset; 
-                margin-bottom: 2.5rem; 
-                padding: 0 1rem;
-            }
-
-            header h1 {
-                font-size: 3.2rem; 
-                letter-spacing: -1px;
-            }
-
-            header p {
-                font-size: 1.1rem; 
-                max-width: 90%;
-            }
-
-            .selection-grid {
-                padding: 0; 
-                margin-bottom: 2.5rem;
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
-                gap: 1.8rem; 
-            }
-            .action-card {
-                padding: 1.5rem 0.8rem; 
-            }
-            .action-card i {
-                font-size: 3.5rem; 
-            }
-            .action-card h3 {
-                font-size: 1.6rem; 
-            }
+        .card-metas-progress .progress-item h5 {
+            font-size: 0.8em;
         }
-
-        /* Responsividade para celulares */
-        @media (max-width: 768px) {
-            body {
-                padding: 0 1rem; 
-            }
-            .top-bar-wrapper {
-                padding: 0.8rem 0; 
-            }
-            .btn-logout {
-                padding: 0.6rem 1.2rem; 
-                font-size: 0.9rem;
-            }
-            .main-content-wrapper {
-                padding-top: 0.8rem; 
-            }
-            header h1 {
-                font-size: 2.5rem; 
-                line-height: 1.1; 
-                letter-spacing: -0.5px;
-            }
-            header p {
-                font-size: 0.95rem; 
-                max-width: 90%; 
-            }
-            .selection-grid {
-                gap: 1.2rem; 
-            }
-            .action-card {
-                padding: 1.2rem 0.6rem; 
-            }
-            .action-card i {
-                font-size: 2.8rem;
-            }
-            .action-card h3 {
-                font-size: 1.4rem;
-            }
-            .action-card p {
-                font-size: 0.85rem;
-            }
-            footer {
-                padding: 1rem 0;
-            }
+        .card-metas-progress .progress-item p {
+            font-size: 0.7em;
         }
-    </style>
+    }
+
+    /* Responsividade para celulares (max-width: 768px) */
+    @media (max-width: 768px) {
+        body {
+            padding: 0 1rem;
+        }
+        .btn-logout {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+        .main-content-wrapper {
+            padding-top: 0.8rem;
+        }
+        header h1 {
+            font-size: 2.2rem;
+            line-height: 1.1;
+            letter-spacing: -0.5px;
+        }
+        header p {
+            font-size: 0.95rem;
+            max-width: 90%;
+        }
+        .selection-grid {
+            gap: 1.2rem;
+        }
+        .action-card {
+            padding: 0.4rem;
+            min-height: 180px;
+        }
+        .action-card h3 {
+            font-size: 1.2rem;
+        }
+        .card-metas-progress {
+            min-height: 180px;
+            padding: 0.4rem;
+        }
+        .card-metas-progress h3.mb-3 {
+            font-size: 1.3rem;
+        }
+        .card-metas-progress .progress-item h5 {
+            font-size: 0.75em;
+        }
+        .card-metas-progress .progress-item p {
+            font-size: 0.65em;
+        }
+    }
+
+    /* --- Estilos para o Conteúdo do Cartão de Progresso (Visual Moderno) --- */
+    .card-metas-progress {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center; /* Conteúdo do card centralizado */
+        padding: 1.2rem; /* Aumentado e unificado o padding */
+        min-height: 250px;
+        text-align: center; /* Texto centralizado dentro do card (afeta o h3 principal) */
+        box-shadow: var(--shadow-subtle);
+        transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    .card-metas-progress:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-hover);
+        background-color: rgba(76, 175, 80, 0.25);
+    }
+
+    .card-metas-progress h3.mb-3 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: var(--card-text-color);
+        margin-bottom: 0.6rem !important;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-metas-progress .progress-item {
+        width: 100%;
+        margin-bottom: 0; /* REMOVIDO TODO O ESPAÇO ENTRE OS ITENS DE PROGRESSO */
+    }
+
+    .card-metas-progress .progress-item:last-of-type {
+        margin-bottom: 0;
+    }
+
+    .card-metas-progress .progress-item h5 {
+        font-size: 0.85em;
+        font-weight: 600;
+        margin-bottom: 0.3rem; /* Aumenta o espaço entre o título da meta e a barra */
+        color: var(--card-text-color);
+        text-align: left; /* Título da meta alinhado à esquerda */
+    }
+
+    .card-metas-progress .progress-bar-container {
+        width: 100%;
+        height: 28px; /* Espessura da barra aumentada */
+        background-color: rgba(255, 255, 255, 0.15);
+        border-radius: 9px;
+        overflow: hidden;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-metas-progress .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(to right, #6EE7B7, #34D399, #10B981);
+        border-radius: 9px;
+        transition: width 0.7s ease-out;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+    }
+
+    .card-metas-progress .progress-item p {
+        font-size: 0.75em;
+        color: var(--card-text-muted);
+        margin-top: 0.2rem; /* Aumenta o espaço acima do valor (entre barra e legenda) */
+        text-align: right; /* Valor alinhado à direita */
+        line-height: 1; /* Mantido para compactar verticalmente */
+        word-spacing: -2px; /* NOVO: Tenta diminuir o espaço entre palavras dentro da legenda */
+    }
+
+    .card-metas-progress .progress-item p strong {
+        font-weight: 700;
+        color: var(--card-text-color);
+        font-size: 1em;
+    }
+
+    /* --- Estilos para o estado "Sem Metas" --- */
+    .card-metas-progress.no-goals {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 250px;
+        padding: 1.5rem 1rem;
+    }
+
+    .card-metas-progress.no-goals .initial-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+    }
+    .card-metas-progress.no-goals .initial-content i {
+        font-size: 4rem;
+        margin-bottom: 0.8rem;
+        color: var(--card-text-color);
+    }
+    .card-metas-progress.no-goals .initial-content h3 {
+        font-size: 1.8rem;
+        margin-bottom: 0.4rem;
+        color: var(--card-text-color);
+    }
+    .card-metas-progress.no-goals .initial-content p {
+        font-size: 0.95rem;
+        line-height: 1.4;
+        color: var(--card-text-muted);
+        margin-bottom: 0;
+    }
+</style>
 </head>
 <body>
     <div class="top-bar-wrapper">
@@ -319,6 +448,14 @@
         </header>
 
         <div class="selection-grid">
+            <a href="metas.html" class="action-card card-metas-progress">
+                <div id="metasCardContent" class="initial-content">
+                    <i class="fas fa-bullseye"></i> 
+                    <h3>Definir Metas</h3>
+                    <p>Acompanhe seu desempenho e alcance seus objetivos financeiros.</p>
+                </div>
+            </a>
+
             <a href="receitas.html" class="action-card card-receita">
                 <i class="fas fa-dollar-sign"></i> 
                 <h3>Adicionar Receita</h3>
@@ -352,42 +489,170 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
-        // IMPORTANTE: Importa as instâncias de auth, db e firebaseConfig de firebase_init.js
         import { auth, db, firebaseConfig } from './firebase_init.js';
-        // Importa as funções modulares específicas do Firestore
-        import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+        import { doc, getDoc, collection, query, where, getDocs, Timestamp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
 
-        // Elementos do DOM
         const logoutButton = document.getElementById('logoutButton');
         const greetingMessage = document.getElementById('greetingMessage');
+        const metasCardContent = document.getElementById('metasCardContent');
 
-        let currentUserId = null; // Declarado para ser acessível em todo o módulo
-        const appId = firebaseConfig.appId; // Acessa appId da configuração importada
-        // **FUNCIONALIDADE DE LOGOUT**
-                if (logoutButton) {
-                    logoutButton.addEventListener('click', async () => {
-                        try {
-                            await auth.signOut();
-                            // Nenhuma mensagem de alerta, apenas redireciona
-                            window.location.href = 'login.html';
-                        } catch (error) {
-                            console.error('Erro ao fazer logout:', error);
-                            // Você pode optar por manter este alerta de erro para depuração
-                            alert('Erro ao fazer logout: ' + error.message);
-                        }
-                    });
+        let currentUserId = null;
+        const appId = firebaseConfig.appId; // Mantemos o appId, mas ajustaremos os caminhos
+
+        if (logoutButton) {
+            logoutButton.addEventListener('click', async () => {
+                try {
+                    await auth.signOut();
+                    window.location.href = 'login.html';
+                } catch (error) {
+                    console.error('Erro ao fazer logout:', error);
+                    alert('Erro ao fazer logout: ' + error.message);
                 }
-        // **FUNCIONALIDADE DE SAUDAÇÃO E PROTEÇÃO DE PÁGINA**
+            });
+        }
+
+        const noGoalsHtml = `
+            <i class="fas fa-bullseye"></i> 
+            <h3>Definir Metas</h3>
+            <p>Acompanhe seu desempenho e alcance seus objetivos financeiros.</p>
+        `;
+
+        const progressWidgetHtml = `
+            <h3 class="mb-3">Progresso das Metas</h3>
+            <div class="progress-item">
+                <h5>Meta Semanal</h5>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="weeklyProgressBar" style="width: 0%;"></div>
+                </div>
+                <p><span id="weeklyProgressValue">0.00</span> / <span id="weeklyGoalValue">0.00</span></p>
+                <p><strong id="weeklyProgressPercentage">0%</strong> concluído</p>
+            </div>
+            <div class="progress-item">
+                <h5>Meta Mensal</h5>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="monthlyProgressBar" style="width: 0%;"></div>
+                </div>
+                <p><span id="monthlyProgressValue">0.00</span> / <span id="monthlyGoalValue">0.00</span></p>
+                <p><strong id="monthlyProgressPercentage">0%</strong> concluído</p>
+            </div>
+        `;
+
+        async function renderGoalProgress() {
+            if (!currentUserId) {
+                console.log('currentUserId não definido. Não é possível renderizar o progresso da meta.');
+                return;
+            }
+
+            try {
+                // *** CAMINHO CORRIGIDO PARA METAS ***
+                const metasCollectionRef = collection(db, `users/${currentUserId}/metas`);
+                const metasSnapshot = await getDocs(metasCollectionRef);
+                
+                let weeklyGoal = 0;
+                let monthlyGoal = 0;
+                let hasGoals = false;
+
+                metasSnapshot.forEach(docSnap => {
+                    const goalData = docSnap.data();
+                    if (goalData.tipo === 'ganhos_semanais') {
+                        weeklyGoal = parseFloat(goalData.valorMeta) || 0;
+                        hasGoals = true;
+                    } else if (goalData.tipo === 'ganhos_mensais') {
+                        monthlyGoal = parseFloat(goalData.valorMeta) || 0;
+                        hasGoals = true;
+                    }
+                });
+
+                if (!hasGoals) {
+                    metasCardContent.innerHTML = noGoalsHtml;
+                    metasCardContent.parentElement.classList.add('no-goals');
+                    return;
+                }
+
+                metasCardContent.innerHTML = progressWidgetHtml;
+                metasCardContent.parentElement.classList.remove('no-goals');
+
+                const weeklyGoalValue = document.getElementById('weeklyGoalValue');
+                const monthlyGoalValue = document.getElementById('monthlyGoalValue');
+                const weeklyProgressValue = document.getElementById('weeklyProgressValue');
+                const monthlyProgressValue = document.getElementById('monthlyProgressValue');
+                const weeklyProgressBar = document.getElementById('weeklyProgressBar');
+                const monthlyProgressBar = document.getElementById('monthlyProgressBar');
+                const weeklyProgressPercentage = document.getElementById('weeklyProgressPercentage');
+                const monthlyProgressPercentage = document.getElementById('monthlyProgressPercentage');
+
+                weeklyGoalValue.textContent = weeklyGoal.toFixed(2);
+                monthlyGoalValue.textContent = monthlyGoal.toFixed(2);
+
+                const today = new Date();
+
+                const firstDayOfWeek = new Date(today);
+                firstDayOfWeek.setDate(today.getDate() - (today.getDay() + 6) % 7);
+                firstDayOfWeek.setHours(0, 0, 0, 0);
+
+                const endOfWeek = new Date(firstDayOfWeek);
+                endOfWeek.setDate(firstDayOfWeek.getDate() + 6);
+                endOfWeek.setHours(23, 59, 59, 999);
+
+                // *** CAMINHO CORRIGIDO PARA REGISTROS SEMANAIS ***
+                const qWeekly = query(
+                    collection(db, `users/${currentUserId}/registros`),
+                    where('tipo', '==', 'receita'),
+                    where('data', '>=', firstDayOfWeek.toISOString().split('T')[0]),
+                    where('data', '<=', endOfWeek.toISOString().split('T')[0])
+                );
+                const weeklySnapshot = await getDocs(qWeekly);
+                let totalWeeklyRevenue = 0;
+                weeklySnapshot.forEach(doc => {
+                    totalWeeklyRevenue += parseFloat(doc.data().receita || 0) + parseFloat(doc.data().gorjetas || 0);
+                });
+
+                const weeklyProgress = weeklyGoal > 0 ? (totalWeeklyRevenue / weeklyGoal) * 100 : 0;
+                weeklyProgressValue.textContent = totalWeeklyRevenue.toFixed(2);
+                weeklyProgressBar.style.width = `${Math.min(weeklyProgress, 100)}%`;
+                weeklyProgressPercentage.textContent = `${Math.round(weeklyProgress)}%`;
+
+
+                const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                firstDayOfMonth.setHours(0, 0, 0, 0);
+
+                const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                lastDayOfMonth.setHours(23, 59, 59, 999);
+
+                // *** CAMINHO CORRIGIDO PARA REGISTROS MENSAIS ***
+                const qMonthly = query(
+                    collection(db, `users/${currentUserId}/registros`),
+                    where('tipo', '==', 'receita'),
+                    where('data', '>=', firstDayOfMonth.toISOString().split('T')[0]),
+                    where('data', '<=', lastDayOfMonth.toISOString().split('T')[0])
+                );
+                const monthlySnapshot = await getDocs(qMonthly);
+                let totalMonthlyRevenue = 0;
+                monthlySnapshot.forEach(doc => {
+                    totalMonthlyRevenue += parseFloat(doc.data().receita || 0) + parseFloat(doc.data().gorjetas || 0);
+                });
+
+                const monthlyProgress = monthlyGoal > 0 ? (totalMonthlyRevenue / monthlyGoal) * 100 : 0;
+                monthlyProgressValue.textContent = totalMonthlyRevenue.toFixed(2);
+                monthlyProgressBar.style.width = `${Math.min(monthlyProgress, 100)}%`;
+                monthlyProgressPercentage.textContent = `${Math.round(monthlyProgress)}%`;
+
+
+            } catch (error) {
+                console.error('Erro ao buscar progresso das metas:', error);
+                metasCardContent.innerHTML = noGoalsHtml;
+                metasCardContent.parentElement.classList.add('no-goals');
+            }
+        }
+
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                // Usuário está logado
-                currentUserId = user.uid; // Atribui o UID do usuário logado
+                currentUserId = user.uid;
                 console.log('Usuário logado:', user.email, 'UID:', user.uid);
 
-                // Buscar o primeiro nome no Firestore
                 try {
-                    // Usa 'doc' e 'getDoc' para a abordagem modular do Firestore
-                    const userDocRef = doc(db, 'users', user.uid);
+                    // *** CAMINHO CORRIGIDO PARA BUSCAR O DOCUMENTO DO USUÁRIO ***
+                    const userDocRef = doc(db, `users`, user.uid);
                     const userDocSnap = await getDoc(userDocRef);
 
                     if (userDocSnap.exists()) {
@@ -395,22 +660,21 @@
                         if (userData.firstName) {
                             greetingMessage.textContent = `Olá, ${userData.firstName}!`;
                         } else {
-                            // Se não tiver firstName no Firestore, mostra o email (ou "Usuário")
                             greetingMessage.textContent = `Olá, ${user.email.split('@')[0]}!`;
                             console.warn("Primeiro nome não encontrado no Firestore para o usuário:", user.uid);
                         }
                     } else {
-                        // Caso o documento do usuário não exista (muito raro se o registro foi via app)
                         greetingMessage.textContent = `Olá, Usuário!`;
                         console.warn("Documento do usuário não encontrado no Firestore para o UID:", user.uid);
                     }
+                    renderGoalProgress();
                 } catch (error) {
                     console.error("Erro ao buscar dados do usuário no Firestore:", error);
-                    greetingMessage.textContent = `Olá, Usuário!`; // Fallback em caso de erro
+                    greetingMessage.textContent = `Olá, Usuário!`;
+                    renderGoalProgress();
                 }
 
             } else {
-                // Usuário NÃO está logado, redireciona para a página de login
                 console.log('Nenhum usuário logado. Redirecionando para login.html');
                 window.location.href = 'login.html';
             }
