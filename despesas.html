@@ -29,14 +29,24 @@
       color: var(--text-color-light);
       display: flex;
       flex-direction: column;
-      align-items: center; /* Centraliza o conteúdo principal horizontalmente */
-      padding: 0 1.5rem; /* Padding nas laterais do body */
       box-sizing: border-box;
+      padding: 0; /* Remova qualquer padding horizontal direto do body */
+    }
+
+    .main-content-wrapper {
+        width: 100%;
+        max-width: 800px; /* Or your desired max-width for the overall content */
+        margin-left: auto;
+        margin-right: auto;
+        padding: 0 1.5rem; /* Padding padrão para telas maiores */
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
     }
 
     .top-nav-bar {
       width: 100%;
-      max-width: 800px; /* Limita a largura da barra de navegação */
       display: flex;
       justify-content: flex-start;
       align-items: center;
@@ -68,7 +78,6 @@
       text-align: center;
       margin-top: 1rem;
       width: 100%;
-      max-width: 800px; /* Limita a largura do cabeçalho */
     }
     
     header h1 {
@@ -78,13 +87,12 @@
     }
 
     .container {
-      /* REMOVIDO: max-width: 800px; - A largura máxima agora é controlada pelo .card */
       margin-bottom: 3rem;
       flex-grow: 1;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      width: 100%; /* Garante que o container ocupe a largura total disponível */
+      justify-content: flex-start;
+      width: 100%;
     }
     
     .card {
@@ -92,17 +100,17 @@
       border: 1px solid var(--card-border-color);
       border-radius: var(--border-radius-large);
       box-shadow: var(--shadow-subtle);
-      padding: 2rem; /* Padding padrão para desktop */
+      padding: 2rem;
       color: var(--text-color-dark);
       transition: all 0.3s ease;
-      max-width: 800px; /* Limita a largura máxima do card em telas grandes */
-      width: 100%; /* Garante que o card ocupe 100% da largura do container (que é 100% do body - padding) */
+      max-width: 100%;
+      width: 100%;
     }
 
     .section-card {
       border: 1px solid #dee2e6;
       border-radius: var(--border-radius-large);
-      padding: 1.5rem; /* Padding padrão para desktop */
+      padding: 1.5rem;
       margin-bottom: 1.5rem;
       background-color: #f8f9fa;
     }
@@ -126,7 +134,6 @@
       opacity: 0.8;
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
       width: 100%;
-      max-width: 800px; /* Limita a largura do rodapé */
     }
 
     /* Estilos para as abas */
@@ -134,8 +141,8 @@
         color: var(--text-color-dark);
         background-color: rgba(255, 255, 255, 0.7);
         border: 1px solid rgba(0, 0, 0, 0.1);
-        border-radius: var(--border-radius-medium) var(--border-radius-medium) 0 0; /* Arredondamento superior */
-        border-bottom: none; /* Remove a borda inferior para conectar com o conteúdo */
+        border-radius: var(--border-radius-medium) var(--border-radius-medium) 0 0;
+        border-bottom: none;
     }
     .nav-tabs .nav-link.active {
         color: white;
@@ -146,8 +153,8 @@
     .tab-content {
         padding-top: 1.5rem;
         background-color: white;
-        border-radius: 0 0 var(--border-radius-large) var(--border-radius-large); /* Arredondar só embaixo */
-        padding: 2.5rem; /* Padding padrão para desktop */
+        border-radius: 0 0 var(--border-radius-large) var(--border-radius-large);
+        padding: 2.5rem;
         box-shadow: var(--shadow-subtle);
     }
     .expense-item {
@@ -161,13 +168,13 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        flex-wrap: wrap; /* Permite que itens quebrem a linha */
+        flex-wrap: wrap;
     }
     .expense-item h5 {
         font-family: 'Montserrat', sans-serif;
         font-weight: 600;
         color: #dc3545;
-        width: 100%; /* Ocupa a largura total para o título */
+        width: 100%;
         margin-bottom: 0.5rem;
     }
     .expense-item p {
@@ -191,7 +198,7 @@
 
     /* Estilos para o Modal de Sucesso */
     .modal-content.success-modal {
-        background: linear-gradient(135deg, #28a745, #218838); /* Gradiente verde */
+        background: linear-gradient(135deg, #28a745, #218838);
         color: white;
         border-radius: 1.5rem;
         border: none;
@@ -230,65 +237,67 @@
 
     /* Otimizações para telas menores (celulares) */
     @media (max-width: 767.98px) {
+        .main-content-wrapper {
+            padding: 0 0.8rem; /* Padding lateral diminuído para celulares maiores */
+        }
         .card {
-            padding: 1.5rem; /* Reduzir padding do card principal */
+            padding: 1.5rem;
         }
         .section-card {
-            padding: 1.5rem; /* Reduzir padding da seção interna */
+            padding: 1.5rem;
         }
 
         /* Ajustes para as Abas de Navegação: lado a lado e responsivas */
         .nav-tabs {
-            display: flex; /* Garante que seja um container flexível */
-            flex-wrap: wrap; /* Permite que os itens quebrem para a próxima linha se não houver espaço */
-            justify-content: center; /* Centraliza as abas */
-            margin-bottom: 1rem; /* Um pouco menos de margem para mobile */
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 1rem;
         }
         .nav-tabs .nav-item {
-            /* Remove width: 100%; para permitir que fiquem lado a lado */
-            margin-right: 0.5rem; /* Mantém alguma margem entre as abas */
-            margin-bottom: 0.5rem; /* Adiciona margem inferior caso quebrem a linha */
-            flex-grow: 1; /* Permite que os itens cresçam e ocupem o espaço disponível */
-            flex-basis: 0; /* Essencial para flex-grow funcionar corretamente */
-            min-width: fit-content; /* Garante que o conteúdo não seja cortado */
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            flex-grow: 1;
+            flex-basis: 0;
+            min-width: fit-content;
         }
         .nav-tabs .nav-link {
             text-align: center;
-            /* Reverte border-radius para mobile para manter a aparência de aba */
             border-radius: var(--border-radius-medium) var(--border-radius-medium) 0 0;
-            padding: 0.7rem 1.2rem; /* Reduz o preenchimento para caber mais na linha */
-            white-space: nowrap; /* Impede que o texto quebre dentro do botão da aba */
+            padding: 0.7rem 1.2rem;
+            white-space: nowrap;
         }
         .nav-tabs .nav-link.active {
-            /* Reverte border-radius para a aba ativa no mobile */
             border-radius: var(--border-radius-medium) var(--border-radius-medium) 0 0;
         }
         .tab-content {
             padding: 1.5rem;
-            /* Remove arredondamentos superiores adicionados anteriormente, mantendo o padrão */
             border-top-left-radius: 0;
             border-top-right-radius: 0;
         }
 
         .expense-item {
-            flex-direction: column; /* Empilha conteúdo do item de despesa */
-            align-items: flex-start; /* Alinha itens ao início */
-            padding: 1rem; /* Reduz padding do item de despesa */
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 1rem;
         }
         .expense-item h5 {
-            margin-bottom: 0.5rem; /* Ajusta margem do título */
+            margin-bottom: 0.5rem;
         }
         .btn-danger-custom {
-                margin-left: 0; /* Remove margem esquerda do botão de exclusão */
-                margin-top: 0.8rem; /* Adiciona margem superior para espaçamento */
-                width: 100%; /* Faz com que o botão ocupe a largura total */
+                margin-left: 0;
+                margin-top: 0.8rem;
+                width: 100%;
             }
     }
 
     /* Nova media query para dispositivos extra pequenos (como celulares muito pequenos) */
     @media (max-width: 575.98px) {
+        .main-content-wrapper {
+            padding: 0 0.5rem; /* Padding lateral ainda menor para telas muito pequenas */
+        }
         .card {
-            padding: 1rem; /* Preenchimento ainda menor para telas muito pequenas */
+            padding: 1rem;
         }
         .section-card {
             padding: 1rem;
@@ -298,173 +307,168 @@
         }
         /* Reduz o tamanho da fonte e o preenchimento dos links das abas se ainda houver sobreposição */
         .nav-tabs .nav-link {
-            font-size: 0.9rem; /* Fonte ligeiramente menor para caber */
-            padding: 0.6rem 1rem; /* Preenchimento ainda menor */
-        }
-        
-        /* Reduz o padding lateral do body para telas muito estreitas */
-        body {
-            padding: 0 0.4rem; /* Reduzido de 0.8rem para 0.4rem */
+            font-size: 0.9rem;
+            padding: 0.6rem 1rem;
         }
     }
 
     /* NOVO: Estilo para destacar o texto explicativo em um bloco sutil */
     .explanation-text {
-        background-color: rgba(79, 129, 189, 0.05); /* Um azul muito claro e transparente */
+        background-color: rgba(79, 129, 189, 0.05);
         padding: 0.8rem 1rem;
-        border-left: 4px solid var(--body-bg-start); /* Borda lateral azul */
+        border-left: 4px solid var(--body-bg-start);
         border-radius: 0.5rem;
-        margin-bottom: 1.5rem; /* Espaço abaixo do bloco */
-        color: var(--text-color-dark); /* Garante que o texto seja escuro dentro do bloco */
+        margin-bottom: 1.5rem;
+        color: var(--text-color-dark);
     }
   </style>
   
 </head>
 <body>
-  <div class="top-nav-bar">
-      <a href="index.html" class="btn-nav"><i class="fas fa-home"></i> Home</a>
-  </div>
+  <div class="main-content-wrapper">
+      <div class="top-nav-bar">
+          <a href="index.html" class="btn-nav"><i class="fas fa-home"></i> Home</a>
+      </div>
 
-  <header>
-    <h1 class="fw-bold">Gerenciar Despesas</h1>
-    <p>Registre seus gastos e gerencie despesas fixas</p>
-  </header>
+      <header>
+        <h1 class="fw-bold">Gerenciar Despesas</h1>
+        <p>Registre seus gastos e gerencie despesas fixas</p>
+      </header>
 
-  <div class="container">
-    <div class="card">
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="variable-tab" data-bs-toggle="tab" data-bs-target="#variable-expense" type="button" role="tab" aria-controls="variable-expense" aria-selected="true">Despesa Variável</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="fixed-tab" data-bs-toggle="tab" data-bs-target="#fixed-expense" type="button" role="tab" aria-controls="fixed-expense" aria-selected="false">Despesa Fixa</button>
-            </li>
-        </ul>
-        <div class="tab-content" id="myTabContent">
-    <div class="tab-pane fade show active" id="variable-expense" role="tabpanel" aria-labelledby="variable-tab">
-        <p class="explanation-text">
-            Use para registrar seus gastos diários que variam, como <strong>combustível, manutenção ou alimentação</strong>. Mantenha seu controle de caixa sempre atualizado!
-        </p>
-        <form id="variableDespesaForm">
-            <div class="row">
-                <div class="col-md-12 form-group mb-3">
-                    <label for="dataDespesa">Data</label>
-                    <input type="date" class="form-control" id="dataDespesa" required>
-                </div>
-            </div>
-                    <div class="section-card mt-3">
-                        <h3>Detalhes da Despesa Variável</h3>
+      <div class="container">
+        <div class="card">
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="variable-tab" data-bs-toggle="tab" data-bs-target="#variable-expense" type="button" role="tab" aria-controls="variable-expense" aria-selected="true">Despesa Variável</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="fixed-tab" data-bs-toggle="tab" data-bs-target="#fixed-expense" type="button" role="tab" aria-controls="fixed-expense" aria-selected="false">Despesa Fixa</button>
+                </li>
+            </ul>
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="variable-expense" role="tabpanel" aria-labelledby="variable-tab">
+                    <p class="explanation-text">
+                        Use para registrar seus gastos diários que variam, como <strong>combustível, manutenção ou alimentação</strong>. Mantenha seu controle de caixa sempre atualizado!
+                    </p>
+                    <form id="variableDespesaForm">
                         <div class="row">
-                            <div class="col-md-6 form-group">
-                                <label for="valorDespesa">Valor Total (R$)</label>
-                                <input type="number" step="0.01" class="form-control" id="valorDespesa" placeholder="0.00" required>
-                            </div>
-                            <div class="col-md-6 form-group">
-                                <label for="categoriaDespesa">Categoria</label>
-                                <select class="form-select" id="categoriaDespesa" required>
-                                    <option value="">Selecione uma categoria</option>
-                                    <option value="Combustível">Combustível</option>
-                                    <option value="Manutenção">Manutenção</option>
-                                    <option value="Alimentação">Alimentação</option>
-                                    <option value="Estacionamento">Estacionamento</option>
-                                    <option value="Lavagem">Lavagem</option>
-                                    <option value="Outros">Outros</option>
-                                </select>
+                            <div class="col-md-12 form-group mb-3">
+                                <label for="dataDespesa">Data</label>
+                                <input type="date" class="form-control" id="dataDespesa" required>
                             </div>
                         </div>
+                                <div class="section-card mt-3">
+                                    <h3>Detalhes da Despesa Variável</h3>
+                                    <div class="row">
+                                        <div class="col-md-6 form-group">
+                                            <label for="valorDespesa">Valor Total (R$)</label>
+                                            <input type="number" step="0.01" class="form-control" id="valorDespesa" placeholder="0.00" required>
+                                        </div>
+                                        <div class="col-md-6 form-group">
+                                            <label for="categoriaDespesa">Categoria</label>
+                                            <select class="form-select" id="categoriaDespesa" required>
+                                                <option value="">Selecione uma categoria</option>
+                                                <option value="Combustível">Combustível</option>
+                                                <option value="Manutenção">Manutenção</option>
+                                                <option value="Alimentação">Alimentação</option>
+                                                <option value="Estacionamento">Estacionamento</option>
+                                                <option value="Lavagem">Lavagem</option>
+                                                <option value="Outros">Outros</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group mt-3">
+                                    <label for="observacoesDespesa">Observações</label>
+                                    <input type="text" class="form-control" id="observacoesDespesa" placeholder="Ex: Posto Ipiranga, Almoço na rua">
+                                </div>
+
+                                <button type="submit" class="btn btn-danger w-100 mt-4">Adicionar Despesa Variável</button>
+                            </form>
+                        </div>
+
+                        <div class="tab-pane fade" id="fixed-expense" role="tabpanel" aria-labelledby="fixed-tab">
+                            <p class="explanation-text">
+                                Use para cadastrar <strong>despesas que se repetem </strong>sempre, como <strong>aluguel do carro, seguro ou parcelas fixas</strong>. Registre uma vez e gerencie facilmente.
+                            </p>
+                            <div class="card p-4 mb-4">
+                                <h3>Adicionar Nova Despesa Fixa</h3>
+                                <form id="fixedExpenseForm">
+                                    <div class="mb-3">
+                                        <label for="expenseName" class="form-label">Nome da Despesa</label>
+                                        <input type="text" class="form-control" id="expenseName" placeholder="Ex: Aluguel do carro" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="expenseValue" class="form-label">Valor (R$)</label>
+                                        <input type="number" step="0.01" class="form-control" id="expenseValue" placeholder="Ex: 700.00" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="expenseFrequency" class="form-label">Frequência</label>
+                                        <select class="form-select" id="expenseFrequency" required>
+                                            <option value="">Selecione...</option>
+                                            <option value="diaria">Diária</option>
+                                            <option value="semanal">Semanal</option>
+                                            <option value="quinzenal">Quinzenal</option>
+                                            <option value="mensal">Mensal</option>
+                                            <option value="anual">Anual</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3" id="dayOfWeekField" style="display: none;">
+                                        <label for="dayOfWeek" class="form-label">Dia da Semana</label>
+                                        <select class="form-select" id="dayOfWeek">
+                                            <option value="">Selecione...</option>
+                                            <option value="1">Domingo</option>
+                                            <option value="2">Segunda-feira</option>
+                                            <option value="3">Terça-feira</option>
+                                            <option value="4">Quarta-feira</option>
+                                            <option value="5">Quinta-feira</option>
+                                            <option value="6">Sexta-feira</option>
+                                            <option value="7">Sábado</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3" id="dayOfMonthField" style="display: none;">
+                                        <label for="dayOfMonth" class="form-label">Dia do Mês</label>
+                                        <input type="number" class="form-control" id="dayOfMonth" min="1" max="31" placeholder="Ex: 15">
+                                    </div>
+                                    <div class="mb-3" id="monthOfYearField" style="display: none;">
+                                        <label for="monthOfYear" class="form-label">Mês da Cobrança</label>
+                                        <select class="form-select" id="monthOfYear">
+                                            <option value="">Selecione...</option>
+                                            <option value="1">Janeiro</option>
+                                            <option value="2">Fevereiro</option>
+                                            <option value="3">Março</option>
+                                            <option value="4">Abril</option>
+                                            <option value="5">Maio</option>
+                                            <option value="6">Junho</option>
+                                            <option value="7">Julho</option>
+                                            <option value="8">Agosto</option>
+                                            <option value="9">Setembro</option>
+                                            <option value="10">Outubro</option>
+                                            <option value="11">Novembro</option>
+                                            <option value="12">Dezembro</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100 mt-4" style="background-color: #28a745; border-color: #28a745;">Adicionar Despesa Fixa</button>
+                                </form>
+                            </div>
+
+                            <div class="card p-4">
+                                <h3>Minhas Despesas Fixas</h3>
+                                <div id="fixedExpensesList">
+                                    <p class="text-center text-muted">Nenhuma despesa fixa cadastrada ainda.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
-                    <div class="form-group mt-3">
-                        <label for="observacoesDespesa">Observações</label>
-                        <input type="text" class="form-control" id="observacoesDespesa" placeholder="Ex: Posto Ipiranga, Almoço na rua">
-                    </div>
-
-                    <button type="submit" class="btn btn-danger w-100 mt-4">Adicionar Despesa Variável</button>
-                </form>
-            </div>
-
-            <div class="tab-pane fade" id="fixed-expense" role="tabpanel" aria-labelledby="fixed-tab">
-                <p class="explanation-text">
-                    Use para cadastrar <strong>despesas que se repetem </strong>sempre, como <strong>aluguel do carro, seguro ou parcelas fixas</strong>. Registre uma vez e gerencie facilmente.
-                </p>
-                <div class="card p-4 mb-4">
-                    <h3>Adicionar Nova Despesa Fixa</h3>
-                    <form id="fixedExpenseForm">
-                        <div class="mb-3">
-                            <label for="expenseName" class="form-label">Nome da Despesa</label>
-                            <input type="text" class="form-control" id="expenseName" placeholder="Ex: Aluguel do carro" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="expenseValue" class="form-label">Valor (R$)</label>
-                            <input type="number" step="0.01" class="form-control" id="expenseValue" placeholder="Ex: 700.00" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="expenseFrequency" class="form-label">Frequência</label>
-                            <select class="form-select" id="expenseFrequency" required>
-                                <option value="">Selecione...</option>
-                                <option value="diaria">Diária</option>
-                                <option value="semanal">Semanal</option>
-                                <option value="quinzenal">Quinzenal</option>
-                                <option value="mensal">Mensal</option>
-                                <option value="anual">Anual</option>
-                            </select>
-                        </div>
-                        <div class="mb-3" id="dayOfWeekField" style="display: none;">
-                            <label for="dayOfWeek" class="form-label">Dia da Semana</label>
-                            <select class="form-select" id="dayOfWeek">
-                                <option value="">Selecione...</option>
-                                <option value="1">Domingo</option>
-                                <option value="2">Segunda-feira</option>
-                                <option value="3">Terça-feira</option>
-                                <option value="4">Quarta-feira</option>
-                                <option value="5">Quinta-feira</option>
-                                <option value="6">Sexta-feira</option>
-                                <option value="7">Sábado</option>
-                            </select>
-                        </div>
-                        <div class="mb-3" id="dayOfMonthField" style="display: none;">
-                            <label for="dayOfMonth" class="form-label">Dia do Mês</label>
-                            <input type="number" class="form-control" id="dayOfMonth" min="1" max="31" placeholder="Ex: 15">
-                        </div>
-                        <div class="mb-3" id="monthOfYearField" style="display: none;">
-                            <label for="monthOfYear" class="form-label">Mês da Cobrança</label>
-                            <select class="form-select" id="monthOfYear">
-                                <option value="">Selecione...</option>
-                                <option value="1">Janeiro</option>
-                                <option value="2">Fevereiro</option>
-                                <option value="3">Março</option>
-                                <option value="4">Abril</option>
-                                <option value="5">Maio</option>
-                                <option value="6">Junho</option>
-                                <option value="7">Julho</option>
-                                <option value="8">Agosto</option>
-                                <option value="9">Setembro</option>
-                                <option value="10">Outubro</option>
-                                <option value="11">Novembro</option>
-                                <option value="12">Dezembro</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 mt-4" style="background-color: #28a745; border-color: #28a745;">Adicionar Despesa Fixa</button>
-                    </form>
+                    <button type="button" class="btn btn-secondary w-100 mt-2" onclick="window.location.href='index.html'">Voltar ao Início</button>
                 </div>
+      </div>
 
-                <div class="card p-4">
-                    <h3>Minhas Despesas Fixas</h3>
-                    <div id="fixedExpensesList">
-                        <p class="text-center text-muted">Nenhuma despesa fixa cadastrada ainda.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <button type="button" class="btn btn-secondary w-100 mt-2" onclick="window.location.href='index.html'">Voltar ao Início</button>
-    </div>
-  </div>
-
-  <footer>
-    <p>&copy; 2025 - Anderson Rockenbach - Todos os direitos reservados</p>
-  </footer>
-
-  <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+      <footer>
+        <p>&copy; 2025 - Anderson Rockenbach - Todos os direitos reservados</p>
+      </footer>
+  </div> <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content success-modal">
         <div class="modal-body">
@@ -486,7 +490,7 @@
     import { auth, db, firebaseConfig } from './firebase_init.js';
 
     let currentUserId = null;
-    const appId = firebaseConfig.appId;
+    const appId = firebaseConfig.appId; // Embora appId não seja mais usado nos caminhos de coleção, mantemos caso seja usado em outro lugar
 
     // Elementos do formulário de Despesa Variável
     const variableDespesaForm = document.getElementById('variableDespesaForm');
@@ -566,7 +570,7 @@
             plataforma: '',
             receita: 0,
             gorjetas: 0,
-            despesas: parseFloat(valorDespesa.value) || 0, 
+            despesas: parseFloat(valorDespesa.value) || 0,
             categoriaDespesa: categoriaDespesa.value,
             kmRodados: 0,
             combustivelLitros: 0,
@@ -576,11 +580,12 @@
         };
 
         try {
-            await addDoc(collection(db, `artifacts/${appId}/users/${currentUserId}/registros`), novoRegistro);
+            // Caminho alterado: removido artifacts/${appId}/
+            await addDoc(collection(db, `users/${currentUserId}/registros`), novoRegistro);
             showSuccessModal('Sucesso!', 'Despesa variável adicionada com sucesso!');
             variableDespesaForm.reset();
             dataDespesa.value = getFormattedDate(new Date());
-            valorDespesa.value = ''; 
+            valorDespesa.value = '';
             categoriaDespesa.value = '';
         } catch (error) {
             console.error('Erro ao adicionar despesa variável:', error);
@@ -593,11 +598,11 @@
         const frequency = expenseFrequency.value;
         dayOfWeekField.style.display = 'none';
         dayOfMonthField.style.display = 'none';
-        monthOfYearField.style.display = 'none'; 
+        monthOfYearField.style.display = 'none';
 
         dayOfWeek.removeAttribute('required');
         dayOfMonth.removeAttribute('required');
-        monthOfYear.removeAttribute('required'); 
+        monthOfYear.removeAttribute('required');
 
         // Limpa os valores para evitar que dados indesejados sejam enviados se o campo for ocultado
         dayOfWeek.value = '';
@@ -610,7 +615,7 @@
         } else if (frequency === 'mensal' || frequency === 'quinzenal') {
             dayOfMonthField.style.display = 'block';
             dayOfMonth.setAttribute('required', 'required');
-        } else if (frequency === 'anual') { 
+        } else if (frequency === 'anual') {
             dayOfMonthField.style.display = 'block';
             monthOfYearField.style.display = 'block';
             dayOfMonth.setAttribute('required', 'required');
@@ -631,8 +636,8 @@
             nome: expenseName.value.trim(),
             valor: parseFloat(expenseValue.value) || 0,
             frequencia: expenseFrequency.value,
-            diaVencimento: '', 
-            mesVencimento: '', 
+            diaVencimento: '',
+            mesVencimento: '',
             userId: currentUserId,
             createdAt: serverTimestamp()
         };
@@ -659,11 +664,12 @@
         }
 
         try {
-            await addDoc(collection(db, `artifacts/${appId}/users/${currentUserId}/despesasFixas`), newFixedExpense);
+            // Caminho alterado: removido artifacts/${appId}/
+            await addDoc(collection(db, `users/${currentUserId}/despesasFixas`), newFixedExpense);
             showSuccessModal('Sucesso!', 'Despesa fixa adicionada com sucesso!');
             fixedExpenseForm.reset();
-            expenseFrequency.dispatchEvent(new Event('change')); 
-            renderFixedExpenses(); 
+            expenseFrequency.dispatchEvent(new Event('change'));
+            renderFixedExpenses();
         } catch (error) {
             console.error('Erro ao adicionar despesa fixa:', error);
             alert(`Erro ao adicionar despesa fixa: ${error.message}`); // Usar alert para erros
@@ -679,7 +685,8 @@
         }
 
         try {
-            const q = query(collection(db, `artifacts/${appId}/users/${currentUserId}/despesasFixas`));
+            // Caminho alterado: removido artifacts/${appId}/
+            const q = query(collection(db, `users/${currentUserId}/despesasFixas`));
             const querySnapshot = await getDocs(q);
 
             if (querySnapshot.empty) {
@@ -698,7 +705,7 @@
                     vencimentoInfo = ` (Todo(a) ${days[parseInt(expense.diaVencimento) - 1]})`;
                 } else if (expense.frequencia === 'mensal' || expense.frequencia === 'quinzenal') {
                     vencimentoInfo = ` (Dia ${expense.diaVencimento} do mês)`;
-                } else if (expense.frequencia === 'anual') { 
+                } else if (expense.frequencia === 'anual') {
                     const months = [
                         '', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
                         'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
@@ -724,7 +731,8 @@
                     const idToDelete = e.target.dataset.id;
                     if (confirm('Tem certeza que deseja excluir esta despesa fixa?')) {
                         try {
-                            await deleteDoc(doc(db, `artifacts/${appId}/users/${currentUserId}/despesasFixas`, idToDelete));
+                            // Caminho alterado: removido artifacts/${appId}/
+                            await deleteDoc(doc(db, `users/${currentUserId}/despesasFixas`, idToDelete));
                             alert('Despesa fixa excluída com sucesso!'); // Usar alert para exclusão
                             renderFixedExpenses();
                         } catch (error) {

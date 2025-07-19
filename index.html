@@ -100,7 +100,7 @@
         text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
         flex: 1.2;
         min-width: 350px;
-        padding: 0.8rem 0;
+        padding: 6rem 0;
         box-sizing: border-box;
     }
 
@@ -458,7 +458,7 @@
 
             <a href="receitas.html" class="action-card card-receita">
                 <i class="fas fa-dollar-sign"></i> 
-                <h3>Adicionar Receita</h3>
+                <h3>Adicionar Ganhos</h3>
                 <p>Registre seus valores recebidos e gorjetas diárias rapidamente.</p>
             </a>
 
@@ -540,30 +540,35 @@
         async function renderGoalProgress() {
             if (!currentUserId) {
                 console.log('currentUserId não definido. Não é possível renderizar o progresso da meta.');
+                metasCardContent.innerHTML = noGoalsHtml;
+                metasCardContent.parentElement.classList.add('no-goals');
                 return;
             }
 
             try {
-                // *** CAMINHO CORRIGIDO PARA METAS ***
                 const metasCollectionRef = collection(db, `users/${currentUserId}/metas`);
                 const metasSnapshot = await getDocs(metasCollectionRef);
-                
+
                 let weeklyGoal = 0;
                 let monthlyGoal = 0;
                 let hasGoals = false;
 
-                metasSnapshot.forEach(docSnap => {
-                    const goalData = docSnap.data();
-                    if (goalData.tipo === 'ganhos_semanais') {
-                        weeklyGoal = parseFloat(goalData.valorMeta) || 0;
-                        hasGoals = true;
-                    } else if (goalData.tipo === 'ganhos_mensais') {
-                        monthlyGoal = parseFloat(goalData.valorMeta) || 0;
+                // Assume que haverá apenas um documento de meta principal (diária ou mensal)
+                // e que ele conterá os campos calculados de meta semanal e mensal.
+                if (!metasSnapshot.empty) {
+                    const goalDoc = metasSnapshot.docs[0]; 
+                    const goalData = goalDoc.data();
+
+                    weeklyGoal = parseFloat(goalData.metaSemanalCalculada) || 0;
+                    monthlyGoal = parseFloat(goalData.metaMensalCalculada) || 0;
+                    
+                    // Verifica se pelo menos uma das metas calculadas é maior que zero
+                    if (weeklyGoal > 0 || monthlyGoal > 0) {
                         hasGoals = true;
                     }
-                });
+                }
 
-                if (!hasGoals) {
+                if (!hasGoals) { 
                     metasCardContent.innerHTML = noGoalsHtml;
                     metasCardContent.parentElement.classList.add('no-goals');
                     return;
@@ -581,20 +586,25 @@
                 const weeklyProgressPercentage = document.getElementById('weeklyProgressPercentage');
                 const monthlyProgressPercentage = document.getElementById('monthlyProgressPercentage');
 
-                weeklyGoalValue.textContent = weeklyGoal.toFixed(2);
-                monthlyGoalValue.textContent = monthlyGoal.toFixed(2);
+                // Formatar valores como moeda (Reais - R$)
+                const formatCurrency = (value) => {
+                    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                };
+
+                weeklyGoalValue.textContent = formatCurrency(weeklyGoal);
+                monthlyGoalValue.textContent = formatCurrency(monthlyGoal);
 
                 const today = new Date();
 
+                // Calcula a receita da semana atual (Domingo a Sábado)
                 const firstDayOfWeek = new Date(today);
-                firstDayOfWeek.setDate(today.getDate() - (today.getDay() + 6) % 7);
+                firstDayOfWeek.setDate(today.getDate() - today.getDay()); // Define para o domingo
                 firstDayOfWeek.setHours(0, 0, 0, 0);
 
                 const endOfWeek = new Date(firstDayOfWeek);
-                endOfWeek.setDate(firstDayOfWeek.getDate() + 6);
+                endOfWeek.setDate(firstDayOfWeek.getDate() + 6); // Define para o sábado
                 endOfWeek.setHours(23, 59, 59, 999);
 
-                // *** CAMINHO CORRIGIDO PARA REGISTROS SEMANAIS ***
                 const qWeekly = query(
                     collection(db, `users/${currentUserId}/registros`),
                     where('tipo', '==', 'receita'),
@@ -608,18 +618,18 @@
                 });
 
                 const weeklyProgress = weeklyGoal > 0 ? (totalWeeklyRevenue / weeklyGoal) * 100 : 0;
-                weeklyProgressValue.textContent = totalWeeklyRevenue.toFixed(2);
+                weeklyProgressValue.textContent = formatCurrency(totalWeeklyRevenue);
                 weeklyProgressBar.style.width = `${Math.min(weeklyProgress, 100)}%`;
                 weeklyProgressPercentage.textContent = `${Math.round(weeklyProgress)}%`;
 
 
+                // Calcula a receita do mês atual
                 const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
                 firstDayOfMonth.setHours(0, 0, 0, 0);
 
                 const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
                 lastDayOfMonth.setHours(23, 59, 59, 999);
 
-                // *** CAMINHO CORRIGIDO PARA REGISTROS MENSAIS ***
                 const qMonthly = query(
                     collection(db, `users/${currentUserId}/registros`),
                     where('tipo', '==', 'receita'),
@@ -633,7 +643,7 @@
                 });
 
                 const monthlyProgress = monthlyGoal > 0 ? (totalMonthlyRevenue / monthlyGoal) * 100 : 0;
-                monthlyProgressValue.textContent = totalMonthlyRevenue.toFixed(2);
+                monthlyProgressValue.textContent = formatCurrency(totalMonthlyRevenue);
                 monthlyProgressBar.style.width = `${Math.min(monthlyProgress, 100)}%`;
                 monthlyProgressPercentage.textContent = `${Math.round(monthlyProgress)}%`;
 
@@ -651,7 +661,6 @@
                 console.log('Usuário logado:', user.email, 'UID:', user.uid);
 
                 try {
-                    // *** CAMINHO CORRIGIDO PARA BUSCAR O DOCUMENTO DO USUÁRIO ***
                     const userDocRef = doc(db, `users`, user.uid);
                     const userDocSnap = await getDoc(userDocRef);
 

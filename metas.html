@@ -22,7 +22,6 @@
       --primary-color: #4F81BD; /* Cor principal da paleta */
       --success-color: #28a745; /* Verde para sucesso */
       --info-color: #17a2b8; /* Azul claro para informações */
-      /* Removidas variáveis de aba pois a estrutura de abas foi removida */
     }
 
     body {
@@ -339,16 +338,15 @@
 
   <div class="container">
     <div class="card">
-        <div class="section-card mb-4">
+        <div class="section-card mb-4" id="addGoalSection">
             <h3>Definir Nova Meta</h3>
             <form id="goalForm">
                 <div class="mb-3">
                     <label for="goalType" class="form-label">Tipo de Meta</label>
                     <select class="form-select" id="goalType" required>
                         <option value="">Selecione...</option>
-                        <option value="ganhos_diarios">Ganhos Diários</option>
-                        <option value="ganhos_semanais">Ganhos Semanais</option>
-                        <option value="ganhos_mensais">Ganhos Mensais</option>
+                        <option value="ganhos_diarios">Meta Diária</option>
+                        <option value="ganhos_mensais">Meta Mensal</option>
                     </select>
                 </div>
                 <div class="row">
@@ -357,12 +355,23 @@
                         <input type="number" step="0.01" class="form-control" id="goalValue" placeholder="0.00" required>
                     </div>
                 </div>
+                <div class="mb-3" id="daysWorkedGroup">
+                    <label for="daysWorked" class="form-label">Dias Trabalhados por Semana</label>
+                    <input type="number" class="form-control" id="daysWorked" min="1" max="7" value="5" required>
+                </div>
+
+                <div id="calculatedGoals" class="mt-3" style="background-color: #f0f8ff; border: 1px solid #e0e0e0; border-radius: 0.8rem; padding: 1.2rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
+                    <h4 style="font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 1.3rem; margin-bottom: 1rem; color: var(--primary-color);">Metas Calculadas</h4>
+                    <p id="calculatedDailyGoal" class="fw-bold" style="margin-bottom: 0.4rem;"></p>
+                    <p id="calculatedWeeklyGoal" class="fw-bold" style="margin-bottom: 0.4rem;"></p>
+                    <p id="calculatedMonthlyGoal" class="fw-bold" style="margin-bottom: 0;"></p>
+                </div>
                 
-                <button type="submit" class="btn btn-primary w-100 mt-3">Salvar Meta</button>
+                <button type="submit" class="btn btn-primary w-100 mt-3" id="submitGoalButton">Salvar Meta</button>
             </form>
         </div>
 
-        <div class="section-card">
+        <div class="section-card" id="gainsGoalsSummarySection">
             <h3>Metas de Ganhos</h3>
             <div id="gainsGoalsList">
                 <p class="text-center text-muted">Nenhuma meta de ganhos cadastrada ainda.</p>
@@ -399,9 +408,21 @@
     const appId = firebaseConfig.appId;
 
     // Elementos do formulário
+    const addGoalSection = document.getElementById('addGoalSection');
     const goalForm = document.getElementById('goalForm');
     const goalType = document.getElementById('goalType');
     const goalValue = document.getElementById('goalValue');
+    const daysWorked = document.getElementById('daysWorked');
+    const daysWorkedGroup = document.getElementById('daysWorkedGroup');
+    const calculatedGoalsDiv = document.getElementById('calculatedGoals');
+    const calculatedWeeklyGoal = document.getElementById('calculatedWeeklyGoal');
+    const calculatedDailyGoal = document.getElementById('calculatedDailyGoal');
+    const calculatedMonthlyGoal = document.getElementById('calculatedMonthlyGoal');
+    const submitGoalButton = document.getElementById('submitGoalButton');
+    
+    // Novo elemento para a seção de resumo das metas
+    const gainsGoalsSummarySection = document.getElementById('gainsGoalsSummarySection');
+
 
     // Listas de exibição
     const gainsGoalsList = document.getElementById('gainsGoalsList');
@@ -413,6 +434,9 @@
 
     let editingGoalId = null;
 
+    // Constantes para cálculos
+    const WEEKS_IN_MONTH = 4; // Simplificação: 4 semanas por mês
+
     // Função para mostrar o modal de sucesso
     function showSuccessModal(title, message) {
         successModalLabel.textContent = title;
@@ -420,12 +444,66 @@
         successModal.show();
     }
 
+    // Função para calcular e exibir as metas
+    function calculateAndDisplayGoals() {
+        const selectedType = goalType.value;
+        const value = parseFloat(goalValue.value);
+        const days = parseInt(daysWorked.value);
+
+        calculatedWeeklyGoal.textContent = '';
+        calculatedDailyGoal.textContent = '';
+        calculatedMonthlyGoal.textContent = '';
+        calculatedGoalsDiv.style.display = 'none';
+
+        if (isNaN(value) || isNaN(days) || days < 1 || days > 7) {
+            return;
+        }
+
+        calculatedGoalsDiv.style.display = 'block';
+
+        if (selectedType === 'ganhos_diarios') {
+            const weekly = value * days;
+            const monthly = weekly * WEEKS_IN_MONTH;
+            calculatedDailyGoal.textContent = `Meta Diária: R$ ${value.toFixed(2)}`; // Exibe a meta diária principal
+            calculatedWeeklyGoal.textContent = `Meta Semanal Calculada: R$ ${weekly.toFixed(2)}`;
+            calculatedMonthlyGoal.textContent = `Meta Mensal Calculada: R$ ${monthly.toFixed(2)}`;
+        } else if (selectedType === 'ganhos_mensais') {
+            const weekly = value / WEEKS_IN_MONTH;
+            const daily = weekly / days;
+            calculatedDailyGoal.textContent = `Meta Diária Calculada: R$ ${daily.toFixed(2)}`;
+            calculatedWeeklyGoal.textContent = `Meta Semanal Calculada: R$ ${weekly.toFixed(2)}`;
+            calculatedMonthlyGoal.textContent = `Meta Mensal: R$ ${value.toFixed(2)}`; // Exibe a meta mensal principal
+        }
+    }
+
+    // Adiciona event listeners para cálculos dinâmicos
+    goalType.addEventListener('change', calculateAndDisplayGoals);
+    goalValue.addEventListener('input', calculateAndDisplayGoals);
+    daysWorked.addEventListener('input', calculateAndDisplayGoals);
+
+    // Função para controlar a visibilidade do formulário de adição e da seção de resumo
+    const controlAddGoalFormVisibility = (goalsExist) => {
+        if (goalsExist) { // Se qualquer meta (diária ou mensal) existe
+            addGoalSection.style.display = 'none'; // Oculta o formulário de adição
+            gainsGoalsSummarySection.style.display = 'block'; // Mostra a seção de resumo
+        } else { // Nenhuma meta diária ou mensal existe
+            addGoalSection.style.display = 'block'; // Mostra o formulário de adição
+            gainsGoalsSummarySection.style.display = 'none'; // Oculta a seção de resumo
+            // Reseta o formulário e o botão ao reaparecer
+            goalForm.reset();
+            calculatedGoalsDiv.style.display = 'none'; // Esconde o card de cálculos também
+            submitGoalButton.textContent = 'Salvar Meta';
+            editingGoalId = null;
+        }
+    };
+
     // Listener para o estado de autenticação
     auth.onAuthStateChanged(user => {
         if (user) {
             currentUserId = user.uid;
             console.log('Usuário logado em metas.html:', currentUserId);
             renderGoals();
+            calculateAndDisplayGoals(); // Chamada inicial para exibir cálculos se houver valores padrão
         } else {
             console.log('Nenhum usuário logado em metas.html. Redirecionando...');
             window.location.href = 'login.html';
@@ -442,34 +520,69 @@
         }
 
         const selectedType = goalType.value;
+        const baseGoalValue = parseFloat(goalValue.value) || 0;
+        const days = parseInt(daysWorked.value) || 0;
+
+        if (isNaN(baseGoalValue) || baseGoalValue <= 0 || isNaN(days) || days < 1 || days > 7) {
+            alert("Por favor, insira um valor de meta válido e um número de dias trabalhados entre 1 e 7.");
+            return;
+        }
+
+        let dailyGoal = 0;
+        let weeklyGoal = 0;
+        let monthlyGoal = 0;
+
+        if (selectedType === 'ganhos_diarios') {
+            dailyGoal = baseGoalValue;
+            weeklyGoal = dailyGoal * days;
+            monthlyGoal = weeklyGoal * WEEKS_IN_MONTH;
+        } else if (selectedType === 'ganhos_mensais') {
+            monthlyGoal = baseGoalValue;
+            weeklyGoal = monthlyGoal / WEEKS_IN_MONTH;
+            dailyGoal = weeklyGoal / days;
+        } else {
+            alert("Tipo de meta inválido.");
+            return;
+        }
+
         const newGoalData = {
-            tipo: selectedType,
-            valorMeta: parseFloat(goalValue.value) || 0,
+            tipo: selectedType, // 'ganhos_diarios' ou 'ganhos_mensais'
+            valorMeta: baseGoalValue, // O valor que o usuário digitou (diário ou mensal)
+            diasTrabalhadosSemana: days,
+            metaDiariaCalculada: dailyGoal,
+            metaSemanalCalculada: weeklyGoal,
+            metaMensalCalculada: monthlyGoal,
             userId: currentUserId,
             updatedAt: serverTimestamp()
         };
 
         if (editingGoalId) {
             try {
-                const updateData = {
-                    tipo: newGoalData.tipo,
-                    valorMeta: newGoalData.valorMeta,
-                    updatedAt: serverTimestamp()
-                };
-                
-                // CORREÇÃO APLICADA AQUI: updateDoc
-                await updateDoc(doc(db, `users/${currentUserId}/metas`, editingGoalId), updateData);
+                // Ao atualizar, o tipo de meta e dias trabalhados podem ser alterados,
+                // então recalculamos todas as metas derivadas
+                await updateDoc(doc(db, `users/${currentUserId}/metas`, editingGoalId), newGoalData);
                 showSuccessModal('Sucesso!', 'Meta atualizada com sucesso!');
                 editingGoalId = null;
-                goalForm.querySelector('button[type="submit"]').textContent = 'Salvar Meta';
+                submitGoalButton.textContent = 'Salvar Meta';
             } catch (error) {
                 console.error('Erro ao atualizar meta:', error);
                 alert(`Erro ao atualizar meta: ${error.message}`);
             }
         } else {
+            // Antes de adicionar, verificar se já existe uma meta do tipo diário OU mensal
+            const existingDailyGoalsQuery = query(collection(db, `users/${currentUserId}/metas`), where('tipo', '==', 'ganhos_diarios'));
+            const existingMonthlyGoalsQuery = query(collection(db, `users/${currentUserId}/metas`), where('tipo', '==', 'ganhos_mensais'));
+            
+            const existingDailySnapshot = await getDocs(existingDailyGoalsQuery);
+            const existingMonthlySnapshot = await getDocs(existingMonthlyGoalsQuery);
+
+            if (!existingDailySnapshot.empty || !existingMonthlySnapshot.empty) {
+                alert('Você já tem uma meta de ganhos (diária ou mensal) cadastrada. Por favor, edite a meta existente ou exclua-a para adicionar uma nova.');
+                return;
+            }
+
             newGoalData.createdAt = serverTimestamp();
             try {
-                // CORREÇÃO APLICADA AQUI: addDoc
                 await addDoc(collection(db, `users/${currentUserId}/metas`), newGoalData);
                 showSuccessModal('Sucesso!', 'Meta adicionada com sucesso!');
             } catch (error) {
@@ -479,6 +592,7 @@
         }
 
         goalForm.reset();
+        calculateAndDisplayGoals(); // Limpa os cálculos exibidos
         renderGoals();
     });
 
@@ -488,34 +602,37 @@
 
         if (!currentUserId) {
             gainsGoalsList.innerHTML = '<p class="text-center text-muted">Nenhuma meta de ganhos cadastrada ainda.</p>';
+            controlAddGoalFormVisibility(false); 
             return;
         }
 
         try {
-            // CORREÇÃO APLICADA AQUI: query
             const q = query(collection(db, `users/${currentUserId}/metas`));
             const querySnapshot = await getDocs(q);
 
             gainsGoalsList.innerHTML = '';
 
-            let hasGainsGoals = false;
+            let hasGainsGoals = false; // True se houver *qualquer* meta diária ou mensal
 
             querySnapshot.forEach((docItem) => {
                 const goal = docItem.data();
                 const goalId = docItem.id;
                 
-                // Filtra para exibir apenas metas de ganhos
-                const isGainsGoal = ['ganhos_diarios', 'ganhos_semanais', 'ganhos_mensais'].includes(goal.tipo);
+                // Exibe apenas metas de ganhos (diárias ou mensais)
+                const isRelevantGainsGoal = ['ganhos_diarios', 'ganhos_mensais'].includes(goal.tipo);
 
-                if (isGainsGoal) {
-                    hasGainsGoals = true;
+                if (isRelevantGainsGoal) {
+                    hasGainsGoals = true; // Define como true se pelo menos uma meta relevante for encontrada
                     const goalDisplayName = goal.tipo.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
                     gainsGoalsList.innerHTML += `
                         <div class="goal-item" data-id="${goalId}">
                             <h5>${goalDisplayName}</h5>
-                            <p><strong>Tipo:</strong> ${goal.tipo.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</p>
-                            <p><strong>Valor da Meta:</strong> R$ ${goal.valorMeta.toFixed(2)}</p>
+                            <p><strong>Meta Base:</strong> R$ ${goal.valorMeta.toFixed(2)} (${goalDisplayName.replace('Meta ', '')})</p>
+                            <p><strong>Dias Trabalhados/Semana:</strong> ${goal.diasTrabalhadosSemana || 'N/A'}</p>
+                            ${goal.metaDiariaCalculada ? `<p><strong>Meta Diária:</strong> R$ ${goal.metaDiariaCalculada.toFixed(2)}</p>` : ''}
+                            ${goal.metaSemanalCalculada ? `<p><strong>Meta Semanal:</strong> R$ ${goal.metaSemanalCalculada.toFixed(2)}</p>` : ''}
+                            ${goal.metaMensalCalculada ? `<p><strong>Meta Mensal:</strong> R$ ${goal.metaMensalCalculada.toFixed(2)}</p>` : ''}
                             <div class="goal-actions">
                                 <button class="btn-action btn-edit" data-id="${goalId}"><i class="fas fa-edit"></i></button>
                                 <button class="btn-action btn-danger" data-id="${goalId}"><i class="fas fa-trash-alt"></i></button>
@@ -525,6 +642,8 @@
                 }
             });
 
+            controlAddGoalFormVisibility(hasGainsGoals); // Controla a visibilidade do formulário e da seção de resumo
+
             if (!hasGainsGoals) {
                 gainsGoalsList.innerHTML = '<p class="text-center text-muted">Nenhuma meta de ganhos cadastrada ainda.</p>';
             }
@@ -533,15 +652,21 @@
             gainsGoalsList.querySelectorAll('.btn-edit').forEach(button => {
                 button.addEventListener('click', async (e) => {
                     const idToEdit = e.target.dataset.id || e.target.closest('button').dataset.id;
-                    // CORREÇÃO APLICADA AQUI: getDoc
                     const goalDoc = await getDoc(doc(db, `users/${currentUserId}/metas`, idToEdit));
                     if (goalDoc.exists()) {
                         const goal = goalDoc.data();
                         goalType.value = goal.tipo;
                         goalValue.value = goal.valorMeta;
+                        daysWorked.value = goal.diasTrabalhadosSemana || 5; // Default 5 se não houver
                         
                         editingGoalId = idToEdit;
-                        goalForm.querySelector('button[type="submit"]').textContent = 'Atualizar Meta';
+                        submitGoalButton.textContent = 'Atualizar Meta';
+                        
+                        // Garante que o formulário esteja visível e oculta a seção de resumo
+                        addGoalSection.style.display = 'block';
+                        gainsGoalsSummarySection.style.display = 'none';
+
+                        calculateAndDisplayGoals(); // Recalcula e exibe ao editar
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     }
                 });
@@ -552,10 +677,9 @@
                     const idToDelete = e.target.dataset.id || e.target.closest('button').dataset.id;
                     if (confirm('Tem certeza que deseja excluir esta meta?')) {
                         try {
-                            // CORREÇÃO APLICADA AQUI: deleteDoc
                             await deleteDoc(doc(db, `users/${currentUserId}/metas`, idToDelete));
                             showSuccessModal('Sucesso!', 'Meta excluída com sucesso!');
-                            renderGoals();
+                            renderGoals(); // Renderiza novamente para atualizar a visibilidade do formulário
                         } catch (error) {
                             console.error('Erro ao excluir meta:', error);
                             alert(`Erro ao excluir meta: ${error.message}`);
@@ -567,6 +691,7 @@
         } catch (error) {
             console.error('Erro ao buscar metas:', error);
             gainsGoalsList.innerHTML = '<p class="text-center text-danger">Erro ao carregar metas de ganhos.</p>';
+            controlAddGoalFormVisibility(false); 
         }
     };
   </script>
