@@ -14,9 +14,11 @@
             --card-bg-color: rgba(255, 255, 255, 0.9);
             --card-border-color: rgba(0, 0, 0, 0.1);
             --text-color-light: #ffffff;
-            --text-color-dark: #333333; /* Cor de texto padrão para elementos claros */
+            --text-color-dark: #333333;
             --shadow-subtle: 0 6px 20px rgba(0, 0, 0, 0.25);
-            --border-radius-card: 1.5rem;
+            --shadow-modal: 0 10px 30px rgba(0, 0, 0, 0.35); /* Nova sombra para modais */
+            --border-radius-large: 1.5rem;
+            --border-radius-medium: 0.8rem;
         }
 
         body {
@@ -24,21 +26,36 @@
             background: linear-gradient(160deg, var(--body-bg-start) 0%, var(--body-bg-end) 100%);
             background-attachment: fixed;
             min-height: 100vh;
-            color: var(--text-color-light); /* Texto principal da página claro */
+            color: var(--text-color-light); /* Cor do texto para elementos fora do card */
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            padding: 0;
+            overflow-x: hidden; /* Para evitar rolagem horizontal indesejada */
         }
 
-        .top-nav-bar {
+        .main-content-wrapper {
             width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
+            max-width: 800px; /* Alinhado com despesas.html */
+            margin-left: auto;
+            margin-right: auto;
+            padding: 1.5rem 1.5rem; /* Ajuste: Adicionado padding vertical */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .top-nav-bar { /* Renomeado de top-bar para consistência */
+            width: 100%;
             display: flex;
             justify-content: flex-start;
             align-items: center;
-            padding: 1.5rem 1rem;
+            padding: 1.5rem 0;
             box-sizing: border-box;
         }
 
-        .btn-nav {
+        .btn-nav { /* Renomeado de btn-back para consistência */
             background-color: rgba(255, 255, 255, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
@@ -49,633 +66,1020 @@
             transition: background-color 0.3s ease, border-color 0.3s ease;
             box-shadow: var(--shadow-subtle);
         }
-
         .btn-nav:hover {
             background-color: rgba(255, 255, 255, 0.25);
             border-color: rgba(255, 255, 255, 0.5);
             color: white;
         }
 
-        header {
+        header { /* Reintroduzido e posicionado como em despesas.html */
             color: var(--text-color-light);
             padding: 2rem 1rem;
             text-align: center;
-            margin-bottom: 2rem;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+            margin-top: 1rem;
+            width: 100%;
         }
         header h1 {
             font-family: 'Montserrat', sans-serif;
             font-weight: 700;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            color: var(--text-color-light); /* Garante que o título seja branco */
         }
-        .container {
-            max-width: 1200px; 
-            margin-bottom: 3rem;
+        header p {
+            color: var(--text-color-light); /* Garante que o subtítulo seja branco */
         }
-        .card {
+
+        .container-custom { /* Equivale ao .card em despesas.html */
             background-color: var(--card-bg-color);
             border: 1px solid var(--card-border-color);
-            border-radius: var(--border-radius-card);
-            box-shadow: var(--shadow-subtle);
-            padding: 2rem; 
-            margin-bottom: 2rem;
-            color: var(--text-color-dark); /* Texto dentro dos cards escuro */
-        }
-        .registro-block-card {
-            background-color: var(--card-bg-color);
-            border: 1px solid var(--card-border-color);
-            border-radius: var(--border-radius-card);
+            border-radius: var(--border-radius-large); /* Usando large para consistência */
             box-shadow: var(--shadow-subtle);
             padding: 2rem;
-            margin-bottom: 2rem;
-            color: var(--text-color-dark); /* Texto dentro dos cards de registro escuro */
+            color: var(--text-color-dark); /* Texto dentro do card é escuro */
+            transition: all 0.3s ease;
+            max-width: 100%;
+            width: 100%;
+            margin-bottom: 3rem; /* Alinhado com .container de despesas.html */
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
         }
-        .registro-block-card h4 {
+
+        h1, h2, h3, h4, h5, h6 {
             font-family: 'Montserrat', sans-serif;
-            font-size: 1.75rem;
-            margin-bottom: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color-dark);
+        }
+        /* O h1 do header usa text-color-light, mas sobrescrito pelo header {} */
+
+        .form-control, .form-select {
+            border-radius: 0.5rem;
+            border: 1px solid var(--card-border-color);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            color: var(--text-color-dark); /* Garante que o texto dos inputs seja escuro */
+        }
+
+        .btn-primary {
+            background-color: var(--body-bg-start);
+            border-color: var(--body-bg-start);
+        }
+        .btn-danger {
+            background-color: var(--body-bg-end);
+            border-color: var(--body-bg-end);
+        }
+        .btn-info {
+             background-color: #17a2b8;
+             border-color: #17a2b8;
+        }
+
+        .table-responsive {
+            margin-top: 1.5rem;
+            overflow-x: auto; /* Garante que a tabela possa rolar se for muito larga */
+        }
+
+        .table thead th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            color: var(--text-color-dark);
+        }
+
+        .table tbody tr:last-child {
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        /* Estilos dos Modais */
+        .modal-content {
+            border-radius: var(--border-radius-large);
+            background-color: var(--card-bg-color); /* Consistente com os cards */
+            box-shadow: var(--shadow-modal); /* Sombra mais pronunciada */
+            border: none; /* Remove a borda padrão do modal */
+        }
+        .modal-header, .modal-body, .modal-footer {
+            color: var(--text-color-dark);
+        }
+        .modal-title {
+            color: var(--text-color-dark);
+            font-family: 'Montserrat', sans-serif; /* Consistente com outros títulos */
+            font-weight: 700;
+        }
+        .modal-header {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* Separador sutil */
+        }
+        .modal-footer {
+            border-top: 1px solid rgba(0, 0, 0, 0.1); /* Separador sutil */
+        }
+
+        /* Melhoria para o modal de visualização */
+        .modal-details-item {
+            display: flex;
+            margin-bottom: 0.75rem; /* Espaço entre os itens */
+            align-items: baseline;
+        }
+        .modal-details-item .icon {
+            font-size: 1.1em;
+            margin-right: 0.75rem;
+            color: var(--body-bg-start); /* Cor do ícone */
+            flex-shrink: 0; /* Impede que o ícone encolha */
+        }
+        .modal-details-item .label {
+            font-weight: 600;
+            margin-right: 0.5rem;
+            color: #555; /* Cor um pouco mais clara para o label */
+            flex-shrink: 0;
+        }
+        .modal-details-item .value {
+            flex-grow: 1; /* Permite que o valor ocupe o espaço restante */
+            word-break: break-word; /* Quebra palavras longas */
+        }
+        .modal-details-item:last-child {
+            margin-bottom: 0;
+        }
+
+
+        /* Estilos das Abas (copiados EXATAMENTE de despesas.html e ajustados) */
+        .nav-tabs {
+            border-bottom: none; /* Remove a borda inferior padrão */
+        }
+        .nav-tabs .nav-item {
+            margin-bottom: 0; /* Remove margem padrão */
+        }
+        .nav-tabs .nav-link {
+            color: var(--text-color-dark);
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-bottom: none;
+            border-radius: var(--border-radius-medium) var(--border-radius-medium) 0 0;
+            margin-right: -1px; /* Para sobrepor bordas e fazer as abas parecerem conectadas */
+            position: relative; /* Para z-index */
+            z-index: 0; /* Padrão */
+        }
+        .nav-tabs .nav-link.active {
+            color: white;
+            background-color: var(--body-bg-end);
+            border-color: var(--body-bg-end);
             font-weight: bold;
+            z-index: 1; /* Para a aba ativa ficar por cima */
         }
-        .receitas-block-header { color: #28a745; }
-        .despesas-block-header { color: #dc3545; }
-        
-        .table {
-            color: var(--text-color-dark); /* Texto das tabelas escuro */
+        .nav-tabs .nav-item:last-child .nav-link {
+            margin-right: 0; /* Última aba não precisa de margem negativa */
         }
-        
-        footer {
+        .tab-content {
+            padding-top: 1.5rem;
+            background-color: white;
+            border-radius: 0 0 var(--border-radius-large) var(--border-radius-large);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-subtle);
+            border: 1px solid rgba(0, 0, 0, 0.1); /* Adiciona borda ao conteúdo da aba */
+            border-top: none; /* Remove a borda superior para se alinhar com as abas */
+        }
+        /* Fim dos estilos copiados das abas */
+
+        footer { /* Posicionado dentro de main-content-wrapper */
             text-align: center;
-            margin-top: 4rem;
+            margin-top: auto;
             padding: 1rem;
             background-color: transparent;
             color: var(--text-color-light);
             opacity: 0.8;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            width: 100%;
         }
 
-        /* --- Estilos para as Modais --- */
-        .modal-content {
-            background-color: var(--card-bg-color); /* Fundo da modal claro */
-            border-radius: var(--border-radius-card);
-            color: var(--text-color-dark); /* Texto dentro da modal escuro por padrão */
+        /* Esconde o botão de visualizar por padrão (em telas maiores) */
+        .view-obs-btn {
+            display: none;
         }
 
-        .modal-header, .modal-body, .modal-footer {
-            border-color: rgba(0, 0, 0, 0.1); /* Cor da borda da modal */
-        }
+        /* Responsividade */
+        @media (max-width: 767.98px) {
+            .nav-tabs {
+                display: flex;
+                flex-wrap: nowrap;
+                justify-content: space-between;
+                margin-bottom: 1rem;
+                border-bottom: none;
+            }
 
-        .modal-title {
-            color: var(--text-color-dark); /* Título da modal escuro */
-        }
-        
-        .modal-section-card {
-            border: 1px solid #dee2e6;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            color: var(--text-color-dark); /* Garante que o texto nas seções da modal seja escuro */
-        }
-        .modal-section-card.receitas-bg { background-color: #eaf1f8; }
-        .modal-section-card.despesas-bg { background-color: #f8eded; }
+            .nav-tabs .nav-item {
+                flex: 1 1 50%;
+                text-align: center;
+            }
 
-        /* Garante que os inputs dentro das modais tenham texto escuro */
-        .modal-body .form-control,
-        .modal-body .form-select {
-            color: var(--text-color-dark);
-            background-color: #fff; /* Fundo branco para inputs */
-            border-color: rgba(0, 0, 0, 0.2);
-        }
-        /* Para o placeholder dos inputs */
-        .modal-body .form-control::placeholder {
-            color: #6c757d; /* Cor mais clara para o placeholder */
-        }
-        /* Para labels dentro das modais */
-        .modal-body label {
-            color: var(--text-color-dark);
-        }
+            .nav-tabs .nav-link {
+                width: 100%;
+                border-radius: 0.8rem 0.8rem 0 0;
+                padding: 0.7rem 0.5rem;
+                font-size: 0.9rem;
+                white-space: nowrap;
+                border: 1px solid rgba(0, 0, 0, 0.1);
+                border-bottom: none;
+                background-color: rgba(255, 255, 255, 0.8);
+                color: var(--text-color-dark);
+            }
 
+            .nav-tabs .nav-link.active {
+                background-color: var(--body-bg-end);
+                color: white;
+                font-weight: bold;
+                border-color: var(--body-bg-end);
+            }
+
+            .tab-content {
+                padding: 1.2rem;
+                border: 1px solid rgba(0, 0, 0, 0.1);
+                border-top: none;
+                border-radius: 0 0 1.5rem 1.5rem;
+                background-color: white;
+            }
+            
+
+            /* Ocultar as colunas específicas em telas pequenas */
+            .observacoes-column,
+            .gorjetas-column {
+                display: none;
+            }
+            
+            /* Mostra o botão de visualizar APENAS em telas pequenas, onde as colunas estão ocultas */
+            .view-obs-btn {
+                display: inline-block;
+            }
+
+
+            /* Ajustes para a Tabela: colunas fixas e ajuste de tamanho */
+            .table {
+                table-layout: fixed;
+                width: 100%;
+            }
+            .table thead th,
+            .table tbody td {
+                font-size: 0.75rem;
+                padding: 0.4rem 0.2rem;
+                vertical-align: middle;
+                word-break: break-word;
+            }
+
+            /* Definição de larguras para colunas visíveis */
+            .table thead th:nth-child(1), /* Data */
+            .table tbody td:nth-child(1) {
+                width: 20%;
+            }
+
+            /* Receitas (tabela de corpo receitas) */
+            #receitasTableBody td:nth-child(2), /* Plataforma */
+            #receitasTableBody th:nth-child(2) {
+                width: 28%;
+            }
+            #receitasTableBody td:nth-child(3), /* Receita (R$) */
+            #receitasTableBody th:nth-child(3) {
+                width: 27%;
+            }
+
+            /* Despesas (tabela de corpo despesas) */
+            #despesasTableBody td:nth-child(2), /* Despesa (R$) */
+            #despesasTableBody th:nth-child(2) {
+                width: 25%;
+            }
+            #despesasTableBody td:nth-child(3), /* Categoria */
+            #despesasTableBody th:nth-child(3) {
+                width: 30%;
+            }
+
+            /* Ações (última coluna visível) */
+            .table td:last-child,
+            .table th:last-child {
+                width: 25%;
+                text-align: center;
+                white-space: nowrap;
+            }
+
+            /* Reduz o tamanho dos ícones de ação e o padding do botão */
+            .table .btn-sm {
+                padding: 0.15rem 0.3rem;
+            }
+            .table .btn-sm i.fas {
+                font-size: 0.65em;
+            }
+        } /* End of @media (max-width: 767.98px) */
+
+        /* Nova media query para dispositivos extra pequenos (como celulares muito pequenos) */
+        @media (max-width: 575.98px) {
+            .main-content-wrapper {
+                padding: 1.5rem 1rem; /* Ajuste: Adicionado padding vertical para telas extra pequenas */
+            }
+            .container-custom {
+                padding: 0.8rem;
+            }
+            .tab-content {
+                padding: 0.8rem;
+            }
+            /* Reduz ainda mais a fonte e o preenchimento dos links das abas */
+            .nav-tabs .nav-link {
+                font-size: 0.7rem;
+                padding: 0.6rem 0.3rem;
+            }
+            /* Diminui ainda mais a fonte da tabela */
+            .table thead th,
+            .table tbody td {
+                font-size: 0.6rem;
+                padding: 0.3rem 0.15rem;
+            }
+            /* Ajustes finos de largura para telas extra pequenas, se necessário */
+            .table thead th:nth-child(1),
+            .table tbody td:nth-child(1) {
+                width: 22%; /* Data */
+            }
+            #receitasTableBody td:nth-child(2),
+            #receitasTableBody th:nth-child(2) {
+                width: 28%; /* Plataforma */
+            }
+            #despesasTableBody td:nth-child(2),
+            #despesasTableBody th:nth-child(2) {
+                width: 25%; /* Despesa (R$) */
+            }
+            #receitasTableBody td:nth-child(3),
+            #receitasTableBody th:nth-child(3) {
+                width: 25%; /* Receita (R$) */
+            }
+            #despesasTableBody td:nth-child(3),
+            #despesasTableBody th:nth-child(3) {
+                width: 30%;
+            }
+            .table td:last-child,
+            .table th:last-child {
+                width: 25%; /* Ações */
+            }
+            .table .btn-sm {
+                padding: 0.1rem 0.2rem;
+            }
+            .table .btn-sm i.fas {
+                font-size: 0.55em;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="top-nav-bar">
-        <a href="index.html" class="btn-nav"><i class="fas fa-home"></i> Home</a>
-    </div>
-    <header>
-        <h1 class="fw-bold">Gerenciar Registros</h1>
-        <p>Visualize, edite e exclua seus dados</p>
-    </header>
-
-    <div class="container">
-        <div id="statusMessage" class="alert d-none mt-3" role="alert"></div>
-
-        <div class="card p-4 mb-4">
-            <h3 class="mb-3">Filtrar Registros</h3>
-            <div class="search-controls d-flex gap-2 mb-3 flex-wrap">
-                <input type="text" class="form-control" id="searchInput" placeholder="Buscar por data, categoria, etc.">
-                <select class="form-select w-auto" id="filterType">
-                    <option value="todos">Todos</option>
-                    <option value="receita">Apenas Receitas</option>
-                    <option value="despesa">Apenas Despesas</option>
-                </select>
-                <button class="btn btn-outline-secondary" type="button" id="clearSearch">Limpar Busca</button>
-            </div>
-            <p id="noRecordsOverallMessage" class="text-center text-muted mt-3 d-none">Nenhum registro encontrado. Comece a adicionar dados!</p>
+    <div class="main-content-wrapper">
+        <div class="top-nav-bar">
+            <a href="index.html" class="btn-nav"><i class="fas fa-home"></i> Home</a>
         </div>
 
-        <div class="registro-block-card" id="receitasBlock">
-            <h4 class="receitas-block-header">Registros de Receitas</h4>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Plataforma</th>
-                            <th>Valor Recebido (R$)</th>
-                            <th>Gorjetas (R$)</th>
-                            <th>Observações</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="receitasTableBody"></tbody>
-                </table>
-            </div>
-            <p id="noReceitasMessage" class="text-center text-muted mt-3 d-none">Nenhuma receita encontrada para o filtro atual.</p>
-        </div>
+        <header>
+            <h1 class="fw-bold">Gerenciar Registros</h1>
+            <p>Visualize e gerencie todos os seus ganhos e despesas em um só lugar.</p>
+        </header>
 
-        <div class="registro-block-card" id="despesasBlock">
-            <h4 class="despesas-block-header">Registros de Despesas</h4>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Valor Total (R$)</th>
-                            <th>Categoria</th>
-                            <th>Observações</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="despesasTableBody"></tbody>
-                </table>
-            </div>
-            <p id="noDespesasMessage" class="text-center text-muted mt-3 d-none">Nenhuma despesa encontrada para o filtro atual.</p>
-        </div>
-    </div>
-
-    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Editar Registro</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="container container-custom">
+            <div class="row mb-4">
+                <div class="col-md-9 mb-3">
+                    <label for="searchInput" class="form-label">Pesquisar:</label>
+                    <input type="text" class="form-control" id="searchInput" placeholder="Pesquisar...">
                 </div>
-                <div class="modal-body">
-                    <form id="editRecordForm">
-                        <input type="hidden" id="editRecordId">
-                        <input type="hidden" id="editRecordType">
-                        <div class="row">
-                            <div class="col-md-6 form-group">
-                                <label for="editData">Data</label>
+                <div class="col-md-3 mb-3 d-flex align-items-end">
+                    <button id="clearSearch" class="btn btn-secondary w-100">Limpar</button>
+                </div>
+            </div>
+
+            <p id="noRecordsOverallMessage" class="text-center text-muted d-none">Nenhum registro encontrado para os filtros selecionados.</p>
+
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="receitas-tab" data-bs-toggle="tab" data-bs-target="#receitas" type="button" role="tab" aria-controls="receitas" aria-selected="true">Receitas</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="despesas-tab" data-bs-toggle="tab" data-bs-target="#despesas" type="button" role="tab" aria-controls="despesas" aria-selected="false">Despesas</button>
+                </li>
+            </ul>
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="receitas" role="tabpanel" aria-labelledby="receitas-tab">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Plataforma</th>
+                                    <th>Receita (R$)</th>
+                                    <th class="gorjetas-column">Gorjetas (R$)</th>
+                                    <th class="observacoes-column">Observações</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="receitasTableBody">
+                                </tbody>
+                        </table>
+                    </div>
+                    <p id="noReceitasMessage" class="text-center text-muted d-none">Nenhuma receita encontrada.</p>
+                </div>
+                <div class="tab-pane fade" id="despesas" role="tabpanel" aria-labelledby="despesas-tab">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Despesa (R$)</th>
+                                    <th>Categoria</th>
+                                    <th class="observacoes-column">Observações</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="despesasTableBody">
+                                </tbody>
+                        </table>
+                    </div>
+                    <p id="noDespesasMessage" class="text-center text-muted d-none">Nenhuma despesa encontrada.</p>
+                </div>
+            </div>
+            <div id="statusMessage" class="alert mt-3 d-none" role="alert"></div>
+        </div>
+
+        <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editModalLabel">Editar Registro</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editRecordForm">
+                            <input type="hidden" id="editRecordId">
+                            <input type="hidden" id="editRecordType">
+
+                            <div class="mb-3">
+                                <label for="editData" class="form-label">Data:</label>
                                 <input type="date" class="form-control" id="editData" required>
                             </div>
-                            <div class="col-md-6 form-group" id="editPlataformaContainer">
-                                <label for="editPlataforma">Plataforma</label>
-                                <select class="form-select" id="editPlataforma" required>
-                                    <option value="Uber">Uber</option>
-                                    <option value="99">99</option>
-                                    <option value="Outra">Outra</option>
-                                </select>
-                            </div>
-                        </div>
 
-                        <div class="modal-section-card receitas-bg mt-4" id="editBlocoReceita">
-                            <h5>Receitas</h5>
-                            <div class="row">
-                                <div class="col-md-6 form-group">
-                                    <label for="editReceita">Valor Recebido (R$)</label>
-                                    <input type="number" step="0.01" class="form-control" id="editReceita" value="0.00" required>
+                            <div id="editBlocoReceita">
+                                <div class="mb-3">
+                                    <label for="editPlataforma" class="form-label">Plataforma:</label>
+                                    <select class="form-select" id="editPlataforma">
+                                        <option value="">Selecione</option>
+                                        <option value="Uber">Uber</option>
+                                        <option value="99">99</option>
+                                        <option value="Outros">Outros</option>
+                                    </select>
                                 </div>
-                                <div class="col-md-6 form-group">
-                                    <label for="editGorjetas">Gorjetas (R$)</label>
-                                    <input type="number" step="0.01" class="form-control" id="editGorjetas" value="0.00">
+                                <div class="mb-3">
+                                    <label for="editReceita" class="form-label">Valor da Corrida (R$):</label>
+                                    <input type="number" step="0.01" class="form-control" id="editReceita">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editGorjetas" class="form-label">Gorjetas (R$):</label>
+                                    <input type="number" step="0.01" class="form-control" id="editGorjetas">
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="modal-section-card despesas-bg mt-4" id="editBlocoDespesa">
-                            <h5>Despesas</h5>
-                            <div class="row">
-                                <div class="col-md-6 form-group">
-                                    <label for="editDespesas">Valor Total (R$)</label>
-                                    <input type="number" step="0.01" class="form-control" id="editDespesas" value="0.00" required>
+                            <div id="editBlocoDespesa">
+                                <div class="mb-3">
+                                    <label for="editValorTotalDespesa" class="form-label">Valor Total (R$):</label>
+                                    <input type="number" step="0.01" class="form-control" id="editValorTotalDespesa">
                                 </div>
-                                <div class="col-md-6 form-group">
-                                    <label for="editCategoriaDespesa">Categoria</label>
-                                    <select class="form-select" id="editCategoriaDespesa" required>
-                                        <option value="">Selecione uma categoria</option>
+                                <div class="mb-3">
+                                    <label for="editCategoriaDespesa" class="form-label">Categoria da Despesa:</label>
+                                    <select class="form-select" id="editCategoriaDespesa">
+                                        <option value="">Selecione</option>
                                         <option value="Combustível">Combustível</option>
                                         <option value="Manutenção">Manutenção</option>
                                         <option value="Alimentação">Alimentação</option>
-                                        <option value="Estacionamento">Estacionamento</option>
+                                        <option value="Pedágio">Pedágio</option>
+                                        <option value="Limpeza">Limpeza</option>
                                         <option value="Outros">Outros</option>
                                     </select>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="form-group mt-4">
-                            <label for="editObservacoes">Observações</label>
-                            <input type="text" class="form-control" id="editObservacoes" placeholder="Outras informações">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="saveEditButton">Salvar Mudanças</button>
+
+                            <div class="mb-3">
+                                <label for="editObservacoes" class="form-label">Observações:</label>
+                                <textarea class="form-control" id="editObservacoes" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Salvar Alterações</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteConfirmModalLabel">Confirmar Exclusão</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Tem certeza de que deseja excluir este registro? Esta ação não pode ser desfeita.
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteButton">Excluir</button>
+        <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteConfirmModalLabel">Confirmar Exclusão</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <p>Tem certeza que deseja excluir este registro?</p>
+                        <button type="button" class="btn btn-danger me-2" id="deleteConfirmBtn">Excluir</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <footer>
-        <p>&copy; 2025 - Anderson Rockenbach</p>
-    </footer>
+        <div class="modal fade" id="observacoesModal" tabindex="-1" aria-labelledby="observacoesModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="observacoesModalLabel">Detalhes do Registro</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="observacoesModalBody">
+                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 - Anderson Rockenbach - Todos os direitos reservados</p>
+        </footer>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
-        // Importar módulos do Firebase
-        import { auth, db, firebaseConfig } from './firebase_init.js'; // Importa firebaseConfig
-        import { collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
+        import { getFirestore, collection, query, where, orderBy, getDocs, doc, updateDoc, deleteDoc, Timestamp, getDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCee4pXFdNxmdSv4VA90KdihyapXvAGt8w",
+            authDomain: "controle-financeiro-e190f.firebaseapp.com",
+            projectId: "controle-financeiro-e190f",
+            storageBucket: "controle-financeiro-e190f.firebasestorage.app",
+            messagingSenderId: "711653253846",
+            appId: "1:711653253846:web:f633ce5cc025e2c8aedf77",
+            measurementId: "G-ZKEY3BJN9G"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
         let currentUserId = null;
-        const appId = firebaseConfig.appId; // Acessa appId da configuração importada
-
-        const receitasTableBody = document.getElementById('receitasTableBody');
-        const despesasTableBody = document.getElementById('despesasTableBody');
-        const noReceitasMessage = document.getElementById('noReceitasMessage');
-        const noDespesasMessage = document.getElementById('noDespesasMessage');
-        const noRecordsOverallMessage = document.getElementById('noRecordsOverallMessage');
-        const receitasBlock = document.getElementById('receitasBlock');
-        const despesasBlock = document.getElementById('despesasBlock');
-
-        const searchInput = document.getElementById('searchInput');
-        const filterType = document.getElementById('filterType');
-        const clearSearchButton = document.getElementById('clearSearch');
-
-        const editModal = new bootstrap.Modal(document.getElementById('editModal'));
-        const editRecordForm = document.getElementById('editRecordForm');
-        const editRecordId = document.getElementById('editRecordId');
-        const editRecordType = document.getElementById('editRecordType');
-        
-        const editData = document.getElementById('editData');
-        const editPlataformaContainer = document.getElementById('editPlataformaContainer');
-        const editPlataforma = document.getElementById('editPlataforma');
-        const editBlocoReceita = document.getElementById('editBlocoReceita');
-        const editReceita = document.getElementById('editReceita');
-        const editGorjetas = document.getElementById('editGorjetas');
-        const editBlocoDespesa = document.getElementById('editBlocoDespesa');
-        const editDespesas = document.getElementById('editDespesas');
-        const editCategoriaDespesa = document.getElementById('editCategoriaDespesa');
-        const editObservacoes = document.getElementById('editObservacoes');
-        const saveEditButton = document.getElementById('saveEditButton');
-
-        const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-        const confirmDeleteButton = document.getElementById('confirmDeleteButton');
         let recordToDeleteId = null;
 
-        const statusMessageDiv = document.getElementById('statusMessage');
+        let searchInput;
+        let clearSearchButton;
+        let receitasTableBody;
+        let despesasTableBody;
+        let noRecordsOverallMessage;
+        let noReceitasMessage;
+        let noDespesasMessage;
+        let statusMessage;
+        let myTabButtons;
 
-        const displayStatusMessage = (message, type) => {
-            statusMessageDiv.textContent = message;
-            statusMessageDiv.classList.remove('d-none', 'alert-success', 'alert-danger', 'alert-warning', 'alert-info');
-            statusMessageDiv.classList.add(`alert-${type}`);
+        let editModal;
+        let editRecordForm;
+        let editRecordId;
+        let editRecordType;
+        let editData;
+        let editPlataforma;
+        let editReceita;
+        let editGorjetas;
+        let editBlocoReceita;
+        let editValorTotalDespesa;
+        let editCategoriaDespesa;
+        let editBlocoDespesa;
+        let editObservacoes;
+
+        let deleteConfirmModal;
+        let deleteConfirmBtn;
+
+        let observacoesModal;
+        let observacoesModalBody;
+
+        // Helper function to normalize strings for search (lowercase and no accents)
+        function normalizeString(str) {
+            return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        }
+
+        function displayStatusMessage(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = `alert mt-3 alert-${type}`;
+            statusMessage.classList.remove('d-none');
             setTimeout(() => {
-                statusMessageDiv.classList.add('d-none');
-            }, 5000); // Mensagem some após 5 segundos
-        };
+                statusMessage.classList.add('d-none');
+            }, 5000);
+        }
 
-        const formatarMoeda = (valor) => `R$ ${parseFloat(valor).toFixed(2).replace('.', ',')}`;
-        // Ajuste para formatar datas que podem ser string ou Timestamp do Firestore
-        const formatarData = (dataInput) => {
-            if (!dataInput) return 'N/A';
-            let date;
-            if (typeof dataInput === 'string') {
-                date = new Date(dataInput + 'T00:00:00'); // Garante que a data seja interpretada em UTC para evitar desvios
-            } else if (dataInput && typeof dataInput.toDate === 'function') { // Se for um objeto Timestamp do Firebase
-                date = dataInput.toDate();
+        function updateSearchPlaceholder() {
+            const activeTabId = document.querySelector('#myTab .nav-link.active').id;
+            if (activeTabId === 'receitas-tab') {
+                searchInput.placeholder = "Pesquisar por data, plataforma ou observações...";
+            } else if (activeTabId === 'despesas-tab') {
+                searchInput.placeholder = "Pesquisar por data, categoria ou observações...";
             } else {
-                return 'N/A';
+                searchInput.placeholder = "Pesquisar...";
             }
+        }
 
-            if (isNaN(date.getTime())) return 'N/A'; // Verifica se a data é válida
-
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            return `${day}/${month}/${year}`;
-        };
-
-        const carregarRegistros = async () => {
+        async function renderizarRegistros() {
             if (!currentUserId) {
-                console.warn('currentUserId não está disponível. Não é possível carregar registros.');
-                return [];
+                console.log("Usuário não autenticado. Não é possível carregar registros.");
+                return;
             }
-            try {
-                // Consulta a coleção de registros do usuário, ordenando por 'createdAt' (campo que você está a usar)
-                // Se 'createdAt' não existir ou não for um Timestamp em todos os documentos,
-                // você pode ordenar por 'data' (string), mas Timestamp é mais robusto.
-                const registrosColRef = collection(db, 'artifacts', appId, 'users', currentUserId, 'registros');
-                const q = query(registrosColRef, orderBy('createdAt', 'desc')); // Ordena por data de criação descendente
-                
-                console.log(`Buscando registros para o usuário: ${currentUserId} no caminho: artifacts/${appId}/users/${currentUserId}/registros`);
-
-                const registroSnapshot = await getDocs(q);
-                console.log('Snapshot de registros recebido:', registroSnapshot.docs.length, 'documentos');
-
-                const registrosList = registroSnapshot.docs.map(doc => {
-                    const data = {
-                        id: doc.id,
-                        ...doc.data()
-                    };
-                    console.log('Registro carregado:', data); // Loga cada registro carregado
-                    return data;
-                });
-                
-                return registrosList; // Já vem ordenado pelo Firestore
-            } catch (error) {
-                console.error('Erro ao carregar registros:', error);
-                displayStatusMessage('Erro ao carregar registros. Tente novamente.', 'danger');
-                return [];
-            }
-        };
-
-        const renderizarRegistros = async () => {
-            console.log('Iniciando renderização de registros...');
-            const todosRegistros = await carregarRegistros();
-            console.log('Registros totais após carregamento:', todosRegistros);
-
-            const searchTerm = searchInput.value.toLowerCase().trim();
-            const selectedType = filterType.value;
-
-            let receitasFiltradas = [];
-            let despesasFiltradas = [];
-            let totalRecordsFound = 0;
-
-            todosRegistros.forEach(registro => {
-                const searchString = `${registro.data || ''} ${registro.plataforma || ''} ${registro.categoriaDespesa || ''} ${registro.observacoes || ''} ${registro.receita || ''} ${registro.gorjetas || ''} ${registro.despesas || ''}`.toLowerCase();
-                const matchesSearch = searchString.includes(searchTerm);
-
-                if (matchesSearch) {
-                    if (registro.tipo === 'receita' && (selectedType === 'receita' || selectedType === 'todos')) {
-                        receitasFiltradas.push(registro);
-                        totalRecordsFound++;
-                    } else if (registro.tipo === 'despesa' && (selectedType === 'despesa' || selectedType === 'todos')) {
-                        despesasFiltradas.push(registro);
-                        totalRecordsFound++;
-                    }
-                }
-            });
-
-            console.log('Receitas filtradas:', receitasFiltradas);
-            console.log('Despesas filtradas:', despesasFiltradas);
 
             receitasTableBody.innerHTML = '';
             despesasTableBody.innerHTML = '';
+            noReceitasMessage.classList.add('d-none');
+            noDespesasMessage.classList.add('d-none');
+            noRecordsOverallMessage.classList.add('d-none');
 
-            receitasBlock.style.display = (selectedType === 'despesa') ? 'none' : 'block';
-            despesasBlock.style.display = (selectedType === 'receita') ? 'none' : 'block';
+            const searchTerm = normalizeString(searchInput.value); // Normalize search term
+            const activeTabId = document.querySelector('#myTab .nav-link.active').id;
 
-            if (receitasFiltradas.length === 0 && selectedType !== 'despesa') {
-                noReceitasMessage.classList.remove('d-none');
-            } else {
-                noReceitasMessage.classList.add('d-none');
-                receitasFiltradas.forEach(registro => {
-                    const row = receitasTableBody.insertRow();
-                    row.innerHTML = `
-                        <td>${formatarData(registro.data)}</td>
-                        <td>${registro.plataforma || 'N/A'}</td>
-                        <td>${formatarMoeda(registro.receita)}</td>
-                        <td>${formatarMoeda(registro.gorjetas)}</td>
-                        <td>${registro.observacoes || 'N/A'}</td>
-                        <td>
-                            <button class="btn btn-sm btn-primary edit-btn" data-id="${registro.id}" data-type="receita">Editar</button>
-                            <button class="btn btn-sm btn-danger delete-btn" data-id="${registro.id}">Excluir</button>
-                        </td>`;
-                });
-            }
-
-            if (despesasFiltradas.length === 0 && selectedType !== 'receita') {
-                noDespesasMessage.classList.remove('d-none');
-            } else {
-                noDespesasMessage.classList.add('d-none');
-                despesasFiltradas.forEach(registro => {
-                    const row = despesasTableBody.insertRow();
-                    row.innerHTML = `
-                        <td>${formatarData(registro.data)}</td>
-                        <td>${formatarMoeda(registro.despesas)}</td>
-                        <td>${registro.categoriaDespesa || 'N/A'}</td>
-                        <td>${registro.observacoes || 'N/A'}</td>
-                        <td>
-                            <button class="btn btn-sm btn-primary edit-btn" data-id="${registro.id}" data-type="despesa">Editar</button>
-                            <button class="btn btn-sm btn-danger delete-btn" data-id="${registro.id}">Excluir</button>
-                        </td>`;
-                });
-            }
-
-            if (totalRecordsFound === 0) { // Verifica se algum registro foi encontrado após a filtragem
-                noRecordsOverallMessage.classList.remove('d-none');
-            } else {
-                noRecordsOverallMessage.classList.add('d-none');
-            }
-
-            adicionarListenersAcoes();
-        };
-
-        const adicionarListenersAcoes = () => {
-            document.querySelectorAll('.edit-btn').forEach(button => {
-                button.addEventListener('click', (event) => {
-                    const id = event.target.dataset.id; // Firestore ID é string
-                    const type = event.target.dataset.type;
-                    abrirModalEdicao(id, type);
-                });
-            });
-
-            document.querySelectorAll('.delete-btn').forEach(button => {
-                button.addEventListener('click', (event) => {
-                    const id = event.target.dataset.id; // Firestore ID é string
-                    abrirModalExclusao(id);
-                });
-            });
-        };
-
-        const abrirModalEdicao = async (id, type) => {
-            const registros = await carregarRegistros();
-            const registro = registros.find(r => r.id === id);
-
-            if (registro) {
-                editRecordId.value = id;
-                editRecordType.value = type;
-                
-                // Adapte para lidar com Timestamp ou string
-                if (registro.data && typeof registro.data.toDate === 'function') {
-                    editData.value = registro.data.toDate().toISOString().split('T')[0];
-                } else {
-                    editData.value = registro.data || '';
-                }
-
-                editObservacoes.value = registro.observacoes || '';
-
-                if (type === 'receita') {
-                    editBlocoReceita.style.display = 'block';
-                    editReceita.required = true; 
-                    editBlocoDespesa.style.display = 'none';
-                    editDespesas.required = false;
-                    editCategoriaDespesa.required = false;
-                    editPlataformaContainer.style.display = 'block'; 
-                    editPlataforma.value = registro.plataforma || 'Outra';
-                    editReceita.value = parseFloat(registro.receita || 0).toFixed(2);
-                    editGorjetas.value = parseFloat(registro.gorjetas || 0).toFixed(2);
-                } else if (type === 'despesa') {
-                    editBlocoReceita.style.display = 'none';
-                    editReceita.required = false;
-                    editBlocoDespesa.style.display = 'block';
-                    editDespesas.required = true; 
-                    editCategoriaDespesa.required = true; 
-                    editPlataformaContainer.style.display = 'none';
-                    editDespesas.value = parseFloat(registro.despesas || 0).toFixed(2);
-                    editCategoriaDespesa.value = registro.categoriaDespesa || '';
-                }
-                editModal.show();
-            } else {
-                displayStatusMessage('Registro não encontrado para edição.', 'danger');
-            }
-        };
-
-        saveEditButton.addEventListener('click', async () => {
-            const id = editRecordId.value; // Firestore ID é string
-            const type = editRecordType.value;
-            
             try {
-                if (!editData.value) { 
-                    displayStatusMessage('A data é obrigatória.', 'warning'); 
-                    return; 
+                let q = query(collection(db, `users/${currentUserId}/registros`), orderBy('data', 'desc'));
+
+                const querySnapshot = await getDocs(q);
+                let allRecords = [];
+
+                querySnapshot.forEach((doc) => {
+                    allRecords.push({ id: doc.id, ...doc.data() });
+                });
+
+                let filteredRecords = allRecords.filter(record => {
+                    const recordDate = normalizeString(record.data || '');
+                    const recordPlatform = normalizeString(record.plataforma || '');
+                    const recordCategory = normalizeString(record.categoriaDespesa || '');
+                    const recordObservations = normalizeString(record.observacoes || '');
+
+                    let matchesSearch = false;
+                    if (activeTabId === 'receitas-tab') {
+                        matchesSearch = searchTerm === '' ||
+                                        recordDate.includes(searchTerm) ||
+                                        recordPlatform.includes(searchTerm) ||
+                                        recordObservations.includes(searchTerm);
+                    } else if (activeTabId === 'despesas-tab') {
+                        matchesSearch = searchTerm === '' ||
+                                        recordDate.includes(searchTerm) ||
+                                        recordCategory.includes(searchTerm) ||
+                                        recordObservations.includes(searchTerm);
+                    } else { // Fallback for unexpected state
+                        matchesSearch = searchTerm === '' ||
+                                        recordDate.includes(searchTerm) ||
+                                        recordCategory.includes(searchTerm) ||
+                                        recordPlatform.includes(searchTerm) ||
+                                        recordObservations.includes(searchTerm);
+                    }
+                    
+                    const matchesTabType = 
+                        (activeTabId === 'receitas-tab' && (record.receita > 0 || (record.receita === 0 && record.despesas === 0 && record.tipo === 'receita'))) ||
+                        (activeTabId === 'despesas-tab' && (record.despesas > 0 || (record.receita === 0 && record.despesas === 0 && record.tipo === 'despesa')));
+                    
+                    return matchesSearch && matchesTabType;
+                });
+
+                let receitasCount = 0;
+                let despesasCount = 0;
+
+                noRecordsOverallMessage.classList.add('d-none');
+
+                if (filteredRecords.length === 0) {
+                    noRecordsOverallMessage.classList.remove('d-none');
                 }
 
-                const docRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'registros', id);
-                let updateData = {
-                    data: editData.value,
-                    observacoes: editObservacoes.value.trim()
-                };
-                
-                if (type === 'receita') {
-                    if (!editPlataforma.value) { 
-                        displayStatusMessage('A plataforma é obrigatória para receitas.', 'warning'); 
-                        return; 
-                    }
-                    const receitaVal = parseFloat(editReceita.value);
-                    if (isNaN(receitaVal) || receitaVal < 0) { 
-                        displayStatusMessage('O valor da corrida é obrigatório e deve ser maior ou igual a zero para receitas.', 'warning'); 
-                        return; 
-                    }
-                    const gorjetasVal = parseFloat(editGorjetas.value || 0);
-                    if (isNaN(gorjetasVal) || gorjetasVal < 0) {
-                        displayStatusMessage('As gorjetas devem ser maior ou igual a zero.', 'warning');
-                        return;
-                    }
 
-                    Object.assign(updateData, {
-                        plataforma: editPlataforma.value, 
-                        receita: receitaVal,
-                        gorjetas: gorjetasVal,
-                        despesas: 0, // Zera campos de despesa para receita
-                        categoriaDespesa: '',
-                    });
-                } else if (type === 'despesa') {
-                    const despesasVal = parseFloat(editDespesas.value);
-                    if (isNaN(despesasVal) || despesasVal < 0) { 
-                        displayStatusMessage('O valor total da despesa é obrigatório e deve ser maior ou igual a zero.', 'warning'); 
-                        return; 
+                filteredRecords.forEach(record => {
+                    const row = document.createElement('tr');
+                    
+                    const dateObj = record.data ? new Date(record.data + 'T00:00:00') : null;
+                    const formattedDate = dateObj ? 
+                        `${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${String(dateObj.getFullYear()).slice(-2)}` : 
+                        'N/A';
+                    
+                    if (record.receita > 0 || (record.receita === 0 && record.despesas === 0 && record.tipo === 'receita')) {
+                        if (activeTabId === 'receitas-tab') {
+                            receitasCount++;
+                            row.innerHTML = `
+                                <td>${formattedDate}</td>
+                                <td>${record.plataforma || 'N/A'}</td>
+                                <td>R$ ${parseFloat(record.receita || 0).toFixed(2)}</td>
+                                <td class="gorjetas-column">R$ ${parseFloat(record.gorjetas || 0).toFixed(2)}</td>
+                                <td class="observacoes-column">${record.observacoes || ''}</td>
+                                <td>
+                                    <button class="btn btn-info btn-sm me-2 view-obs-btn" data-id="${record.id}"><i class="fas fa-eye"></i></button>
+                                    <button class="btn btn-primary btn-sm me-2 edit-btn" data-id="${record.id}" data-type="receita"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-danger btn-sm delete-btn" data-id="${record.id}"><i class="fas fa-trash-alt"></i></button>
+                                </td>
+                            `;
+                            receitasTableBody.appendChild(row);
+                        }
+                    } else if (record.despesas > 0 || (record.receita === 0 && record.despesas === 0 && record.tipo === 'despesa')) {
+                        if (activeTabId === 'despesas-tab') {
+                            despesasCount++;
+                            row.innerHTML = `
+                                <td>${formattedDate}</td>
+                                <td>R$ ${parseFloat(record.despesas || 0).toFixed(2)}</td>
+                                <td>${record.categoriaDespesa || 'N/A'}</td>
+                                <td class="observacoes-column">${record.observacoes || ''}</td>
+                                <td>
+                                    <button class="btn btn-info btn-sm me-2 view-obs-btn" data-id="${record.id}"><i class="fas fa-eye"></i></button>
+                                    <button class="btn btn-primary btn-sm me-2 edit-btn" data-id="${record.id}" data-type="despesa"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-danger btn-sm delete-btn" data-id="${record.id}"><i class="fas fa-trash-alt"></i></button>
+                                </td>
+                            `;
+                            despesasTableBody.appendChild(row);
+                        }
                     }
-                    if (!editCategoriaDespesa.value.trim()) { 
-                        displayStatusMessage('A categoria da despesa é obrigatória.', 'warning'); 
-                        return; 
-                    }
+                });
 
-                    Object.assign(updateData, {
-                        plataforma: '', // Zera campos de receita para despesa
-                        receita: 0,
-                        gorjetas: 0,
-                        despesas: despesasVal,
-                        categoriaDespesa: editCategoriaDespesa.value.trim(),
-                    });
+                if (receitasCount === 0 && activeTabId === 'receitas-tab') {
+                    noReceitasMessage.classList.remove('d-none');
                 }
-                
-                await updateDoc(docRef, updateData);
-                displayStatusMessage('Registro atualizado com sucesso!', 'success');
-                editModal.hide();
-                renderizarRegistros();
+                if (despesasCount === 0 && activeTabId === 'despesas-tab') {
+                    noDespesasMessage.classList.remove('d-none');
+                }
+
+                document.querySelectorAll('.edit-btn').forEach(button => {
+                    button.addEventListener('click', (e) => openEditModal(e.currentTarget.dataset.id, e.currentTarget.dataset.type));
+                });
+
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        recordToDeleteId = e.currentTarget.dataset.id;
+                        deleteConfirmModal.show();
+                    });
+                });
+
+                document.querySelectorAll('.view-obs-btn').forEach(button => {
+                    button.addEventListener('click', (e) => openObservacoesModal(e.currentTarget.dataset.id));
+                });
+
             } catch (error) {
-                console.error('Erro ao salvar edição:', error);
-                displayStatusMessage('Erro ao salvar as mudanças. Tente novamente.', 'danger');
+                console.error('Erro ao buscar registros:', error);
+                displayStatusMessage('Erro ao carregar registros.', 'danger');
             }
-        });
+        }
 
-        const abrirModalExclusao = (id) => {
-            recordToDeleteId = id; // Firestore ID é string
-            deleteConfirmModal.show();
-        };
+        async function openEditModal(id, type) {
+            if (!currentUserId) {
+                console.error("Usuário não autenticado.");
+                return;
+            }
+            try {
+                const docRef = doc(db, `users/${currentUserId}/registros`, id);
+                const docSnap = await getDoc(docRef); 
 
-        confirmDeleteButton.addEventListener('click', async () => {
-            if (recordToDeleteId) {
-                try {
-                    const docRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'registros', recordToDeleteId);
-                    await deleteDoc(docRef);
-                    displayStatusMessage('Registro excluído com sucesso!', 'success');
-                    deleteConfirmModal.hide();
-                    recordToDeleteId = null;
-                    renderizarRegistros();
-                } catch (error) {
-                    console.error('Erro ao excluir registro:', error);
-                    displayStatusMessage('Erro ao excluir o registro. Tente novamente.', 'danger');
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    editRecordId.value = id;
+                    editRecordType.value = type;
+                    editData.value = data.data;
+
+                    // Reset visibility for edit sections
+                    editBlocoReceita.classList.add('d-none');
+                    editBlocoDespesa.classList.add('d-none');
+
+                    // Set values and show relevant section based on type
+                    if (type === 'receita') {
+                        editBlocoReceita.classList.remove('d-none');
+                        editPlataforma.value = data.plataforma || '';
+                        editReceita.value = parseFloat(data.receita || 0).toFixed(2);
+                        editGorjetas.value = parseFloat(data.gorjetas || 0).toFixed(2);
+                    } else { // type === 'despesa'
+                        editBlocoDespesa.classList.remove('d-none');
+                        editValorTotalDespesa.value = parseFloat(data.despesas || 0).toFixed(2);
+                        editCategoriaDespesa.value = data.categoriaDespesa || '';
+                    }
+                    editObservacoes.value = data.observacoes || '';
+                    editModal.show();
+                } else {
+                    console.error("Documento não encontrado para edição!");
+                    displayStatusMessage('Registro não encontrado.', 'danger');
                 }
+            } catch (error) {
+                console.error('Erro ao abrir modal de edição:', error);
+                displayStatusMessage('Erro ao carregar dados para edição. Tente novamente.', 'danger');
             }
-        });
+        }
 
-        searchInput.addEventListener('input', renderizarRegistros);
-        filterType.addEventListener('change', renderizarRegistros);
-        
-        clearSearchButton.addEventListener('click', () => {
-            searchInput.value = '';
-            filterType.value = 'todos';
-            renderizarRegistros();
-        });
-
-        // Autenticação e carregamento inicial
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                currentUserId = user.uid;
-                console.log('Usuário logado em gerenciar_registros.html:', currentUserId);
-                renderizarRegistros(); // Carrega registros após o usuário estar logado
-            } else {
-                console.log('Nenhum usuário logado em gerenciar_registros.html. Redirecionando...');
-                window.location.href = 'login.html'; 
+        async function openObservacoesModal(id) {
+            if (!currentUserId) {
+                console.error("Usuário não autenticado.");
+                return;
             }
+            try {
+                const docRef = doc(db, `users/${currentUserId}/registros`, id);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    const dateObj = data.data ? new Date(data.data + 'T00:00:00') : null;
+                    const formattedDate = dateObj ? 
+                        `${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${String(dateObj.getFullYear()).slice(-2)}` : 
+                        'N/A';
+
+                    let contentHtml = `
+                        <div class="modal-details-item">
+                            <span class="icon"><i class="fas fa-calendar-alt"></i></span>
+                            <span class="label">Data:</span>
+                            <span class="value">${formattedDate}</span>
+                        </div>
+                    `;
+
+                    // Exibir todos os campos pertinentes ao tipo de registro
+                    if (data.receita > 0 || data.tipo === 'receita') {
+                        contentHtml += `
+                            <div class="modal-details-item">
+                                <span class="icon"><i class="fas fa-money-bill-wave"></i></span>
+                                <span class="label">Tipo:</span>
+                                <span class="value">Receita</span>
+                            </div>
+                            <div class="modal-details-item">
+                                <span class="icon"><i class="fas fa-car"></i></span>
+                                <span class="label">Plataforma:</span>
+                                <span class="value">${data.plataforma || 'N/A'}</span>
+                            </div>
+                            <div class="modal-details-item">
+                                <span class="icon"><i class="fas fa-hand-holding-usd"></i></span>
+                                <span class="label">Valor da Corrida:</span>
+                                <span class="value">R$ ${parseFloat(data.receita || 0).toFixed(2)}</span>
+                            </div>
+                            <div class="modal-details-item">
+                                <span class="icon"><i class="fas fa-gift"></i></span>
+                                <span class="label">Gorjetas:</span>
+                                <span class="value">R$ ${parseFloat(data.gorjetas || 0).toFixed(2)}</span>
+                            </div>
+                        `;
+                    } else if (data.despesas > 0 || data.tipo === 'despesa') {
+                        contentHtml += `
+                            <div class="modal-details-item">
+                                <span class="icon"><i class="fas fa-money-bill-alt"></i></span>
+                                <span class="label">Tipo:</span>
+                                <span class="value">Despesa</span>
+                            </div>
+                            <div class="modal-details-item">
+                                <span class="icon"><i class="fas fa-dollar-sign"></i></span>
+                                <span class="label">Valor Total:</span>
+                                <span class="value">R$ ${parseFloat(data.despesas || 0).toFixed(2)}</span>
+                            </div>
+                            <div class="modal-details-item">
+                                <span class="icon"><i class="fas fa-tag"></i></span>
+                                <span class="label">Categoria:</span>
+                                <span class="value">${data.categoriaDespesa || 'N/A'}</span>
+                            </div>
+                        `;
+                    }
+                    
+                    // Observações são comuns a ambos os tipos
+                    contentHtml += `
+                        <div class="modal-details-item">
+                            <span class="icon"><i class="fas fa-comment-dots"></i></span>
+                            <span class="label">Observações:</span>
+                            <span class="value">${data.observacoes || 'Nenhuma observação.'}</span>
+                        </div>
+                    `;
+
+                    observacoesModalBody.innerHTML = contentHtml;
+                    observacoesModal.show();
+                } else {
+                    console.error("Documento não encontrado para detalhes!");
+                    displayStatusMessage('Registro não encontrado para detalhes.', 'danger');
+                }
+            } catch (error) {
+                console.error('Erro ao abrir modal de observações:', error);
+                displayStatusMessage('Erro ao carregar detalhes do registro. Tente novamente.', 'danger');
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            searchInput = document.getElementById('searchInput');
+            clearSearchButton = document.getElementById('clearSearch');
+            receitasTableBody = document.getElementById('receitasTableBody');
+            despesasTableBody = document.getElementById('despesasTableBody');
+            noRecordsOverallMessage = document.getElementById('noRecordsOverallMessage');
+            noReceitasMessage = document.getElementById('noReceitasMessage');
+            noDespesasMessage = document.getElementById('noDespesasMessage');
+            statusMessage = document.getElementById('statusMessage');
+            myTabButtons = document.querySelectorAll('#myTab .nav-link');
+
+            editModal = new bootstrap.Modal(document.getElementById('editModal'));
+            editRecordForm = document.getElementById('editRecordForm');
+            editRecordId = document.getElementById('editRecordId');
+            editRecordType = document.getElementById('editRecordType');
+            editData = document.getElementById('editData');
+            editPlataforma = document.getElementById('editPlataforma');
+            editReceita = document.getElementById('editReceita');
+            editGorjetas = document.getElementById('editGorjetas');
+            editBlocoReceita = document.getElementById('editBlocoReceita');
+            editValorTotalDespesa = document.getElementById('editValorTotalDespesa');
+            editCategoriaDespesa = document.getElementById('editCategoriaDespesa');
+            editBlocoDespesa = document.getElementById('editBlocoDespesa');
+            editObservacoes = document.getElementById('editObservacoes');
+
+            deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            deleteConfirmBtn = document.getElementById('deleteConfirmBtn');
+
+            observacoesModal = new bootstrap.Modal(document.getElementById('observacoesModal'));
+            observacoesModalBody = document.getElementById('observacoesModalBody');
+
+
+            editRecordForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!currentUserId) {
+                    console.error("Usuário não autenticado.");
+                    displayStatusMessage('Erro: Usuário não autenticado.', 'danger');
+                    return;
+                }
+
+                const id = editRecordId.value;
+                const type = editRecordType.value;
+                const dataAtualizacao = editData.value;
+                const observacoes = editObservacoes.value.trim();
+
+                let updatedData = {
+                    data: dataAtualizacao,
+                    observacoes: observacoes,
+                    userId: currentUserId
+                };
+
+                if (type === 'receita') {
+                    updatedData.plataforma = editPlataforma.value;
+                    updatedData.receita = parseFloat(editReceita.value) || 0;
+                    updatedData.gorjetas = parseFloat(editGorjetas.value) || 0;
+                    // Ensure other fields are reset for correctness in Firebase
+                    updatedData.despesas = 0;
+                    updatedData.categoriaDespesa = '';
+                    updatedData.kmRodados = 0; 
+                    updatedData.combustivelLitros = 0; 
+                    updatedData.tipo = 'receita';
+                } else { // type === 'despesa'
+                    updatedData.despesas = parseFloat(editValorTotalDespesa.value) || 0;
+                    updatedData.categoriaDespesa = editCategoriaDespesa.value;
+                    updatedData.kmRodados = 0; 
+                    updatedData.combustivelLitros = 0; 
+                    // Ensure other fields are reset for correctness in Firebase
+                    updatedData.receita = 0;
+                    updatedData.gorjetas = 0;
+                    updatedData.plataforma = '';
+                    updatedData.tipo = 'despesa';
+                }
+
+                try {
+                    const docRef = doc(db, `users/${currentUserId}/registros`, id);
+                    await updateDoc(docRef, updatedData);
+                    displayStatusMessage('Registro atualizado com sucesso!', 'success');
+                    editModal.hide();
+                    renderizarRegistros();
+                }
+                catch (error) {
+                    console.error('Erro ao atualizar registro:', error);
+                    displayStatusMessage('Erro ao atualizar o registro. Tente novamente.', 'danger');
+                }
+            });
+
+            deleteConfirmBtn.addEventListener('click', async () => {
+                if (!currentUserId) {
+                    console.error("Usuário não autenticado.");
+                    displayStatusMessage('Erro: Usuário não autenticado.', 'danger');
+                    return;
+                }
+                if (recordToDeleteId) {
+                    try {
+                        const docRef = doc(db, `users/${currentUserId}/registros`, recordToDeleteId);
+                        await deleteDoc(docRef);
+                        displayStatusMessage('Registro excluído com sucesso!', 'success');
+                        deleteConfirmModal.hide();
+                        recordToDeleteId = null;
+                        renderizarRegistros();
+                    } catch (error) {
+                        console.error('Erro ao excluir registro:', error);
+                        displayStatusMessage('Erro ao excluir o registro. Tente novamente.', 'danger');
+                    }
+                }
+            });
+
+            searchInput.addEventListener('input', renderizarRegistros);
+            
+            clearSearchButton.addEventListener('click', () => {
+                searchInput.value = '';
+                renderizarRegistros();
+            });
+
+            // Add event listeners for tab changes
+            myTabButtons.forEach(tab => {
+                tab.addEventListener('shown.bs.tab', () => {
+                    updateSearchPlaceholder(); // Update placeholder when tab changes
+                    renderizarRegistros();
+                });
+            });
+
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    currentUserId = user.uid;
+                    console.log('Usuário logado em gerenciar_registros.html:', currentUserId);
+                    updateSearchPlaceholder(); // Initial placeholder update on load
+                    renderizarRegistros();
+                } else {
+                    console.log('Nenhum usuário logado em gerenciar_registros.html. Redirecionando...');
+                    window.location.href = 'login.html'; 
+                }
+            });
         });
     </script>
 </body>
