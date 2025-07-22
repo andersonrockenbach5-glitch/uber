@@ -17,7 +17,27 @@
       --text-color-light: #ffffff;
       --text-color-dark: #333333;
       --shadow-subtle: 0 6px 20px rgba(0, 0, 0, 0.25);
-      --border-radius-card: 1rem;
+      --border-radius-card: 1.5rem;
+    }
+
+    /* No seu CSS existente, dentro do bloco <style> */
+
+    .chart-container-placeholder {
+        position: relative;
+        min-height: 250px; /* Mantém um bom mínimo para telas maiores */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
+        color: #6c757d;
+    }
+
+    @media (max-width: 767px) {
+        .chart-container-placeholder {
+            min-height: 200px; /* Pode reduzir um pouco mais para celulares, se necessário, mas 250px já é um bom equilíbrio */
+            /* Considerar um aspecto de largura para o gráfico, se o height for fixo. */
+        }
     }
 
     body {
@@ -25,795 +45,1358 @@
       background: linear-gradient(160deg, var(--body-bg-start) 0%, var(--body-bg-end) 100%);
       background-attachment: fixed;
       min-height: 100vh;
+      color: var(--text-color-light);
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 0 1.5rem 2rem;
-      color: var(--text-color-dark); /* Ajuste para ter texto visível nos cards brancos */
+      padding: 0 1rem;
+      box-sizing: border-box;
     }
 
-    .container-custom {
+    @media (max-width: 576px) { /* Para extra small devices (phones) */
+      body {
+        padding: 0 0.5rem;
+      }
+    }
+
+    .top-nav-bar {
+        width: 100%;
+        max-width: 960px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 1.5rem 0;
+        box-sizing: border-box;
+    }
+
+    .btn-nav {
+        background-color: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 0.7rem 1.5rem;
+        border-radius: 0.8rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+        box-shadow: var(--shadow-subtle);
+    }
+
+    .btn-nav:hover {
+        background-color: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.5);
+        color: white;
+    }
+
+    header {
+      color: var(--text-color-light);
+      padding: 2rem 1rem;
+      text-align: center;
+      margin-top: 1rem;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    header h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    @media (max-width: 767px) {
+      header h1 {
+        font-size: 1.8rem;
+      }
+    }
+    @media (max-width: 575px) {
+      header h1 {
+        font-size: 1.5rem;
+      }
+    }
+
+    .container {
+      max-width: 960px;
+      margin-bottom: 3rem;
+      width: 100%;
+      padding: 0 0.5rem;
+    }
+
+    .card {
       background-color: var(--card-bg-color);
+      border: 1px solid var(--card-border-color);
       border-radius: var(--border-radius-card);
       box-shadow: var(--shadow-subtle);
       padding: 2rem;
-      margin-top: 2rem;
-      width: 100%;
-      max-width: 1200px;
-    }
-
-    h1, h2, h3, h4, h5, h6 {
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 700;
+      margin-bottom: 2rem;
       color: var(--text-color-dark);
     }
 
-    .form-control, .form-select {
-      border-radius: 0.5rem;
-      border: 1px solid var(--card-border-color);
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    /* Otimização de fontes para simetria e alinhamento de títulos */
+    .card h3 {
+        font-size: 1.75rem;
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 600;
+        text-align: left;
     }
 
-    .btn-primary {
-      background-color: var(--body-bg-start);
-      border-color: var(--body-bg-start);
-    }
-
-    .btn-danger {
-      background-color: var(--body-bg-end);
-      border-color: var(--body-bg-end);
-    }
-
-    .chart-container {
-      position: relative;
-      width: 100%;
-      height: 400px; /* Altura padrão para os gráficos */
-    }
-    .chart-container canvas {
-      max-height: 100%;
-      max-width: 100%;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .top-bar {
-      width: 100%;
-      max-width: 1200px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 0;
-      margin-top: 1rem;
-      color: var(--text-color-light); /* Texto branco para a barra superior */
-    }
-    .btn-back {
-      background-color: rgba(255, 255, 255, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      color: white;
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      text-decoration: none;
-      transition: background-color 0.3s ease, border-color 0.3s ease;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-    .btn-back:hover {
-      background-color: rgba(255, 255, 255, 0.25);
-      border-color: rgba(255, 255, 255, 0.5);
-      color: white;
-    }
-
-    @media (max-width: 768px) {
-      .container-custom {
-        padding: 1.5rem;
-        margin-top: 1rem;
+    @media (max-width: 767px) {
+      .card h3 {
+        font-size: 1.4rem;
       }
-      h1 {
-        font-size: 1.8rem;
+    }
+    @media (max-width: 575px) {
+      .card h3 {
+        font-size: 1.2rem;
       }
-      .chart-container {
-        height: 300px;
-      }
-      .top-bar {
+    }
+
+    /* General styling for the header/filter container in cards */
+    .card > .d-flex.justify-content-between.align-items-center {
+        /* Default for larger screens */
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem; /* Adjusted margin for consistency */
+    }
+
+    /* Specific adjustments for filter containers within these headers */
+    .card .d-flex.flex-wrap.gap-2, /* For "Receita vs Lucro" */
+    .card .monthly-summary-options { /* For "Resumo Mensal" and "Resumo Diário" */
+        display: flex; /* Ensure it's a flex container */
+        flex-wrap: wrap; /* Allow wrapping */
+        gap: 10px; /* Space between filter elements */
+        justify-content: flex-end; /* Align filters to the right on large screens */
+        width: auto; /* Allow content-based width */
+    }
+
+    /* Individual form-select elements */
+    .card .form-select {
+        flex-grow: 0; /* Do not grow unnecessarily */
+        width: auto; /* Natural width */
+        min-width: 120px; /* Minimum width for readability */
+        max-width: 180px; /* Maximum width */
+        font-size: 1rem; /* Default font size */
+    }
+
+    /* --- Media Queries for Smaller Screens (less than 768px) --- */
+    @media (max-width: 767px) {
+        /* Parent container of h3 and filters */
+        .card > .d-flex.justify-content-between.align-items-center {
+            flex-direction: column; /* Stack title and filters */
+            align-items: flex-start; /* Align stacked items to the left */
+            justify-content: flex-start; /* No space-between when stacked */
+            margin-bottom: 1rem; /* Consistent margin */
+            gap: 0.5rem; /* Space between title and filter block */
+        }
+
+        /* Titles within these card headers */
+        .card > .d-flex.justify-content-between.align-items-center h3 {
+            margin-bottom: 0; /* Remove bottom margin to reduce extra space when stacked */
+            width: 100%; /* Make title take full width for consistent alignment */
+            text-align: left; /* Ensure title is left-aligned */
+        }
+
+        /* Filter containers within these card headers */
+        .card .d-flex.flex-wrap.gap-2, /* For "Receita vs Lucro" */
+        .card .monthly-summary-options { /* For "Resumo Mensal" and "Resumo Diário" */
+            flex-direction: column; /* Stack individual filters */
+            width: 100%; /* Make the filter block take full width */
+            gap: 0.5rem; /* Space between stacked filters */
+            justify-content: flex-start; /* Align filters to the left when stacked */
+        }
+
+        /* Individual form-select elements on small screens */
+        .card .form-select {
+            width: 100%; /* Make each filter take full width */
+            max-width: none; /* Remove max-width constraint */
+            font-size: 0.85rem; /* Smaller font size */
+            padding: 0.375rem 0.75rem; /* Adjust padding */
+        }
+    }
+
+
+    .chart-container-placeholder {
+        position: relative;
+        min-height: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         flex-direction: column;
-        gap: 0.5rem;
-        align-items: flex-start;
+        text-align: center;
+        color: #6c757d;
+    }
+
+    @media (max-width: 767px) {
+        .chart-container-placeholder {
+            min-height: 280px;
+        }
+    }
+
+    .no-data-message {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--card-bg-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        color: #6c757d;
+        z-index: 10;
+    }
+    .no-data-message.hidden {
+        display: none;
+    }
+
+    .summary-grid {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .summary-item {
+        flex: 1 1 calc(50% - 1rem);
+        max-width: calc(50% - 1rem);
+        padding: 1.2rem;
+        border-radius: 0.8rem;
+        background-color: #f8f9fa;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        text-align: center;
+    }
+
+    @media (min-width: 768px) {
+      .summary-item {
+        flex: 1 1 calc(33.333% - 1rem);
+        max-width: calc(33.333% - 1rem);
       }
+    }
+
+    @media (min-width: 992px) {
+      .summary-item {
+        flex: 1 1 calc(25% - 1rem);
+        max-width: calc(25% - 1rem);
+      }
+    }
+
+    .summary-label {
+        font-size: 1rem;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    .summary-value {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+
+    @media (max-width: 767px) {
+        .summary-label {
+            font-size: 0.85rem;
+        }
+        .summary-value {
+            font-size: 1.6rem;
+        }
+    }
+    @media (max-width: 575px) {
+        .summary-label {
+            font-size: 0.75rem;
+        }
+        .summary-value {
+            font-size: 1.4rem;
+        }
+    }
+
+    .summary-value.receita { color: #007bff; }
+    .summary-value.gastos { color: #dc3545; }
+    .summary-value.lucro {
+        color: #28a745;
+    }
+    .summary-value.dias-trabalhados {
+        color: #6c757d;
+    }
+
+    /* Estilos para a tabela de resumo diário */
+    .table-container {
+        overflow-x: auto;
+        margin-top: 1.5rem;
+    }
+
+    .daily-summary-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1rem;
+    }
+
+    .daily-summary-table th, .daily-summary-table td {
+        padding: 0.75rem;
+        vertical-align: top;
+        border-top: 1px solid #dee2e6;
+        text-align: center;
+    }
+
+    @media (max-width: 767px) {
+        .daily-summary-table th, .daily-summary-table td {
+            font-size: 0.8rem;
+            padding: 0.5rem;
+        }
+    }
+
+    .daily-summary-table th {
+        background-color: #e9ecef;
+        font-weight: bold;
+        color: var(--text-color-dark);
+    }
+
+    .daily-summary-table tbody tr:nth-child(even) {
+        background-color: #f8f9fa;
+    }
+
+    .daily-summary-table .text-success { color: #28a745; }
+    .daily-summary-table .text-danger { color: #dc3545; }
+    .daily-summary-table .text-primary-blue { color: #007bff; }
+
+
+    footer {
+      text-align: center;
+      margin-top: 4rem;
+      padding: 1rem;
+      background-color: transparent;
+      color: var(--text-color-light);
+      opacity: 0.8;
     }
   </style>
 </head>
 <body>
-  <div class="top-bar">
-    <a href="index.html" class="btn-back"><i class="fas fa-arrow-left me-2"></i>Voltar</a>
-    <h1>Estatísticas Detalhadas</h1>
-    <span></span>
+  <div class="top-nav-bar">
+    <a href="index.html" class="btn-nav"><i class="fas fa-home"></i> Home</a>
   </div>
 
-  <div class="container container-custom">
-    <h2 class="mb-4 text-center">Dashboard Financeiro</h2>
+  <header>
+    <h1 class="fw-bold">Estatísticas - Motorista de Aplicativo</h1>
+    <p>Acompanhe seu desempenho visualmente</p>
+  </header>
 
-    <div class="row mb-4">
-      <div class="col-md-6 col-lg-4 mb-3">
-        <label for="filtroPeriodo" class="form-label">Período:</label>
-        <select class="form-select" id="filtroPeriodo">
-          <option value="mensal">Mensal</option>
-          <option value="anual">Anual</option>
-        </select>
-      </div>
-      <div class="col-md-6 col-lg-8" id="selectoresMensal">
-        <div class="row">
-          <div class="col-sm-6 mb-3">
-            <label for="filtroMes" class="form-label">Mês:</label>
-            <select class="form-select" id="filtroMes">
-              <option value="0">Janeiro</option>
-              <option value="1">Fevereiro</option>
-              <option value="2">Março</option>
-              <option value="3">Abril</option>
-              <option value="4">Maio</option>
-              <option value="5">Junho</option>
-              <option value="6">Julho</option>
-              <option value="7">Agosto</option>
-              <option value="8">Setembro</option>
-              <option value="9">Outubro</option>
-              <option value="10">Novembro</option>
-              <option value="11">Dezembro</option>
-            </select>
-          </div>
-          <div class="col-sm-6 mb-3">
-            <label for="filtroAnoMensal" class="form-label">Ano:</label>
-            <select class="form-select" id="filtroAnoMensal"></select>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-6 col-lg-8 d-none" id="selectoresAnual">
-        <div class="row">
-          <div class="col-12 mb-3">
-            <label for="filtroAnoAnual" class="form-label">Ano:</label>
-            <select class="form-select" id="filtroAnoAnual"></select>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <hr class="my-4">
-
-    <div class="row">
-      <div class="col-lg-6 mb-4">
-        <div class="card shadow-sm h-100">
-          <div class="card-body">
-            <h4 class="card-title text-center mb-4">Receita vs. Lucro</h4>
-            <div class="chart-container">
-              <canvas id="graficoReceitaLucro"></canvas>
-              <p id="noDataReceitaLucro" class="hidden text-center text-muted position-absolute top-50 start-50 translate-middle">Sem dados para o período selecionado.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-6 mb-4">
-        <div class="card shadow-sm h-100">
-          <div class="card-body">
-            <h4 class="card-title text-center mb-4">Gastos por Categoria</h4>
-            <div class="chart-container">
-              <canvas id="graficoGastosPorCategoria"></canvas>
-              <p id="noDataGastosCategoria" class="hidden text-center text-muted position-absolute top-50 start-50 translate-middle">Sem dados para o período selecionado.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-6 mb-4">
-        <div class="card shadow-sm h-100">
-          <div class="card-body">
-            <h4 class="card-title text-center mb-4">Receita por Plataforma</h4>
-            <div class="chart-container">
-              <canvas id="graficoPlataforma"></canvas>
-              <p id="noDataPlataforma" class="hidden text-center text-muted position-absolute top-50 start-50 translate-middle">Sem dados para o período selecionado.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-6 mb-4">
-        <div class="card shadow-sm h-100">
-          <div class="card-body">
-            <h4 class="card-title text-center mb-4">Resumo Mensal de Receitas e Despesas</h4>
-            <div class="row mb-3">
-              <div class="col-6">
-                <label for="filtroMesResumoMensal" class="form-label">Mês:</label>
+  <div class="container">
+    <div class="card monthly-summary-card">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+            <h3 class="summary-title mb-0">Resumo Mensal</h3>
+            <div class="monthly-summary-options">
                 <select class="form-select" id="filtroMesResumoMensal">
-                  <option value="0">Janeiro</option>
-                  <option value="1">Fevereiro</option>
-                  <option value="2">Março</option>
-                  <option value="3">Abril</option>
-                  <option value="4">Maio</option>
-                  <option value="5">Junho</option>
-                  <option value="6">Julho</option>
-                  <option value="7">Agosto</option>
-                  <option value="8">Setembro</option>
-                  <option value="9">Outubro</option>
-                  <option value="10">Novembro</option>
-                  <option value="11">Dezembro</option>
+                    <option value="0">Janeiro</option>
+                    <option value="1">Fevereiro</option>
+                    <option value="2">Março</option>
+                    <option value="3">Abril</option>
+                    <option value="4">Maio</option>
+                    <option value="5">Junho</option>
+                    <option value="6">Julho</option>
+                    <option value="7">Agosto</option>
+                    <option value="8">Setembro</option>
+                    <option value="9">Outubro</option>
+                    <option value="10">Novembro</option>
+                    <option value="11">Dezembro</option>
                 </select>
-              </div>
-              <div class="col-6">
-                <label for="filtroAnoResumoMensal" class="form-label">Ano:</label>
                 <select class="form-select" id="filtroAnoResumoMensal"></select>
-              </div>
             </div>
-            <div id="resumoMensalContent">
-                <p>Receita Total: <strong id="resumoReceitaTotal">R$ 0.00</strong></p>
-                <p>Despesa Total: <strong id="resumoDespesaTotal">R$ 0.00</strong></p>
-                <p>Lucro/Prejuízo: <strong id="resumoLucroPrejuizo">R$ 0.00</strong></p>
-            </div>
-          </div>
         </div>
+        <div class="summary-grid">
+            <div class="summary-item">
+                <div class="summary-label"><i class="fas fa-sack-dollar"></i> Receita Total</div>
+                <div class="summary-value receita" id="totalReceitaMensal">R$ 0,00</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label"><i class="fas fa-receipt"></i> Gastos Totais</div>
+                <div class="summary-value gastos" id="totalGastosMensal">R$ 0,00</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label"><i class="fas fa-chart-line"></i> Lucro Total</div>
+                <div class="summary-value lucro" id="totalLucroMensal">R$ 0,00</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label"><i class="fas fa-calendar-check"></i> Dias Trabalhados</div>
+                <div class="summary-value dias-trabalhados" id="diasTrabalhadosMensal">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card p-4">
+      <h3 class="mb-2">Progresso da Meta Mensal</h3>
+      <div id="metaMonthlyProgressContainer" class="chart-container-placeholder">
+        <canvas id="graficoMetaMensal"></canvas>
+        <div class="no-data-message hidden" id="noDataMetaMensalProgress">Nenhuma meta mensal ativa encontrada.</div>
+      </div>
+       <div id="metaMonthlyDetails" class="mt-3 text-center" style="font-size: 1.1rem; color: #555;">
+            </div>
+    </div>
+
+    <div class="card p-4">
+        <h3 class="mb-2">Progresso da Meta Semanal</h3>
+        <div id="metaWeeklyProgressContainer" class="chart-container-placeholder">
+            <canvas id="graficoMetaSemanal"></canvas>
+            <div class="no-data-message hidden" id="noDataMetaSemanalProgress">Nenhuma meta diária ativa encontrada para calcular o progresso semanal.</div>
+        </div>
+        <div id="metaWeeklyDetails" class="mt-3 text-center" style="font-size: 1.1rem; color: #555;">
+        </div>
+    </div>
+
+    <div class="card p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+        <h3 class="mb-0">Receita vs Lucro</h3>
+        <div class="d-flex flex-wrap gap-2">
+            <select class="form-select w-auto" id="filtroPeriodo">
+                <option value="mensal" selected>Mensal</option>
+                <option value="anual">Anual</option>
+            </select>
+
+            <div id="opcoesFiltroMensal" class="d-flex gap-2">
+                <select class="form-select w-auto" id="filtroMes">
+                    <option value="0">Janeiro</option>
+                    <option value="1">Fevereiro</option>
+                    <option value="2">Março</option>
+                    <option value="3">Abril</option>
+                    <option value="4">Maio</option>
+                    <option value="5">Junho</option>
+                    <option value="6">Julho</option>
+                    <option value="7">Agosto</option>
+                    <option value="8">Setembro</option>
+                    <option value="9">Outubro</option>
+                    <option value="10">Novembro</option>
+                    <option value="11">Dezembro</option>
+                </select>
+                <select class="form-select w-auto" id="filtroAnoMensal"></select>
+            </div>
+
+            <div id="opcoesFiltroSemanal" class="d-none"></div>
+            <div id="opcoesFiltroAnual" class="d-none">
+                <select class="form-select w-auto" id="filtroAnoAnual"></select>
+            </div>
+            <div id="opcoesFiltroDiario" class="d-none"></div>
+        </div>
+      </div>
+      <div id="receitaLucroContainer" class="chart-container-placeholder">
+        <canvas id="graficoReceitaLucro"></canvas>
+        <div class="no-data-message hidden" id="noDataReceitaLucro">Nenhum dado de receita ou lucro para o período selecionado.</div>
       </div>
     </div>
 
-    <hr class="my-4">
+    <div class="card p-4">
+      <h3 class="mb-2">Gastos por Categoria</h3> <div id="gastosContainer" class="chart-container-placeholder">
+        <canvas id="graficoGastos"></canvas>
+        <div class="no-data-message hidden" id="noDataGastos">Nenhum gasto registrado no período selecionado.</div>
+      </div>
+    </div>
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <h4 class="card-title text-center mb-4">Resumo Diário Detalhado</h4>
-            <div class="row mb-3">
-                <div class="col-md-6 mb-3">
-                    <label for="filtroMesTabela" class="form-label">Mês:</label>
-                    <select class="form-select" id="filtroMesTabela">
-                        <option value="0">Janeiro</option>
-                        <option value="1">Fevereiro</option>
-                        <option value="2">Março</option>
-                        <option value="3">Abril</option>
-                        <option value="4">Maio</option>
-                        <option value="5">Junho</option>
-                        <option value="6">Julho</option>
-                        <option value="7">Agosto</option>
-                        <option value="8">Setembro</option>
-                        <option value="9">Outubro</option>
-                        <option value="10">Novembro</option>
-                        <option value="11">Dezembro</option>
-                    </select>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="filtroAnoTabela" class="form-label">Ano:</label>
-                    <select class="form-select" id="filtroAnoTabela"></select>
-                </div>
+    <div class="card p-4">
+      <h3 class="mb-4">Distribuição de Corridas por Plataforma</h3>
+      <div id="plataformaContainer" class="chart-container-placeholder">
+        <canvas id="graficoPlataforma"></canvas>
+        <div class="no-data-message hidden" id="noDataPlataforma">Nenhuma corrida registrada no período selecionado.</div>
+      </div>
+    </div>
+
+    <div class="card detailed-records-card">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+            <h3 class="mb-0">Resumo Diário</h3>
+            <div class="monthly-summary-options">
+                <select class="form-select" id="filtroMesTabela">
+                    <option value="0">Janeiro</option>
+                    <option value="1">Fevereiro</option>
+                    <option value="2">Março</option>
+                    <option value="3">Abril</option>
+                    <option value="4">Maio</option>
+                    <option value="5">Junho</option>
+                    <option value="6">Julho</option>
+                    <option value="7">Agosto</option>
+                    <option value="8">Setembro</option>
+                    <option value="9">Outubro</option>
+                    <option value="10">Novembro</option>
+                    <option value="11">Dezembro</option>
+                </select>
+                <select class="form-select" id="filtroAnoTabela"></select>
             </div>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Receitas</th>
-                            <th>Despesas</th>
-                            <th>Lucro Diário</th>
-                        </tr>
-                    </thead>
-                    <tbody id="resumoDiarioTableBody">
-                        </tbody>
-                </table>
-            </div>
-            <p id="noDataTabelaDiaria" class="hidden text-center text-muted">Sem dados para o período selecionado.</p>
+        </div>
+        <div class="table-container">
+            <table class="table table-striped daily-summary-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Receita (R$)</th>
+                        <th>Gastos (R$)</th>
+                        <th>Lucro (R$)</th>
+                    </tr>
+                </thead>
+                <tbody id="dailySummaryTableBody">
+                    </tbody>
+            </table>
+            <div class="no-data-message hidden" id="noDataTabela">Nenhum registro para o período selecionado.</div>
         </div>
     </div>
+
   </div>
+
+  <footer>
+    <p>&copy; 2025 - Anderson Rockenbach - Todos os Direitos Reservados</p>
+  </footer>
+
+  <script type="module" src="firebase_init.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
-    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
-    import { getFirestore, collection, query, where, getDocs, orderBy } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+            import { collection, query, getDocs, orderBy, doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+            import { auth, db, firebaseConfig } from './firebase_init.js';
 
-    // Seus dados de configuração do Firebase
-    const firebaseConfig = {
-        apiKey: "AIzaSyCee4pXFdNxmdSv4VA90KdihyapXvAGt8w",
-        authDomain: "controle-financeiro-e190f.firebaseapp.com",
-        projectId: "controle-financeiro-e190f",
-        storageBucket: "controle-financeiro-e190f.firebasestorage.app",
-        messagingSenderId: "711653253846",
-        appId: "1:711653253846:web:f633ce5cc025e2c8aedf77",
-        measurementId: "G-ZKEY3BJN9G"
-    };
+        let currentUserId = null;
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+        auth.onAuthStateChanged(async user => {
+            if (user) {
+                currentUserId = user.uid;
+                console.log('Usuário logado em estatistica.html:', currentUserId);
+                
+                const currentMonth = new Date().getMonth();
+                const currentYear = new Date().getFullYear();
 
-    let currentUserId = null;
-
-    const filtroPeriodo = document.getElementById('filtroPeriodo');
-    const filtroMes = document.getElementById('filtroMes');
-    const filtroAnoMensal = document.getElementById('filtroAnoMensal');
-    const filtroAnoAnual = document.getElementById('filtroAnoAnual');
-    const filtroMesResumoMensal = document.getElementById('filtroMesResumoMensal');
-    const filtroAnoResumoMensal = document.getElementById('filtroAnoResumoMensal');
-    const filtroMesTabela = document.getElementById('filtroMesTabela');
-    const filtroAnoTabela = document.getElementById('filtroAnoTabela');
-
-    const selectoresMensal = document.getElementById('selectoresMensal');
-    const selectoresAnual = document.getElementById('selectoresAnual');
-
-    const ctxReceitaLucro = document.getElementById('graficoReceitaLucro').getContext('2d');
-    const ctxGastosPorCategoria = document.getElementById('graficoGastosPorCategoria').getContext('2d');
-    const ctxReceitaPorPlataforma = document.getElementById('graficoPlataforma').getContext('2d');
-
-    let receitaLucroChart;
-    let gastosPorCategoriaChart;
-    let receitaPorPlataformaChart;
-
-    function preencherAnos() {
-        const currentYear = new Date().getFullYear();
-        // Clear previous options to prevent duplicates
-        filtroAnoMensal.innerHTML = '';
-        filtroAnoAnual.innerHTML = '';
-        filtroAnoResumoMensal.innerHTML = '';
-        filtroAnoTabela.innerHTML = '';
-
-        for (let i = currentYear; i >= 2020; i--) {
-            const optionMensal = document.createElement('option');
-            optionMensal.value = i;
-            optionMensal.textContent = i;
-            filtroAnoMensal.appendChild(optionMensal);
-
-            const optionAnual = document.createElement('option');
-            optionAnual.value = i;
-            optionAnual.textContent = i;
-            filtroAnoAnual.appendChild(optionAnual);
-
-            const optionResumoMensal = document.createElement('option');
-            optionResumoMensal.value = i;
-            optionResumoMensal.textContent = i;
-            filtroAnoResumoMensal.appendChild(optionResumoMensal);
-
-            const optionTabela = document.createElement('option');
-            optionTabela.value = i;
-            optionTabela.textContent = i;
-            filtroAnoTabela.appendChild(optionTabela);
-        }
-        // Set current year as selected
-        filtroAnoMensal.value = currentYear;
-        filtroAnoAnual.value = currentYear;
-        filtroAnoResumoMensal.value = currentYear;
-        filtroAnoTabela.value = currentYear;
-    }
-
-    function alternarSeletoresFiltro() {
-        const periodo = filtroPeriodo.value;
-        if (periodo === 'mensal') {
-            selectoresMensal.classList.remove('d-none');
-            selectoresAnual.classList.add('d-none');
-        } else {
-            selectoresMensal.classList.add('d-none');
-            selectoresAnual.classList.remove('d-none');
-        }
-        atualizarGraficos();
-    }
-
-    async function atualizarGraficos() {
-        if (!currentUserId) {
-            console.log("Usuário não autenticado. Não é possível carregar gráficos.");
-            return;
-        }
-
-        const periodo = filtroPeriodo.value;
-        let registrosRef;
-        let q;
-
-        registrosRef = collection(db, `users/${currentUserId}/registros`);
-
-        let selectedYear;
-        let selectedMonth;
-
-        if (periodo === 'mensal') {
-            selectedMonth = parseInt(filtroMes.value);
-            selectedYear = parseInt(filtroAnoMensal.value);
-            const startOfMonth = new Date(selectedYear, selectedMonth, 1);
-            const endOfMonth = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59, 999);
-
-            q = query(
-                registrosRef,
-                where('data', '>=', startOfMonth.toISOString().split('T')[0]),
-                where('data', '<=', endOfMonth.toISOString().split('T')[0]),
-                orderBy('data', 'asc')
-            );
-        } else { // anual
-            selectedYear = parseInt(filtroAnoAnual.value);
-            const startOfYear = new Date(selectedYear, 0, 1);
-            const endOfYear = new Date(selectedYear, 11, 31, 23, 59, 59, 999);
-
-            q = query(
-                registrosRef,
-                where('data', '>=', startOfYear.toISOString().split('T')[0]),
-                where('data', '<=', endOfYear.toISOString().split('T')[0]),
-                orderBy('data', 'asc')
-            );
-        }
-
-        try {
-            const querySnapshot = await getDocs(q);
-            const dados = querySnapshot.docs.map(doc => doc.data());
-
-            // Processar dados para Receita vs Lucro
-            renderizarGraficoReceitaLucro(dados, periodo);
-            // Processar dados para Gastos por Categoria
-            renderizarGraficoGastosPorCategoria(dados);
-            // Processar dados para Receita por Plataforma
-            renderizarGraficoReceitaPorPlataforma(dados);
-            // Atualizar Resumo Mensal
-            atualizarResumoMensal(dados, parseInt(filtroMesResumoMensal.value), parseInt(filtroAnoResumoMensal.value));
-            // Atualizar Tabela de Resumo Diário
-            renderizarTabelaResumoDiario(dados, parseInt(filtroMesTabela.value), parseInt(filtroAnoTabela.value));
-
-        } catch (error) {
-            console.error("Erro ao buscar dados do Firestore:", error);
-            document.getElementById('noDataReceitaLucro').classList.remove('hidden');
-            document.getElementById('graficoReceitaLucro').style.display = 'none';
-            document.getElementById('noDataGastosCategoria').classList.remove('hidden');
-            document.getElementById('graficoGastosPorCategoria').style.display = 'none';
-            document.getElementById('noDataPlataforma').classList.remove('hidden');
-            document.getElementById('graficoPlataforma').style.display = 'none';
-            document.getElementById('noDataTabelaDiaria').classList.remove('hidden');
-            document.getElementById('resumoDiarioTableBody').innerHTML = '';
-            document.getElementById('resumoReceitaTotal').textContent = 'R$ 0.00';
-            document.getElementById('resumoDespesaTotal').textContent = 'R$ 0.00';
-            document.getElementById('resumoLucroPrejuizo').textContent = 'R$ 0.00';
-        }
-    }
-
-    function renderizarGraficoReceitaLucro(data, periodo) {
-        if (receitaLucroChart) {
-            receitaLucroChart.destroy();
-        }
-
-        const dailyData = {}; // Agrega dados por dia
-        data.forEach(record => {
-            const date = record.data; // Data já está em YYYY-MM-DD
-            if (!dailyData[date]) {
-                dailyData[date] = { receita: 0, despesa: 0 };
+                filtroMes.value = currentMonth;
+                filtroMesResumoMensal.value = currentMonth;
+                filtroMesTabela.value = currentMonth;
+                
+                filtroAnoMensal.value = currentYear;
+                filtroAnoAnual.value = currentYear;
+                filtroAnoResumoMensal.value = currentYear;
+                filtroAnoTabela.value = currentYear;
+                
+                alternarSeletoresFiltro();
+                
+                todasAsMetas = await carregarMetas(); 
+                
+                atualizarGraficos(); 
+            } else {
+                console.log('Nenhum usuário logado em estatistica.html. Redirecionando para login.html');
+                window.location.href = 'login.html';
             }
-            if (record.receita) dailyData[date].receita += parseFloat(record.receita);
-            if (record.gorjetas) dailyData[date].receita += parseFloat(record.gorjetas);
-            if (record.despesas) dailyData[date].despesa += parseFloat(record.despesas);
         });
 
-        const sortedDates = Object.keys(dailyData).sort();
+        const carregarRegistros = async () => {
+            if (!currentUserId) return [];
+            try {
+                const registrosRef = collection(db, `users/${currentUserId}/registros`); 
+                const q = query(registrosRef, orderBy('data', 'desc'), orderBy('createdAt', 'desc'));
+                const querySnapshot = await getDocs(q);
+                const registros = [];
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    registros.push({ 
+                        id: doc.id, 
+                        ...data,
+                        data: data.data ? new Date(data.data + 'T00:00:00') : new Date() 
+                    });
+                });
+                return registros;
+            } catch (error) {
+                console.error('Erro ao carregar registros do Firestore para estatísticas:', error);
+                return [];
+            }
+        };
 
-        const labels = [];
-        const receitas = [];
-        const despesas = [];
-        const lucros = [];
+        const carregarMetas = async () => {
+            if (!currentUserId) return [];
+            try {
+                const metasRef = collection(db, `users/${currentUserId}/metas`);
+                const q = query(metasRef);
+                const querySnapshot = await getDocs(q);
+                const metas = [];
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    let nomeMetaDisplay = '';
+                    let tipoMetaMapping = ''; 
+                    let valorMetaActual = 0; 
 
-        sortedDates.forEach(date => {
-            labels.push(date);
-            const receitaDiaria = dailyData[date].receita;
-            const despesaDiaria = dailyData[date].despesa;
-            receitas.push(receitaDiaria);
-            despesas.push(despesaDiaria);
-            lucros.push(receitaDiaria - despesaDiaria);
-        });
-
-        if (labels.length > 0) {
-            document.getElementById('graficoReceitaLucro').style.display = 'block';
-            document.getElementById('noDataReceitaLucro').classList.add('hidden');
-
-            receitaLucroChart = new Chart(ctxReceitaLucro, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Receita',
-                            data: receitas,
-                            borderColor: '#28a745',
-                            backgroundColor: 'rgba(40, 167, 69, 0.2)',
-                            fill: true,
-                            tension: 0.3
-                        },
-                        {
-                            label: 'Despesa',
-                            data: despesas,
-                            borderColor: '#dc3545',
-                            backgroundColor: 'rgba(220, 53, 69, 0.2)',
-                            fill: true,
-                            tension: 0.3
-                        },
-                        {
-                            label: 'Lucro/Prejuízo',
-                            data: lucros,
-                            borderColor: '#007bff',
-                            backgroundColor: 'rgba(0, 123, 255, 0.2)',
-                            fill: true,
-                            tension: 0.3
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top' },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.y !== null) {
-                                        label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.parsed.y);
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Valor (R$)'
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-                                }
-                            }
-                        }
+                    if (data.tipo === 'ganhos_diarios') {
+                        nomeMetaDisplay = 'Meta Diária';
+                        tipoMetaMapping = 'receita'; 
+                        valorMetaActual = parseFloat(data.metaDiariaCalculada) || 0; 
+                    } else if (data.tipo === 'ganhos_mensais') {
+                        nomeMetaDisplay = 'Meta Mensal';
+                        tipoMetaMapping = 'receita'; 
+                        valorMetaActual = parseFloat(data.metaMensalCalculada) || 0; 
                     }
-                }
-            });
-        } else {
-            document.getElementById('graficoReceitaLucro').style.display = 'none';
-            document.getElementById('noDataReceitaLucro').classList.remove('hidden');
-        }
-    }
+                    metas.push({
+                        id: doc.id,
+                        ...data,
+                        nomeMeta: nomeMetaDisplay, 
+                        valorMeta: valorMetaActual, 
+                        tipoMeta: tipoMetaMapping, 
+                    });
+                });
+                return metas;
+            } catch (error) {
+                console.error('Erro ao carregar metas do Firestore:', error);
+                return [];
+            }
+        };
+        function desenharGraficoMeta(canvasId, valorAlvo, valorAtual) {
+            const porcentagem = Math.min((valorAtual / valorAlvo) * 100, 100).toFixed(1);
 
-    function renderizarGraficoGastosPorCategoria(data) {
-        if (gastosPorCategoriaChart) {
-            gastosPorCategoriaChart.destroy();
-        }
-
-        const categoryExpenses = {};
-        data.filter(record => record.despesas > 0).forEach(record => {
-            const category = record.categoriaDespesa || 'Outros';
-            categoryExpenses[category] = (categoryExpenses[category] || 0) + parseFloat(record.despesas);
-        });
-
-        const labels = Object.keys(categoryExpenses);
-        const values = Object.values(categoryExpenses);
-
-        if (labels.length > 0) {
-            document.getElementById('graficoGastosPorCategoria').style.display = 'block';
-            document.getElementById('noDataGastosCategoria').classList.add('hidden');
-
-            const backgroundColors = [
-                '#dc3545', '#ffc107', '#17a2b8', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c', '#6610f2', '#007bff', '#28a745'
-            ];
-
-            gastosPorCategoriaChart = new Chart(ctxGastosPorCategoria, {
-                type: 'pie',
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            return new Chart(ctx, {
+                type: 'doughnut',
                 data: {
-                    labels: labels,
+                    labels: ['Progresso', 'Restante'],
                     datasets: [{
-                        data: values,
-                        backgroundColor: backgroundColors.slice(0, labels.length)
+                        data: [valorAtual, Math.max(valorAlvo - valorAtual, 0)],
+                        backgroundColor: ['#28a745', '#e0e0e0'],
+                        borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
+                    cutout: '70%',
                     plugins: {
-                        legend: { position: 'top' },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed !== null) {
-                                        label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.parsed);
-                                        const total = context.dataset.data.reduce((sum, val) => sum + val, 0);
-                                        const percentage = ((context.parsed / total) * 100).toFixed(2);
-                                        label += ` (${percentage}%)`;
-                                    }
-                                    return label;
+                                label: function (context) {
+                                    const label = context.label || '';
+                                    const valor = context.parsed;
+                                    return `${label}: R$ ${valor.toFixed(2)}`;
                                 }
                             }
+                        },
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: `${porcentagem}%`
                         }
                     }
                 }
             });
-        } else {
-            document.getElementById('graficoGastosPorCategoria').style.display = 'none';
-            document.getElementById('noDataGastosCategoria').classList.remove('hidden');
         }
+
+
+    Chart.defaults.color = '#333';
+    Chart.defaults.borderColor = 'rgba(0, 0, 0, 0.1)';
+
+    const filtroPeriodo = document.getElementById('filtroPeriodo');
+    const opcoesFiltroMensal = document.getElementById('opcoesFiltroMensal');
+    const filtroMes = document.getElementById('filtroMes');
+    const filtroAnoMensal = document.getElementById('filtroAnoMensal');
+
+    const opcoesFiltroSemanal = document.getElementById('opcoesFiltroSemanal'); 
+    const opcoesFiltroAnual = document.getElementById('opcoesFiltroAnual');
+    const filtroAnoAnual = document.getElementById('filtroAnoAnual');
+    const opcoesFiltroDiario = document.getElementById('opcoesFiltroDiario');
+    
+    const receitaLucroContainer = document.getElementById('receitaLucroContainer');
+    const gastosContainer = document.getElementById('gastosContainer');
+    const plataformaContainer = document.getElementById('plataformaContainer');
+
+    const filtroMesResumoMensal = document.getElementById('filtroMesResumoMensal');
+    const filtroAnoResumoMensal = document.getElementById('filtroAnoResumoMensal');
+    const totalReceitaMensalElement = document.getElementById('totalReceitaMensal');
+    const totalGastosMensalElement = document.getElementById('totalGastosMensal');
+    const totalLucroMensalElement = document.getElementById('totalLucroMensal');
+    const diasTrabalhadosMensalElement = document.getElementById('diasTrabalhadosMensal'); 
+
+    const filtroMesTabela = document.getElementById('filtroMesTabela');
+    const filtroAnoTabela = document.getElementById('filtroAnoTabela');
+    const dailySummaryTableBody = document.getElementById('dailySummaryTableBody');
+    const noDataTabela = document.getElementById('noDataTabela');
+
+    const noDataReceitaLucro = document.getElementById('noDataReceitaLucro');
+    const noDataGastos = document.getElementById('noDataGastos');
+    const noDataPlataforma = document.getElementById('noDataPlataforma');
+
+    // Variáveis para metas e seus contêineres e mensagens
+    const metaMonthlyProgressContainer = document.getElementById('metaMonthlyProgressContainer');
+    const noDataMetaMensalProgress = document.getElementById('noDataMetaMensalProgress');
+    const metaMonthlyDetails = document.getElementById('metaMonthlyDetails');
+
+    const metaWeeklyProgressContainer = document.getElementById('metaWeeklyProgressContainer');
+    const noDataMetaSemanalProgress = document.getElementById('noDataMetaSemanalProgress');
+    const metaWeeklyDetails = document.getElementById('metaWeeklyDetails');
+
+
+    let graficoReceitaLucro = null;
+    let graficoPlataforma = null;
+    let graficoGastos = null;
+    let graficoMetaMensal = null; 
+    let graficoMetaSemanal = null; // Novo gráfico para meta semanal
+    let todasAsMetas = []; 
+
+
+    const categoryColors = [
+        '#dc3545',
+        '#fd7e14',
+        '#ffc107',
+        '#6c757d',
+        '#343a40',
+        '#8d1f2e',
+        '#e0505b',
+        '#ff9933',
+        '#a04a4a',
+        '#495057'
+    ];
+
+    const formatarMoeda = (valor) => `R$ ${parseFloat(valor).toFixed(2).replace('.', ',')}`;
+
+    function obterAnosDisponiveis(registros) {
+        const anos = new Set();
+        registros.forEach(r => anos.add(r.data.getFullYear()));
+        const anosOrdenados = Array.from(anos).sort((a, b) => b - a); 
+        
+        const anoAtual = new Date().getFullYear();
+        if (!anosOrdenados.includes(anoAtual)) {
+            anosOrdenados.unshift(anoAtual); 
+        }
+        return anosOrdenados;
     }
 
-    function renderizarGraficoReceitaPorPlataforma(data) {
-      if (receitaPorPlataformaChart) {
-          receitaPorPlataformaChart.destroy();
-      }
+    function popularSeletoresAnoComRegistros(registros) {
+        const anos = obterAnosDisponiveis(registros);
+        const anoAtual = new Date().getFullYear();
 
-      const plataformasTotal = {
-          'Uber': 0,
-          '99': 0,
-          'Outras': 0
-      };
-
-      data.filter(record => record.receita > 0).forEach(record => {
-          const plataforma = record.plataforma;
-          const receita = parseFloat(record.receita) + parseFloat(record.gorjetas || 0);
-          if (plataforma === 'Uber') {
-              plataformasTotal['Uber'] += receita;
-          } else if (plataforma === '99') {
-              plataformasTotal['99'] += receita;
-          } else {
-              plataformasTotal['Outras'] += receita;
-          }
-      });
-
-      const hasData = Object.values(plataformasTotal).some(value => value > 0);
-
-      if (hasData) {
-          document.getElementById('graficoPlataforma').style.display = 'block';
-          document.getElementById('noDataPlataforma').classList.add('hidden');
-
-          receitaPorPlataformaChart = new Chart(ctxReceitaPorPlataforma, {
-              type: 'bar',
-              data: {
-                  labels: ['Uber', '99', 'Outras'],
-                  datasets: [{
-                      label: 'Receita por Plataforma (R$)',
-                      data: [plataformasTotal['Uber'], plataformasTotal['99'], plataformasTotal['Outras']],
-                      backgroundColor: ['#000000', '#ffc107', '#6c757d']
-                  }]
-              },
-              options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                      legend: { display: false },
-                      tooltip: {
-                          callbacks: {
-                              label: function(context) {
-                                  let label = context.dataset.label || '';
-                                  if (label) {
-                                      label += ': ';
-                                  }
-                                  if (context.parsed.y !== null) {
-                                      label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.parsed.y);
-                                  }
-                                  return label;
-                              }
-                          }
-                      }
-                  },
-                  scales: {
-                      y: {
-                          beginAtZero: true,
-                          title: {
-                              display: true,
-                              text: 'Valor (R$)'
-                          },
-                          ticks: {
-                              callback: function(value) {
-                                  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-                              }
-                          }
-                      }
-                  }
-              }
-          });
-      } else {
-          document.getElementById('graficoPlataforma').style.display = 'none';
-          document.getElementById('noDataPlataforma').classList.remove('hidden');
-      }
+        [filtroAnoMensal, filtroAnoAnual, filtroAnoResumoMensal, filtroAnoTabela].forEach(seletorAno => {
+            seletorAno.innerHTML = ''; 
+            anos.forEach(ano => {
+                const option = document.createElement('option');
+                option.value = ano;
+                option.textContent = ano;
+                seletorAno.appendChild(option);
+            });
+            seletorAno.value = anoAtual;
+        });
     }
 
-    function atualizarResumoMensal(allData, selectedMonth, selectedYear) {
-        const resumoReceitaTotal = document.getElementById('resumoReceitaTotal');
-        const resumoDespesaTotal = document.getElementById('resumoDespesaTotal');
-        const resumoLucroPrejuizo = document.getElementById('resumoLucroPrejuizo');
+    // Função para obter o início e fim da semana atual (Segunda a Domingo)
+    function getCurrentWeekDateRange() {
+        const today = new Date();
+        const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+
+        // Ajusta para Monday (1) ser o início da semana
+        const diffToMonday = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); 
+        const weekStart = new Date(today.getFullYear(), today.getMonth(), diffToMonday);
+        weekStart.setHours(0, 0, 0, 0); // Começo do dia
+
+        const weekEnd = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + 6);
+        weekEnd.setHours(23, 59, 59, 999); // Fim do dia
+        
+        return { weekStart, weekEnd };
+    }
+
+
+    function agruparDadosPorPeriodo(registros) {
+        const dadosAgrupados = {};
+        
+        const periodoSelecionado = filtroPeriodo.value;
+        const mesSelecionado = parseInt(filtroMes.value);
+        const anoMensalSelecionado = parseInt(filtroAnoMensal.value);
+        const anoAnualSelecionado = parseInt(filtroAnoAnual.value);
+        
+        const mesesAno = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+        let labelsParaGrafico = []; 
+        let registrosFiltrados = [];
+
+        if (periodoSelecionado === 'mensal') {
+            registrosFiltrados = registros.filter(({ data }) =>
+                data.getMonth() === mesSelecionado && data.getFullYear() === anoMensalSelecionado
+            );
+            const diasNoMes = new Date(anoMensalSelecionado, mesSelecionado + 1, 0).getDate();
+            for (let i = 1; i <= diasNoMes; i++) {
+                labelsParaGrafico.push(String(i).padStart(2, '0'));
+            }
+        } else if (periodoSelecionado === 'anual') {
+            registrosFiltrados = registros.filter(({ data }) =>
+                data.getFullYear() === anoAnualSelecionado
+            );
+            labelsParaGrafico = mesesAno;
+        }
+        
+        labelsParaGrafico.forEach(label => {
+            dadosAgrupados[label] = { receita: 0, lucro: 0, gorjetas: 0, despesas: 0, plataformas: { Uber: 0, '99': 0 }, categorias: {} };
+        });
+
+        const canonicalCategoryMap = {
+            'combustivel': 'combustivel',
+            'combustível': 'combustivel',
+            'manutencao': 'manutencao',
+            'lanche/refeicao': 'lanche/refeicao',
+            'lanche/refeição': 'lanche/refeicao',
+            'outros': 'outros'
+        };
+
+        registrosFiltrados.forEach(({ data, receita, gorjetas, despesas, plataforma, categoriaDespesa }) => {
+            const lucro = (parseFloat(receita || 0) + parseFloat(gorjetas || 0)) - parseFloat(despesas || 0); 
+            const receitaTotalDia = parseFloat(receita || 0) + parseFloat(gorjetas || 0); 
+            let chave;
+
+            if (periodoSelecionado === 'mensal') {
+                chave = String(data.getDate()).padStart(2, '0');
+            } else if (periodoSelecionado === 'anual') { 
+                chave = mesesAno[data.getMonth()];
+            }
+
+            if (dadosAgrupados[chave]) {
+                dadosAgrupados[chave].receita += receitaTotalDia; 
+                dadosAgrupados[chave].lucro += lucro;
+                dadosAgrupados[chave].gorjetas += parseFloat(gorjetas || 0); 
+                dadosAgrupados[chave].despesas += parseFloat(despesas || 0);
+                if (plataforma === 'Uber' || plataforma === '99') dadosAgrupados[chave].plataformas[plataforma]++;
+
+                if (categoriaDespesa) {
+                    let categoriaKey = categoriaDespesa.trim().toLowerCase();
+                    if (canonicalCategoryMap[categoriaKey]) {
+                        categoriaKey = canonicalCategoryMap[categoriaKey];
+                    }
+
+                    if (!dadosAgrupados[chave].categorias[categoriaKey]) {
+                        dadosAgrupados[chave].categorias[categoriaKey] = 0;
+                    }
+                    dadosAgrupados[chave].categorias[categoriaKey] += parseFloat(despesas || 0);
+                }
+            }
+        });
+
+        return { dados: dadosAgrupados, labels: labelsParaGrafico };
+    }
+
+    function calcularResumoMensal(registros) {
+        const mesSelecionado = parseInt(filtroMesResumoMensal.value);
+        const anoSelecionado = parseInt(filtroAnoResumoMensal.value);
 
         let totalReceita = 0;
-        let totalDespesa = 0;
+        let totalDespesas = 0;
+        const diasTrabalhados = new Set(); 
 
-        allData.forEach(record => {
-            const recordDate = new Date(record.data + 'T00:00:00'); // Garante que a data seja interpretada como local
-            if (recordDate.getMonth() === selectedMonth && recordDate.getFullYear() === selectedYear) {
-                if (record.receita) totalReceita += parseFloat(record.receita);
-                if (record.gorjetas) totalReceita += parseFloat(record.gorjetas);
-                if (record.despesas) totalDespesa += parseFloat(record.despesas);
+        const registrosMensais = registros.filter(registro =>
+            registro.data.getMonth() === mesSelecionado &&
+            registro.data.getFullYear() === anoSelecionado
+        );
+
+        registrosMensais.forEach(registro => {
+            const receitaDoRegistro = (parseFloat(registro.receita || 0) + parseFloat(registro.gorjetas || 0));
+            totalReceita += receitaDoRegistro;
+            totalDespesas += parseFloat(registro.despesas || 0);
+
+            if (receitaDoRegistro > 0 || parseFloat(registro.despesas || 0) > 0) {
+                diasTrabalhados.add(registro.data.toISOString().slice(0, 10)); 
             }
         });
 
-        const lucroPrejuizo = totalReceita - totalDespesa;
+        const totalLucro = totalReceita - totalDespesas;
 
-        resumoReceitaTotal.textContent = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalReceita);
-        resumoDespesaTotal.textContent = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalDespesa);
-        resumoLucroPrejuizo.textContent = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(lucroPrejuizo);
-
-        resumoLucroPrejuizo.style.color = lucroPrejuizo >= 0 ? 'green' : 'red';
+        totalReceitaMensalElement.textContent = formatarMoeda(totalReceita);
+        totalGastosMensalElement.textContent = formatarMoeda(totalDespesas);
+        totalLucroMensalElement.textContent = formatarMoeda(totalLucro);
+        diasTrabalhadosMensalElement.textContent = diasTrabalhados.size; 
     }
 
-    function renderizarTabelaResumoDiario(allData, selectedMonth, selectedYear) {
-        const resumoDiarioTableBody = document.getElementById('resumoDiarioTableBody');
-        const noDataTabelaDiaria = document.getElementById('noDataTabelaDiaria');
-        resumoDiarioTableBody.innerHTML = '';
-        noDataTabelaDiaria.classList.add('hidden');
+    function renderizarTabelaRegistros(registros) {
+        const mesSelecionado = parseInt(filtroMesTabela.value);
+        const anoSelecionado = parseInt(filtroAnoTabela.value);
 
-        const dailySummary = {};
+        const registrosFiltrados = registros.filter(registro =>
+            registro.data.getMonth() === mesSelecionado &&
+            registro.data.getFullYear() === anoSelecionado
+        );
 
-        allData.forEach(record => {
-            const recordDate = new Date(record.data + 'T00:00:00');
-            if (recordDate.getMonth() === selectedMonth && recordDate.getFullYear() === selectedYear) {
-                const dateKey = record.data; // YYYY-MM-DD
-                if (!dailySummary[dateKey]) {
-                    dailySummary[dateKey] = { receitas: 0, despesas: 0 };
-                }
-                if (record.receita) dailySummary[dateKey].receitas += parseFloat(record.receita);
-                if (record.gorjetas) dailySummary[dateKey].receitas += parseFloat(record.gorjetas);
-                if (record.despesas) dailySummary[dateKey].despesas += parseFloat(record.despesas);
+        const resumoDiario = new Map();
+
+        registrosFiltrados.forEach(registro => {
+            const dateString = registro.data.toLocaleDateString('pt-BR');
+            if (!resumoDiario.has(dateString)) {
+                resumoDiario.set(dateString, { receita: 0, despesa: 0, lucro: 0 });
             }
+            const daySummary = resumoDiario.get(dateString);
+            
+            const receitaTotalRegistro = parseFloat(registro.receita || 0) + parseFloat(registro.gorjetas || 0);
+            
+            daySummary.receita += receitaTotalRegistro;
+            daySummary.despesa += parseFloat(registro.despesas || 0);
+            daySummary.lucro += (receitaTotalRegistro - parseFloat(registro.despesas || 0));
         });
 
-        const sortedDates = Object.keys(dailySummary).sort();
+        const dadosTabela = Array.from(resumoDiario.entries()).map(([data, totais]) => ({
+            data,
+            receita: totais.receita,
+            gastos: totais.despesa,
+            lucro: totais.lucro
+        })).sort((a, b) => {
+            const [dA, mA, yA] = a.data.split('/');
+            const [dB, mB, yB] = b.data.split('/');
+            const dateA = new Date(`${yA}-${mA}-${dA}`);
+            const dateB = new Date(`${yB}-${mB}-${dB}`);
+            return dateA - dateB;
+        });
 
-        if (sortedDates.length === 0) {
-            noDataTabelaDiaria.classList.remove('hidden');
+        dailySummaryTableBody.innerHTML = '';
+
+        if (dadosTabela.length === 0) {
+            noDataTabela.classList.remove('hidden');
+            return;
+        } else {
+            noDataTabela.classList.add('hidden');
+        }
+
+        dadosTabela.forEach(dia => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${dia.data}</td>
+                <td class="text-primary-blue">${formatarMoeda(dia.receita)}</td>
+                <td class="text-danger">${formatarMoeda(dia.gastos)}</td>
+                <td class="${dia.lucro >= 0 ? 'text-success' : 'text-danger'}">${formatarMoeda(dia.lucro)}</td>
+            `;
+            dailySummaryTableBody.appendChild(row);
+        });
+    }
+
+    function renderizarGraficoMeta(canvasId, containerId, noDataElementId, detailsElementId, registros, metas, tipoMetaGrafico) {
+        const graficoCanvas = document.getElementById(canvasId);
+        const noDataElement = document.getElementById(noDataElementId);
+        const detailsElement = document.getElementById(detailsElementId);
+        const container = document.getElementById(containerId);
+
+        // Destruir gráfico existente
+        let chartInstance = Chart.getChart(canvasId);
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        graficoCanvas.style.display = 'block';
+        noDataElement.classList.add('hidden');
+        detailsElement.innerHTML = '';
+
+        let metaSelecionada = null; // A meta que será efetivamente usada para o cálculo do gráfico
+        let valorMetaParaPeriodo = 0;
+        let valorAtingidoNoPeriodo = 0;
+        let periodoDisplay = '';
+        let registrosParaFiltragem = [];
+
+        if (tipoMetaGrafico === 'mensal') {
+            metaSelecionada = metas.find(m => m.tipo === 'ganhos_mensais');
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            periodoDisplay = new Date(currentYear, currentMonth, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+            
+            if (metaSelecionada) {
+                valorMetaParaPeriodo = metaSelecionada.valorMeta;
+            }
+
+            registrosParaFiltragem = registros.filter(registro => {
+                return registro.data.getMonth() === currentMonth && registro.data.getFullYear() === currentYear;
+            });
+
+        } else if (tipoMetaGrafico === 'semanal') {
+            const metaDiaria = metas.find(m => m.tipo === 'ganhos_diarios');
+            const metaMensal = metas.find(m => m.tipo === 'ganhos_mensais');
+
+            const { weekStart, weekEnd } = getCurrentWeekDateRange();
+            periodoDisplay = `${weekStart.toLocaleDateString('pt-BR')} - ${weekEnd.toLocaleDateString('pt-BR')}`;
+            
+            if (metaDiaria) {
+                metaSelecionada = metaDiaria;
+                valorMetaParaPeriodo = metaDiaria.valorMeta * 7;
+            } else if (metaMensal) {
+                metaSelecionada = metaMensal; // Usamos a meta mensal como base para o display de detalhes
+                valorMetaParaPeriodo = metaMensal.valorMeta / 4; // Aproximação de 4 semanas por mês
+            }
+
+            registrosParaFiltragem = registros.filter(registro => {
+                return registro.data >= weekStart && registro.data <= weekEnd;
+            });
+        }
+
+        if (!metaSelecionada || valorMetaParaPeriodo === 0) {
+            graficoCanvas.style.display = 'none';
+            noDataElement.classList.remove('hidden');
+            if (tipoMetaGrafico === 'mensal') {
+                noDataElement.textContent = 'Nenhuma meta mensal ativa encontrada.';
+            } else { // Semanal
+                // Mensagem mais abrangente para a meta semanal
+                noDataElement.textContent = 'Nenhuma meta diária ou mensal ativa encontrada para calcular o progresso semanal.';
+            }
             return;
         }
 
-        sortedDates.forEach(dateKey => {
-            const summary = dailySummary[dateKey];
-            const lucroDiario = summary.receitas - summary.despesas;
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${new Date(dateKey + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
-                <td>${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(summary.receitas)}</td>
-                <td>${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(summary.despesas)}</td>
-                <td style="color: ${lucroDiario >= 0 ? 'green' : 'red'};">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(lucroDiario)}</td>
-            `;
-            resumoDiarioTableBody.appendChild(row);
+        registrosParaFiltragem.forEach(registro => {
+            const receitaTotalRegistro = parseFloat(registro.receita || 0) + parseFloat(registro.gorjetas || 0);
+            valorAtingidoNoPeriodo += receitaTotalRegistro;
+        });
+
+        let porcentagemAtingida = (valorAtingidoNoPeriodo / valorMetaParaPeriodo) * 100;
+        if (porcentagemAtingida > 100) porcentagemAtingida = 100; 
+
+        const valorRestante = Math.max(0, valorMetaParaPeriodo - valorAtingidoNoPeriodo);
+
+        // Ajustar o texto de detalhes da meta selecionada
+        let nomeMetaDisplay = metaSelecionada.nomeMeta;
+        if (tipoMetaGrafico === 'semanal' && metaSelecionada.tipo === 'ganhos_mensais') {
+            nomeMetaDisplay = `Meta Semanal (baseada em Meta Mensal)`;
+        } else if (tipoMetaGrafico === 'semanal' && metaSelecionada.tipo === 'ganhos_diarios') {
+            nomeMetaDisplay = `Meta Semanal (baseada em Meta Diária)`;
+        }
+
+        detailsElement.innerHTML = `
+            <strong>Meta:</strong> ${nomeMetaDisplay}<br>
+            <strong>Período Analisado:</strong> ${periodoDisplay}<br>
+            <strong>Atingido no Período:</strong> ${formatarMoeda(valorAtingidoNoPeriodo)} de ${formatarMoeda(valorMetaParaPeriodo)}
+        `;
+
+        if (valorAtingidoNoPeriodo === 0 && valorRestante === valorMetaParaPeriodo && registrosParaFiltragem.length === 0) {
+            graficoCanvas.style.display = 'none';
+            noDataElement.classList.remove('hidden');
+            noDataElement.textContent = `Nenhum registro encontrado para a meta no período de ${periodoDisplay}.`;
+            return;
+        }
+
+        new Chart(graficoCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: ['Progresso Atingido', 'Restante'],
+                datasets: [{
+                    data: [valorAtingidoNoPeriodo, valorRestante],
+                    backgroundColor: ['#28a745', '#e9ecef'],
+                    borderColor: ['#ffffff', '#ffffff'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 12
+                            },
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map(function(label, i) {
+                                        const backgroundColor = data.datasets[0].backgroundColor[i];
+                                        const borderColor = data.datasets[0].borderColor[i];
+                                        const borderWidth = data.datasets[0].borderWidth;
+
+                                        const value = data.datasets[0].data[i];
+                                        const meta = chart.getDatasetMeta(0);
+                                        const isHidden = (meta.data[i] && meta.data[i].hidden) || isNaN(value);
+
+                                        return {
+                                            text: `${label}: ${formatarMoeda(value)}`,
+                                            fillStyle: backgroundColor,
+                                            strokeStyle: borderColor,
+                                            lineWidth: borderWidth,
+                                            hidden: isHidden,
+                                            index: i
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += formatarMoeda(context.parsed);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            },
+            plugins: [{
+                id: 'centerText',
+                beforeDraw: function(chart) {
+                    const { ctx, width, height } = chart;
+                    ctx.restore();
+                    const fontSize = (height / 114).toFixed(2);
+                    ctx.font = `bold ${fontSize}em sans-serif`;
+                    ctx.textBaseline = 'middle';
+
+                    let text = `${porcentagemAtingida.toFixed(0)}%`;
+                    let textX = Math.round((width - ctx.measureText(text).width) / 2);
+                    let textY = height / 2;
+
+                    ctx.fillStyle = '#333';
+                    ctx.fillText(text, textX, textY);
+                    ctx.save();
+                }
+            }]
         });
     }
 
 
-    // Event Listeners e inicialização
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            currentUserId = user.uid;
-            console.log('Usuário logado em estatistica.html:', currentUserId);
-            preencherAnos();
-            const currentMonth = new Date().getMonth();
-            const currentYear = new Date().getFullYear();
+    function alternarSeletoresFiltro() {
+        opcoesFiltroMensal.classList.add('d-none');
+        opcoesFiltroSemanal.classList.add('d-none');
+        opcoesFiltroAnual.classList.add('d-none');
+        opcoesFiltroDiario.classList.add('d-none');
+        opcoesFiltroSemanal.classList.remove('d-flex');
+        opcoesFiltroDiario.classList.remove('d-flex');
 
-            filtroMes.value = currentMonth;
-            filtroMesResumoMensal.value = currentMonth;
-            filtroMesTabela.value = currentMonth;
-            
-            filtroAnoMensal.value = currentYear;
-            filtroAnoAnual.value = currentYear;
-            filtroAnoResumoMensal.value = currentYear;
-            filtroAnoTabela.value = currentYear;
-
-            alternarSeletoresFiltro(); // Carrega os gráficos após o usuário estar logado
-        } else {
-            console.log('Nenhum usuário logado em estatistica.html. Redirecionando...');
-            window.location.href = 'login.html';
+        const periodo = filtroPeriodo.value;
+        if (periodo === 'mensal') {
+            opcoesFiltroMensal.classList.remove('d-none');
+            opcoesFiltroMensal.classList.add('d-flex');
+        } else if (periodo === 'anual') {
+            opcoesFiltroAnual.classList.remove('d-none');
         }
+    }
+
+    async function atualizarGraficos() {
+      if (graficoReceitaLucro) graficoReceitaLucro.destroy();
+      if (graficoGastos) graficoGastos.destroy();
+      if (graficoPlataforma) graficoPlataforma.destroy();
+      if (graficoMetaMensal) graficoMetaMensal.destroy(); 
+      if (graficoMetaSemanal) graficoMetaSemanal.destroy(); 
+
+
+      noDataReceitaLucro.classList.add('hidden');
+      document.getElementById('graficoReceitaLucro').style.display = 'block';
+      noDataGastos.classList.add('hidden');
+      document.getElementById('graficoGastos').style.display = 'block';
+      noDataPlataforma.classList.add('hidden');
+      document.getElementById('graficoPlataforma').style.display = 'block';
+      
+      noDataMetaMensalProgress.classList.add('hidden'); 
+      document.getElementById('graficoMetaMensal').style.display = 'block'; 
+      noDataMetaSemanalProgress.classList.add('hidden');
+      document.getElementById('graficoMetaSemanal').style.display = 'block';
+
+
+      const registros = await carregarRegistros();
+      todasAsMetas = await carregarMetas(); 
+      
+      popularSeletoresAnoComRegistros(registros);
+      
+      calcularResumoMensal(registros);
+      renderizarTabelaRegistros(registros);
+      renderizarGraficoMeta('graficoMetaMensal', 'metaMonthlyProgressContainer', 'noDataMetaMensalProgress', 'metaMonthlyDetails', registros, todasAsMetas, 'mensal');
+      renderizarGraficoMeta('graficoMetaSemanal', 'metaWeeklyProgressContainer', 'noDataMetaSemanalProgress', 'metaWeeklyDetails', registros, todasAsMetas, 'semanal');
+
+
+      const { dados: dadosAgrupadosPorPeriodo, labels: labelsParaGrafico } = agruparDadosPorPeriodo(registros);
+      
+      const receita = labelsParaGrafico.map(k => dadosAgrupadosPorPeriodo[k]?.receita || 0);
+      const lucro = labelsParaGrafico.map(k => dadosAgrupadosPorPeriodo[k]?.lucro || 0);
+      const plataformasTotal = { Uber: 0, '99': 0 };
+      const categoriasGastosTotal = {};
+
+      Object.values(dadosAgrupadosPorPeriodo).forEach(dados => {
+          plataformasTotal['Uber'] += dados.plataformas.Uber;
+          plataformasTotal['99'] += dados.plataformas['99'];
+          Object.entries(dados.categorias).forEach(([cat, val]) => {
+              categoriasGastosTotal[cat] = (categoriasGastosTotal[cat] || 0) + val;
+          });
+      });
+
+      let chartTypeReceitaLucro = 'line';
+
+      // --- GRÁFICO RECEITA VS LUCRO ---
+      if (receita.some(v => v > 0) || lucro.some(v => v > 0)) {
+          graficoReceitaLucro = new Chart(document.getElementById('graficoReceitaLucro'), {
+            type: chartTypeReceitaLucro,
+            data: {
+              labels: labelsParaGrafico,
+              datasets: [
+                { label: 'Receita (R$)', data: receita, borderColor: '#007bff', backgroundColor: 'rgba(0, 123, 255, 0.5)', tension: 0.4, fill: true, order: 1 },
+                { label: 'Lucro (R$)', data: lucro, borderColor: '#28a745', backgroundColor: 'rgba(40, 167, 69, 0.5)', tension: 0.4, fill: true, order: 0 }
+              ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom', 
+                        labels: {
+                            font: {
+                                size: 12 
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += formatarMoeda(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            font: {
+                                size: 10 
+                            },
+                            autoSkip: true, 
+                            maxTicksLimit: 10 
+                        },
+                        grid: {
+                            display: false 
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value, index, values) {
+                                return formatarMoeda(value); 
+                            },
+                            font: {
+                                size: 10 
+                            }
+                        },
+                        grid: {
+                        }
+                    }
+                }
+            }
+          });
+      } else {
+          document.getElementById('graficoReceitaLucro').style.display = 'none';
+          noDataReceitaLucro.classList.remove('hidden');
+      }
+
+      
+
+      // --- GRÁFICO GASTOS POR CATEGORIA ---
+      const categorias = Object.keys(categoriasGastosTotal);
+      const valoresGastos = Object.values(categoriasGastosTotal);
+
+      const backgroundColorsForCategories = categorias.map((_, index) => 
+          categoryColors[index % categoryColors.length]
+      );
+
+      if (valoresGastos.length > 0) {
+          graficoGastos = new Chart(document.getElementById('graficoGastos'), {
+              type: 'bar',
+              data: {
+                  labels: categorias.map(c => {
+                      if (c === 'lanche/refeicao') return 'Lanche/Refeição';
+                      if (c === 'combustivel') return 'Combustível';
+                      return c.charAt(0).toUpperCase() + c.slice(1).replace(/_/g, ' ');
+                  }),
+                  datasets: [{ 
+                    label: 'Valor (R$)', 
+                    data: valoresGastos, 
+                    backgroundColor: backgroundColorsForCategories 
+                  }]
+              },
+              options: { 
+                indexAxis: 'y', 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { 
+                  legend: { 
+                    display: false, 
+                    labels: {
+                        generateLabels: function(chart) {
+                            return [{
+                                text: `Total de Gastos: ${formatarMoeda(valoresGastos.reduce((sum, current) => sum + current, 0))}`,
+                                fillStyle: 'rgba(0,0,0,0)', 
+                                strokeStyle: 'rgba(0,0,0,0)', 
+                                fontColor: Chart.defaults.color
+                            }];
+                        }
+                    }
+                  },
+                  tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.x !== null) {
+                                label += formatarMoeda(context.parsed.x);
+                            }
+                            return label;
+                        }
+                    }
+                  }
+                }
+                ,
+                scales: {
+                    x: {
+                        ticks: {
+                            callback: function(value, index, values) {
+                                return formatarMoeda(value);
+                            }
+                        }
+                    }
+                }
+              }
+          });
+      } else {
+          document.getElementById('graficoGastos').style.display = 'none';
+          noDataGastos.classList.remove('hidden');
+      }
+
+      // --- GRÁFICO DISTRIBUIÇÃO POR PLATAFORMA ---
+      if (plataformasTotal.Uber > 0 || plataformasTotal['99'] > 0) {
+          graficoPlataforma = new Chart(document.getElementById('graficoPlataforma'), {
+              type: 'doughnut',
+              data: {
+                  labels: ['Uber', '99'],
+                  datasets: [{ data: [plataformasTotal.Uber, plataformasTotal['99']], backgroundColor: ['#000000', '#ffc107'] }]
+              },
+              options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+          });
+      } else {
+          document.getElementById('graficoPlataforma').style.display = 'none';
+          noDataPlataforma.classList.remove('hidden');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+
+        filtroMes.value = currentMonth;
+        filtroMesResumoMensal.value = currentMonth;
+        filtroMesTabela.value = currentMonth;
+        
+        filtroAnoMensal.value = currentYear;
+        filtroAnoAnual.value = currentYear;
+        filtroAnoResumoMensal.value = currentYear;
+        filtroAnoTabela.value = currentYear;
+        
+        alternarSeletoresFiltro();
     });
 
-    filtroPeriodo.addEventListener('change', alternarSeletoresFiltro);
+    filtroPeriodo.addEventListener('change', atualizarGraficos);
     filtroMes.addEventListener('change', atualizarGraficos);
     filtroAnoMensal.addEventListener('change', atualizarGraficos);
     filtroAnoAnual.addEventListener('change', atualizarGraficos);
     
-    filtroMesResumoMensal.addEventListener('change', () => atualizarGraficos());
-    filtroAnoResumoMensal.addEventListener('change', () => atualizarGraficos());
+    filtroMesResumoMensal.addEventListener('change', atualizarGraficos);
+    filtroAnoResumoMensal.addEventListener('change', atualizarGraficos);
 
-    filtroMesTabela.addEventListener('change', () => atualizarGraficos());
-    filtroAnoTabela.addEventListener('change', () => atualizarGraficos());
+    filtroMesTabela.addEventListener('change', atualizarGraficos);
+    filtroAnoTabela.addEventListener('change', atualizarGraficos);
+    
   </script>
 </body>
 </html>
