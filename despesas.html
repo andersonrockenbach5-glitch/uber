@@ -396,12 +396,25 @@
                                 <h3>Adicionar Nova Despesa Fixa</h3>
                                 <form id="fixedExpenseForm">
                                     <div class="mb-3">
-                                        <label for="expenseName" class="form-label">Nome da Despesa</label>
-                                        <input type="text" class="form-control" id="expenseName" placeholder="Ex: Aluguel do carro" required>
+                                        <label for="expenseDescription" class="form-label">Descrição</label>
+                                        <input type="text" class="form-control" id="expenseDescription" placeholder="Ex: Aluguel do carro da empresa, Seguro auto Porto Seguro" required>
                                     </div>
                                     <div class="mb-3">
                                         <label for="expenseValue" class="form-label">Valor (R$)</label>
                                         <input type="number" step="0.01" class="form-control" id="expenseValue" placeholder="Ex: 700.00" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="expenseCategory" class="form-label">Categoria</label>
+                                        <select class="form-select" id="expenseCategory" required>
+                                            <option value="">Selecione uma categoria</option>
+                                            <option value="Aluguel">Aluguel</option>
+                                            <option value="Combustível">Combustível</option>
+                                            <option value="Seguro">Seguro</option>
+                                            <option value="Rastreamento">Rastreamento</option>
+                                            <option value="Financiamento">Financiamento</option>
+                                            <option value="Manutenção">Manutenção</option>
+                                            <option value="Outros">Outros</option>
+                                        </select>
                                     </div>
                                     <div class="mb-3">
                                         <label for="expenseFrequency" class="form-label">Frequência</label>
@@ -414,6 +427,47 @@
                                             <option value="anual">Anual</option>
                                         </select>
                                     </div>
+                                    
+                                    <div class="mb-3" id="daySelectionDailyField" style="display: none;">
+                                        <label class="form-label">Dias da Semana para Registro (Diário)</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="1" id="dailySunday">
+                                            <label class="form-check-label" for="dailySunday">Domingo</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="2" id="dailyMonday">
+                                            <label class="form-check-label" for="dailyMonday">Segunda-feira</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="3" id="dailyTuesday">
+                                            <label class="form-check-label" for="dailyTuesday">Terça-feira</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="4" id="dailyWednesday">
+                                            <label class="form-check-label" for="dailyWednesday">Quarta-feira</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="5" id="dailyThursday">
+                                            <label class="form-check-label" for="dailyThursday">Quinta-feira</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="6" id="dailyFriday">
+                                            <label class="form-check-label" for="dailyFriday">Sexta-feira</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="7" id="dailySaturday">
+                                            <label class="form-check-label" for="dailySaturday">Sábado</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3" id="tipoRegistroPeriodoField" style="display: none;">
+                                        <label for="tipoRegistroPeriodo" class="form-label">Tipo de Registro</label>
+                                        <select class="form-select" id="tipoRegistroPeriodo">
+                                            <option value="periodo">Por Período</option>
+                                            <option value="sempre">Sempre</option>
+                                        </select>
+                                    </div>
+
                                     <div class="mb-3" id="dayOfWeekField" style="display: none;">
                                         <label for="dayOfWeek" class="form-label">Dia da Semana</label>
                                         <select class="form-select" id="dayOfWeek">
@@ -448,6 +502,14 @@
                                             <option value="11">Novembro</option>
                                             <option value="12">Dezembro</option>
                                         </select>
+                                    </div>
+                                    <div class="mb-3" id="periodoRegistroInicioField" style="display: none;">
+                                        <label for="periodoRegistroInicio" class="form-label">Período de Registro (Início)</label>
+                                        <input type="date" class="form-control" id="periodoRegistroInicio">
+                                    </div>
+                                    <div class="mb-3" id="periodoRegistroFimField" style="display: none;">
+                                        <label for="periodoRegistroFim" class="form-label">Período de Registro (Fim)</label>
+                                        <input type="date" class="form-control" id="periodoRegistroFim">
                                     </div>
                                     <button type="submit" class="btn btn-primary w-100 mt-4" style="background-color: #28a745; border-color: #28a745;">Adicionar Despesa Fixa</button>
                                 </form>
@@ -501,15 +563,28 @@
 
     // Elementos do formulário de Despesa Fixa
     const fixedExpenseForm = document.getElementById('fixedExpenseForm');
-    const expenseName = document.getElementById('expenseName');
+    // const expenseName = document.getElementById('expenseName'); // REMOVED
     const expenseValue = document.getElementById('expenseValue');
+    const expenseCategory = document.getElementById('expenseCategory'); 
+    const expenseDescription = document.getElementById('expenseDescription'); // Descrição agora é o nome principal
     const expenseFrequency = document.getElementById('expenseFrequency');
-    const dayOfWeekField = document.getElementById('dayOfWeekField');
+    const dayOfWeekField = document.getElementById('dayOfWeekField'); // Para semanal
     const dayOfWeek = document.getElementById('dayOfWeek');
     const dayOfMonthField = document.getElementById('dayOfMonthField');
     const dayOfMonth = document.getElementById('dayOfMonth');
     const monthOfYearField = document.getElementById('monthOfYearField');
     const monthOfYear = document.getElementById('monthOfYear');
+    const periodoRegistroInicioField = document.getElementById('periodoRegistroInicioField'); 
+    const periodoRegistroInicio = document.getElementById('periodoRegistroInicio');
+    const periodoRegistroFimField = document.getElementById('periodoRegistroFimField');     
+    const periodoRegistroFim = document.getElementById('periodoRegistroFim');
+    const daySelectionDailyField = document.getElementById('daySelectionDailyField'); // Seleção de dias para diário
+    const dailyDayCheckboxes = daySelectionDailyField.querySelectorAll('input[type="checkbox"]'); 
+
+    const tipoRegistroPeriodoField = document.getElementById('tipoRegistroPeriodoField'); // NEW
+    const tipoRegistroPeriodo = document.getElementById('tipoRegistroPeriodo'); // NEW
+
+
     const fixedExpensesList = document.getElementById('fixedExpensesList');
 
     // Elementos do Modal de Sucesso
@@ -580,7 +655,6 @@
         };
 
         try {
-            // Caminho alterado: removido artifacts/${appId}/
             await addDoc(collection(db, `users/${currentUserId}/registros`), novoRegistro);
             showSuccessModal('Sucesso!', 'Despesa variável adicionada com sucesso!');
             variableDespesaForm.reset();
@@ -589,39 +663,80 @@
             categoriaDespesa.value = '';
         } catch (error) {
             console.error('Erro ao adicionar despesa variável:', error);
-            alert(`Erro ao adicionar despesa variável: ${error.message}`); // Usar alert para erros
+            alert(`Erro ao adicionar despesa variável: ${error.message}`); 
         }
     });
 
     // Lógica para exibir/ocultar campos de dia da semana/mês/mês para Despesa Fixa
     expenseFrequency.addEventListener('change', () => {
         const frequency = expenseFrequency.value;
+
+        // Hide all fields initially
         dayOfWeekField.style.display = 'none';
         dayOfMonthField.style.display = 'none';
         monthOfYearField.style.display = 'none';
+        periodoRegistroInicioField.style.display = 'none';
+        periodoRegistroFimField.style.display = 'none';
+        daySelectionDailyField.style.display = 'none';
+        tipoRegistroPeriodoField.style.display = 'none'; // NEW: Hide this by default
 
+        // Remove required attributes and clear values for all
         dayOfWeek.removeAttribute('required');
         dayOfMonth.removeAttribute('required');
         monthOfYear.removeAttribute('required');
-
-        // Limpa os valores para evitar que dados indesejados sejam enviados se o campo for ocultado
+        periodoRegistroInicio.removeAttribute('required');
+        periodoRegistroFim.removeAttribute('required');
+        
         dayOfWeek.value = '';
         dayOfMonth.value = '';
         monthOfYear.value = '';
+        periodoRegistroInicio.value = '';
+        periodoRegistroFim.value = '';
+        dailyDayCheckboxes.forEach(checkbox => checkbox.checked = false);
 
-        if (frequency === 'semanal') {
-            dayOfWeekField.style.display = 'block';
-            dayOfWeek.setAttribute('required', 'required');
-        } else if (frequency === 'mensal' || frequency === 'quinzenal') {
-            dayOfMonthField.style.display = 'block';
-            dayOfMonth.setAttribute('required', 'required');
-        } else if (frequency === 'anual') {
-            dayOfMonthField.style.display = 'block';
-            monthOfYearField.style.display = 'block';
-            dayOfMonth.setAttribute('required', 'required');
-            monthOfYear.setAttribute('required', 'required');
+
+        if (frequency === 'diaria') {
+            daySelectionDailyField.style.display = 'block';
+            // No period or tipoRegistroPeriodo needed for daily
+        } else {
+            tipoRegistroPeriodoField.style.display = 'block'; // Show recording type for non-daily
+            // Set default and trigger change to apply initial visibility for period fields
+            tipoRegistroPeriodo.value = 'periodo'; // Default to 'Por Período'
+            tipoRegistroPeriodo.dispatchEvent(new Event('change')); // Trigger event to show/hide period fields
+            
+            if (frequency === 'semanal') {
+                dayOfWeekField.style.display = 'block';
+                dayOfWeek.setAttribute('required', 'required');
+            } else if (frequency === 'quinzenal' || frequency === 'mensal') {
+                dayOfMonthField.style.display = 'block';
+                dayOfMonth.setAttribute('required', 'required');
+            } else if (frequency === 'anual') {
+                dayOfMonthField.style.display = 'block';
+                monthOfYearField.style.display = 'block';
+                dayOfMonth.setAttribute('required', 'required');
+                monthOfYear.setAttribute('required', 'required');
+            }
         }
     });
+
+    // NEW: Lógica para exibir/ocultar campos de período com base na seleção "Sempre" ou "Por Período"
+    tipoRegistroPeriodo.addEventListener('change', () => {
+        if (tipoRegistroPeriodo.value === 'periodo') {
+            periodoRegistroInicioField.style.display = 'block';
+            periodoRegistroFimField.style.display = 'block';
+            periodoRegistroInicio.setAttribute('required', 'required');
+            periodoRegistroFim.setAttribute('required', 'required');
+        } else { // 'sempre'
+            periodoRegistroInicioField.style.display = 'none';
+            periodoRegistroFimField.style.display = 'none';
+            periodoRegistroInicio.removeAttribute('required');
+            periodoRegistroFim.removeAttribute('required');
+            // Clear values when hidden
+            periodoRegistroInicio.value = '';
+            periodoRegistroFim.value = '';
+        }
+    });
+
 
     // Lógica para adicionar Despesa Fixa
     fixedExpenseForm.addEventListener('submit', async (e) => {
@@ -632,47 +747,86 @@
             return;
         }
 
+        // Basic validations
+        if (expenseDescription.value.trim() === "") { 
+            alert("Por favor, preencha a descrição da despesa fixa.");
+            return;
+        }
+        if (expenseCategory.value === "") {
+            alert("Por favor, selecione uma categoria para a despesa fixa.");
+            return;
+        }
+        if (expenseFrequency.value === "") { 
+            alert("Por favor, selecione a frequência da despesa fixa.");
+            return;
+        }
+
+
         const newFixedExpense = {
-            nome: expenseName.value.trim(),
+            descricao: expenseDescription.value.trim(), 
             valor: parseFloat(expenseValue.value) || 0,
             frequencia: expenseFrequency.value,
-            diaVencimento: '',
-            mesVencimento: '',
+            categoria: expenseCategory.value,
             userId: currentUserId,
             createdAt: serverTimestamp()
         };
 
-        // Validação adicional para campos de data/mês
-        if (expenseFrequency.value === 'semanal' && !dayOfWeek.value) {
-            alert("Por favor, selecione o dia da semana para a despesa semanal.");
-            return;
-        } else if ((expenseFrequency.value === 'mensal' || expenseFrequency.value === 'quinzenal' || expenseFrequency.value === 'anual') && !dayOfMonth.value) {
-            alert("Por favor, insira o dia do mês para a despesa.");
-            return;
-        } else if (expenseFrequency.value === 'anual' && !monthOfYear.value) {
-            alert("Por favor, selecione o mês da cobrança para a despesa anual.");
-            return;
-        }
+        // Handle frequency-specific fields
+        if (expenseFrequency.value === 'diaria') {
+            const selectedDays = Array.from(dailyDayCheckboxes)
+                                   .filter(checkbox => checkbox.checked)
+                                   .map(checkbox => checkbox.value);
+            if (selectedDays.length === 0) {
+                alert("Para despesas diárias, por favor, selecione pelo menos um dia da semana para registro.");
+                return;
+            }
+            newFixedExpense.diasRegistroDiario = selectedDays;
+            newFixedExpense.periodoRegistroInicio = null; 
+            newFixedExpense.periodoRegistroFim = null;   
+        } else {
+            // Logic for "Registrar Sempre" vs "Por Período"
+            if (tipoRegistroPeriodo.value === 'periodo') {
+                if (!periodoRegistroInicio.value || !periodoRegistroFim.value) {
+                    alert("Por favor, selecione o período de registro (Início e Fim) para esta despesa.");
+                    return;
+                }
+                newFixedExpense.periodoRegistroInicio = periodoRegistroInicio.value;
+                newFixedExpense.periodoRegistroFim = periodoRegistroFim.value;
+            } else { // 'sempre'
+                newFixedExpense.periodoRegistroInicio = null; 
+                newFixedExpense.periodoRegistroFim = null;   
+            }
 
-        if (expenseFrequency.value === 'semanal') {
-            newFixedExpense.diaVencimento = dayOfWeek.value;
-        } else if (expenseFrequency.value === 'mensal' || newFixedExpense.frequencia === 'quinzenal') {
-            newFixedExpense.diaVencimento = dayOfMonth.value;
-        } else if (expenseFrequency.value === 'anual') {
-            newFixedExpense.diaVencimento = dayOfMonth.value;
-            newFixedExpense.mesVencimento = monthOfYear.value;
+            // Frequency specific day/month fields remain the same
+            if (expenseFrequency.value === 'semanal') {
+                if (!dayOfWeek.value) { alert("Por favor, selecione o dia da semana para a despesa semanal."); return; }
+                newFixedExpense.diaVencimento = dayOfWeek.value;
+            } else if (expenseFrequency.value === 'quinzenal' || expenseFrequency.value === 'mensal') {
+                if (!dayOfMonth.value) { alert("Por favor, insira o dia do mês para a despesa."); return; }
+                newFixedExpense.diaVencimento = dayOfMonth.value;
+            } else if (expenseFrequency.value === 'anual') {
+                if (!dayOfMonth.value || !monthOfYear.value) { alert("Por favor, insira o dia e o mês da cobrança para a despesa anual."); return; }
+                newFixedExpense.diaVencimento = dayOfMonth.value;
+                newFixedExpense.mesVencimento = monthOfYear.value;
+            }
         }
+        
+        // Ensure consistency by setting unused fields to null if they somehow got values
+        if (expenseFrequency.value !== 'semanal') newFixedExpense.diaVencimento = newFixedExpense.diaVencimento || null; 
+        if (expenseFrequency.value !== 'anual') newFixedExpense.mesVencimento = newFixedExpense.mesVencimento || null; 
+        if (expenseFrequency.value !== 'diaria') newFixedExpense.diasRegistroDiario = newFixedExpense.diasRegistroDiario || null;
+
 
         try {
-            // Caminho alterado: removido artifacts/${appId}/
             await addDoc(collection(db, `users/${currentUserId}/despesasFixas`), newFixedExpense);
             showSuccessModal('Sucesso!', 'Despesa fixa adicionada com sucesso!');
             fixedExpenseForm.reset();
-            expenseFrequency.dispatchEvent(new Event('change'));
+            expenseFrequency.dispatchEvent(new Event('change')); // Trigger change to reset visibility
+            expenseDescription.value = '';
             renderFixedExpenses();
         } catch (error) {
             console.error('Erro ao adicionar despesa fixa:', error);
-            alert(`Erro ao adicionar despesa fixa: ${error.message}`); // Usar alert para erros
+            alert(`Erro ao adicionar despesa fixa: ${error.message}`);
         }
     });
 
@@ -685,7 +839,6 @@
         }
 
         try {
-            // Caminho alterado: removido artifacts/${appId}/
             const q = query(collection(db, `users/${currentUserId}/despesasFixas`));
             const querySnapshot = await getDocs(q);
 
@@ -713,31 +866,47 @@
                     vencimentoInfo = ` (Dia ${expense.diaVencimento} de ${months[parseInt(expense.mesVencimento)]})`;
                 }
 
+                const categoriaDisplay = expense.categoria ? `(${expense.categoria})` : '';
+                let periodoRegistroDisplay = '';
+                if (expense.periodoRegistroInicio && expense.periodoRegistroFim) {
+                    periodoRegistroDisplay = `<p><strong>Período de Registro:</strong> ${expense.periodoRegistroInicio} a ${expense.periodoRegistroFim}</p>`;
+                } else if (expense.periodoRegistroInicio === null && expense.periodoRegistroFim === null && expense.frequencia !== 'diaria') {
+                    periodoRegistroDisplay = `<p><strong>Período de Registro:</strong> Sempre</p>`; 
+                }
+
+                let diasDiariosDisplay = '';
+                if (expense.frequencia === 'diaria' && expense.diasRegistroDiario && expense.diasRegistroDiario.length > 0) {
+                    const daysMap = { '1': 'Dom', '2': 'Seg', '3': 'Ter', '4': 'Qua', '5': 'Qui', '6': 'Sex', '7': 'Sáb' };
+                    const formattedDays = expense.diasRegistroDiario.map(day => daysMap[day]).join(', ');
+                    diasDiariosDisplay = `<p><strong>Dias de Registro:</strong> ${formattedDays}</p>`;
+                }
+
+
                 fixedExpensesList.innerHTML += `
                     <div class="expense-item">
                         <div>
-                            <h5>${expense.nome}</h5>
+                            <h5>${expense.descricao} ${categoriaDisplay}</h5> 
                             <p><strong>Valor:</strong> R$ ${expense.valor.toFixed(2)}</p>
                             <p><strong>Frequência:</strong> ${expense.frequencia.charAt(0).toUpperCase() + expense.frequencia.slice(1)}${vencimentoInfo}</p>
+                            ${periodoRegistroDisplay}
+                            ${diasDiariosDisplay}
                         </div>
                         <button class="btn btn-danger-custom btn-sm" data-id="${expenseId}">Excluir</button>
                     </div>
                 `;
             });
 
-            // Adiciona listeners para os botões de exclusão
             fixedExpensesList.querySelectorAll('.btn-danger-custom').forEach(button => {
                 button.addEventListener('click', async (e) => {
                     const idToDelete = e.target.dataset.id;
                     if (confirm('Tem certeza que deseja excluir esta despesa fixa?')) {
                         try {
-                            // Caminho alterado: removido artifacts/${appId}/
                             await deleteDoc(doc(db, `users/${currentUserId}/despesasFixas`, idToDelete));
-                            alert('Despesa fixa excluída com sucesso!'); // Usar alert para exclusão
+                            alert('Despesa fixa excluída com sucesso!'); 
                             renderFixedExpenses();
                         } catch (error) {
                             console.error('Erro ao excluir despesa fixa:', error);
-                            alert(`Erro ao excluir despesa fixa: ${error.message}`); // Usar alert para erros
+                            alert(`Erro ao excluir despesa fixa: ${error.message}`); 
                         }
                     }
                 });
@@ -749,7 +918,6 @@
         }
     };
 
-    // Ativar a aba de despesas fixas quando ela for clicada
     document.getElementById('fixed-tab').addEventListener('shown.bs.tab', () => {
         if (currentUserId) {
             renderFixedExpenses();

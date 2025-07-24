@@ -626,7 +626,8 @@
                     // Para dia da semana (semanal), ajuste o valor de 1-7 (Firestore) para 0-6 (JavaScript Date.getDay())
                     diaDaSemana: parseInt(data.diaVencimento) ? parseInt(data.diaVencimento) - 1 : 0,
                     // Use 'mesVencimento' do Firestore para 'mesDaCobranca' (para anual)
-                    mesDaCobranca: parseInt(data.mesVencimento) || 1,
+                    mesVencimento: parseInt(data.mesVencimento) || 1, // Mês de vencimento (1-12)
+                    anoVencimento: parseInt(data.anoVencimento) || 0, // Ano de vencimento
                     categoria: data.categoria || 'outros'
                 });
             });
@@ -840,166 +841,225 @@
     }
 
 
-    function agruparDadosPorPeriodo(registros, despesasFixas) { // Recebe despesasFixas
-        const dadosAgrupados = {};
-        
-        const periodoSelecionado = filtroPeriodo.value;
-        const mesSelecionado = parseInt(filtroMes.value);
-        const anoMensalSelecionado = parseInt(filtroAnoMensal.value);
-        const anoAnualSelecionado = parseInt(filtroAnoAnual.value);
-        
-        const mesesAno = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+        function agruparDadosPorPeriodo(registros, despesasFixas) {
+            const dadosAgrupados = {};
+            const periodoSelecionado = filtroPeriodo.value;
+            const mesSelecionado = parseInt(filtroMes.value);
+            const anoMensalSelecionado = parseInt(filtroAnoMensal.value);
+            const anoAnualSelecionado = parseInt(filtroAnoAnual.value);
+            const mesesAno = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            let labelsParaGrafico = [];
+            // Inicialize categoriasGastosTotal aqui, mas a população final será após processar dadosAgrupados
+            let categoriasGastosTotal = {}; 
 
-        let labelsParaGrafico = []; 
-        let registrosFiltrados = [];
-
-        if (periodoSelecionado === 'mensal') {
-            registrosFiltrados = registros.filter(({ data }) =>
-                data.getMonth() === mesSelecionado && data.getFullYear() === anoMensalSelecionado
-            );
-            const diasNoMes = new Date(anoMensalSelecionado, mesSelecionado + 1, 0).getDate();
-            for (let i = 1; i <= diasNoMes; i++) {
-                labelsParaGrafico.push(String(i).padStart(2, '0'));
-            }
-        } else if (periodoSelecionado === 'anual') {
-            registrosFiltrados = registros.filter(({ data }) =>
-                data.getFullYear() === anoAnualSelecionado
-            );
-            labelsParaGrafico = mesesAno;
-        }
-        
-        labelsParaGrafico.forEach(label => {
-            dadosAgrupados[label] = { receita: 0, lucro: 0, gorjetas: 0, despesas: 0, plataformas: { Uber: 0, '99': 0 }, categorias: {} };
-        });
-
-        const canonicalCategoryMap = {
-            'combustivel': 'combustivel',
-            'combustível': 'combustivel',
-            'manutencao': 'manutencao',
-            'lanche/refeicao': 'lanche/refeicao',
-            'lanche/refeição': 'lanche/refeicao',
-            'outros': 'outros'
-        };
-
-        // Adicionar despesas dos registros diários
-        registrosFiltrados.forEach(({ data, receita, gorjetas, despesas, plataforma, categoriaDespesa }) => {
-            const lucro = (parseFloat(receita || 0) + parseFloat(gorjetas || 0)) - parseFloat(despesas || 0); 
-            const receitaTotalDia = parseFloat(receita || 0) + parseFloat(gorjetas || 0); 
-            let chave;
+            let registrosFiltrados = [];
 
             if (periodoSelecionado === 'mensal') {
-                chave = String(data.getDate()).padStart(2, '0');
-            } else if (periodoSelecionado === 'anual') { 
-                chave = mesesAno[data.getMonth()];
-            }
-
-            if (dadosAgrupados[chave]) {
-                dadosAgrupados[chave].receita += receitaTotalDia; 
-                dadosAgrupados[chave].lucro += lucro;
-                dadosAgrupados[chave].gorjetas += parseFloat(gorjetas || 0); 
-                dadosAgrupados[chave].despesas += parseFloat(despesas || 0);
-                if (plataforma === 'Uber' || plataforma === '99') dadosAgrupados[chave].plataformas[plataforma]++;
-
-                if (categoriaDespesa) {
-                    let categoriaKey = String(categoriaDespesa).trim().toLowerCase(); // Safely convert to string
-                    if (canonicalCategoryMap[categoriaKey]) {
-                        categoriaKey = canonicalCategoryMap[categoriaKey];
-                    }
-
-                    if (!dadosAgrupados[chave].categorias[categoriaKey]) {
-                        dadosAgrupados[chave].categorias[categoriaKey] = 0;
-                    }
-                    dadosAgrupados[chave].categorias[categoriaKey] += parseFloat(despesas || 0);
-                }
-            }
-        });
-
-        // Adicionar despesas fixas
-        despesasFixas.forEach(despesaFixa => {
-            const valorDespesaFixa = despesaFixa.valor;
-            
-            let categoriaFixaKey = 'outros'; // Default category if undefined
-            if (despesaFixa.categoria) {
-                categoriaFixaKey = String(despesaFixa.categoria).trim().toLowerCase();
-            }
-
-            if (canonicalCategoryMap[categoriaFixaKey]) {
-                categoriaFixaKey = canonicalCategoryMap[categoriaFixaKey];
-            }
-
-            if (periodoSelecionado === 'mensal') {
-                const totalDiasNoMes = new Date(anoMensalSelecionado, mesSelecionado + 1, 0).getDate();
-                for (let dia = 1; dia <= totalDiasNoMes; dia++) {
-                    const dataAtual = new Date(anoMensalSelecionado, mesSelecionado, dia);
-                    let shouldAdd = false;
-
-                    if (despesaFixa.periodicidade === 'diaria') {
-                        shouldAdd = true;
-                    } else if (despesaFixa.periodicidade === 'semanal') {
-                        // Verifica se o dia da semana da despesa fixa corresponde ao dia da semana atual
-                        // 0 = Domingo, 1 = Segunda, ..., 6 = Sábado
-                        if (dataAtual.getDay() === despesaFixa.diaDaSemana) {
-                            shouldAdd = true;
-                        }
-                    } else if (despesaFixa.periodicidade === 'mensal') {
-                        // Se o dia do mês da despesa fixa é igual ao dia atual
-                        if (dataAtual.getDate() === despesaFixa.diaDoMes) {
-                            shouldAdd = true;
-                        }
-                    }
-
-                    if (shouldAdd) {
-                        const chave = String(dia).padStart(2, '0');
-                        if (dadosAgrupados[chave]) {
-                            dadosAgrupados[chave].despesas += valorDespesaFixa;
-                            dadosAgrupados[chave].lucro -= valorDespesaFixa; // Lucro é afetado pela despesa
-                            if (!dadosAgrupados[chave].categorias[categoriaFixaKey]) {
-                                dadosAgrupados[chave].categorias[categoriaFixaKey] = 0;
-                            }
-                            dadosAgrupados[chave].categorias[categoriaFixaKey] += valorDespesaFixa;
-                        }
-                    }
+                registrosFiltrados = registros.filter(({ data }) =>
+                    data.getMonth() === mesSelecionado && data.getFullYear() === anoMensalSelecionado
+                );
+                const diasNoMes = new Date(anoMensalSelecionado, mesSelecionado + 1, 0).getDate();
+                for (let i = 1; i <= diasNoMes; i++) {
+                    labelsParaGrafico.push(String(i).padStart(2, '0'));
                 }
             } else if (periodoSelecionado === 'anual') {
-                for (let mes = 0; mes < 12; mes++) {
-                    let totalAdditions = 0;
-                    if (despesaFixa.periodicidade === 'diaria') {
-                        const diasNoMes = new Date(anoAnualSelecionado, mes + 1, 0).getDate();
-                        totalAdditions = diasNoMes;
-                    } else if (despesaFixa.periodicidade === 'semanal') {
-                        // Cálculo mais preciso do número de ocorrências semanais no mês para o resumo anual
-                        // Isso é uma estimativa para o gráfico anual
-                        const firstDayOfMonth = new Date(anoAnualSelecionado, mes, 1);
-                        const lastDayOfMonth = new Date(anoAnualSelecionado, mes + 1, 0);
-                        let currentDay = new Date(firstDayOfMonth);
-                        let weeklyOccurrences = 0;
-                        while (currentDay <= lastDayOfMonth) {
-                            if (currentDay.getDay() === despesaFixa.diaDaSemana) {
-                                weeklyOccurrences++;
-                            }
-                            currentDay.setDate(currentDay.getDate() + 1);
+                registrosFiltrados = registros.filter(({ data }) => data.getFullYear() === anoAnualSelecionado);
+                labelsParaGrafico = mesesAno;
+            }
+
+            labelsParaGrafico.forEach(label => {
+                dadosAgrupados[label] = { receita: 0, lucro: 0, gorjetas: 0, despesas: 0, plataformas: { Uber: 0, '99': 0 }, categorias: {} };
+            });
+
+            // Mapeamento canônico para categorias de despesa
+            const canonicalCategoryMap = {
+                'combustivel': 'combustivel',
+                'combustível': 'combustivel',
+                'manutencao': 'manutencao',
+                'lanche/refeicao': 'lanche/refeicao',
+                'lanche/refeição': 'lanche/refeicao',
+                'outros': 'outros'
+            };
+
+            // Adicionar despesas dos registros diários
+            registrosFiltrados.forEach(({ data, receita, gorjetas, despesas, plataforma, categoriaDespesa }) => {
+                const lucro = (parseFloat(receita || 0) + parseFloat(gorjetas || 0)) - parseFloat(despesas || 0);
+                const receitaTotalDia = parseFloat(receita || 0) + parseFloat(gorjetas || 0);
+                let chave;
+                if (periodoSelecionado === 'mensal') {
+                    chave = String(data.getDate()).padStart(2, '0');
+                } else if (periodoSelecionado === 'anual') {
+                    chave = mesesAno[data.getMonth()];
+                }
+
+                if (dadosAgrupados[chave]) {
+                    dadosAgrupados[chave].receita += receitaTotalDia;
+                    dadosAgrupados[chave].lucro += lucro;
+                    dadosAgrupados[chave].gorjetas += parseFloat(gorjetas || 0);
+                    dadosAgrupados[chave].despesas += parseFloat(despesas || 0);
+
+                    if (plataforma === 'Uber' || plataforma === '99')
+                        dadosAgrupados[chave].plataformas[plataforma]++;
+
+                    if (categoriaDespesa) {
+                        let categoriaKey = String(categoriaDespesa).trim().toLowerCase();
+                        if (canonicalCategoryMap[categoriaKey]) {
+                            categoriaKey = canonicalCategoryMap[categoriaKey];
                         }
-                        totalAdditions = weeklyOccurrences;
-                    } else if (despesaFixa.periodicidade === 'mensal') {
-                        totalAdditions = 1; // Uma vez por mês
-                    }
-                    
-                    const chave = mesesAno[mes];
-                    if (dadosAgrupados[chave]) {
-                        const valorTotalNoMes = valorDespesaFixa * totalAdditions;
-                        dadosAgrupados[chave].despesas += valorTotalNoMes;
-                        dadosAgrupados[chave].lucro -= valorTotalNoMes;
-                        if (!dadosAgrupados[chave].categorias[categoriaFixaKey]) {
-                            dadosAgrupados[chave].categorias[categoriaFixaKey] = 0;
+                        if (!dadosAgrupados[chave].categorias[categoriaKey]) {
+                            dadosAgrupados[chave].categorias[categoriaKey] = 0;
                         }
-                        dadosAgrupados[chave].categorias[categoriaFixaKey] += valorTotalNoMes;
+                        dadosAgrupados[chave].categorias[categoriaKey] += parseFloat(despesas || 0);
                     }
                 }
-            }
-        });
+            });
 
-        return { dados: dadosAgrupados, labels: labelsParaGrafico };
-    }
+            // Adicionar despesas fixas
+            despesasFixas.forEach(despesaFixa => {
+                const valorDespesaFixa = parseFloat(despesaFixa.valor || 0);
+                let categoriaFinal;
+
+                if (despesaFixa.categoria) {
+                    const categoriaDoUsuario = String(despesaFixa.categoria).trim().toLowerCase();
+                    categoriaFinal = canonicalCategoryMap[categoriaDoUsuario] || categoriaDoUsuario; // <-- LINHA CORRIGIDA AQUI
+                } else {
+                    categoriaFinal = 'outros';
+                }
+
+                if (periodoSelecionado === 'mensal') {
+                    const mesVencimentoDespesa = parseInt(despesaFixa.mesVencimento) - 1;
+                    const anoVencimentoDespesa = parseInt(despesaFixa.anoVencimento);
+                    const diasNoMes = new Date(anoMensalSelecionado, mesSelecionado + 1, 0).getDate();
+
+                    if (despesaFixa.periodicidade === 'diaria') {
+                        // Aplica despesa diária a cada dia do mês
+                        for (let i = 1; i <= diasNoMes; i++) {
+                            const dailyDataKey = String(i).padStart(2, '0');
+                            if (dadosAgrupados[dailyDataKey]) {
+                                dadosAgrupados[dailyDataKey].despesas += valorDespesaFixa;
+                                dadosAgrupados[dailyDataKey].lucro -= valorDespesaFixa;
+                                if (!dadosAgrupados[dailyDataKey].categorias[categoriaFinal]) {
+                                    dadosAgrupados[dailyDataKey].categorias[categoriaFinal] = 0;
+                                }
+                                dadosAgrupados[dailyDataKey].categorias[categoriaFinal] += valorDespesaFixa;
+                            }
+                        }
+                    } else if (despesaFixa.periodicidade === 'semanal') {
+                        // Aplica despesa semanal aos dias da semana correspondentes no mês
+                        for (let i = 1; i <= diasNoMes; i++) {
+                            const date = new Date(anoMensalSelecionado, mesSelecionado, i);
+                            if (date.getDay() === despesaFixa.diaDaSemana) {
+                                const dailyDataKey = String(i).padStart(2, '0');
+                                if (dadosAgrupados[dailyDataKey]) {
+                                    dadosAgrupados[dailyDataKey].despesas += valorDespesaFixa;
+                                    dadosAgrupados[dailyDataKey].lucro -= valorDespesaFixa;
+                                    if (!dadosAgrupados[dailyDataKey].categorias[categoriaFinal]) {
+                                        dadosAgrupados[dailyDataKey].categorias[categoriaFinal] = 0;
+                                    }
+                                    dadosAgrupados[dailyDataKey].categorias[categoriaFinal] += valorDespesaFixa;
+                                }
+                            }
+                        }
+                    } else if (despesaFixa.periodicidade === 'mensal') {
+                        // Aplica despesa mensal no mês/ano de vencimento
+                        if (mesVencimentoDespesa === mesSelecionado && anoVencimentoDespesa === anoMensalSelecionado) {
+                            const dataKey = String(despesaFixa.diaDoMes || 1).padStart(2, '0');
+                            if (dadosAgrupados[dataKey]) {
+                                dadosAgrupados[dataKey].despesas += valorDespesaFixa;
+                                dadosAgrupados[dataKey].lucro -= valorDespesaFixa;
+                                if (!dadosAgrupados[dataKey].categorias[categoriaFinal]) {
+                                    dadosAgrupados[dataKey].categorias[categoriaFinal] = 0;
+                                }
+                                dadosAgrupados[dataKey].categorias[categoriaFinal] += valorDespesaFixa;
+                            }
+                        }
+                    } else if (despesaFixa.periodicidade === 'anual') {
+                        // Aplica despesa anual no mês/ano de vencimento
+                        if (mesVencimentoDespesa === mesSelecionado && anoVencimentoDespesa === anoMensalSelecionado) {
+                            const dataKey = String(despesaFixa.diaDoMes || 1).padStart(2, '0');
+                            if (dadosAgrupados[dataKey]) {
+                                dadosAgrupados[dataKey].despesas += valorDespesaFixa;
+                                dadosAgrupados[dataKey].lucro -= valorDespesaFixa;
+                                if (!dadosAgrupados[dataKey].categorias[categoriaFinal]) {
+                                    dadosAgrupados[dataKey].categorias[categoriaFinal] = 0;
+                                }
+                                dadosAgrupados[dataKey].categorias[categoriaFinal] += valorDespesaFixa;
+                            }
+                        }
+                    }
+                } else if (periodoSelecionado === 'anual') {
+                    const anoVencimentoDespesa = parseInt(despesaFixa.anoVencimento);
+
+                    if (anoVencimentoDespesa === anoAnualSelecionado) {
+                        if (despesaFixa.periodicidade === 'mensal') {
+                            // Distribui despesa mensal igualmente por todos os 12 meses para a visão anual
+                            for (let m = 0; m < 12; m++) {
+                                const monthKey = mesesAno[m];
+                                if (dadosAgrupados[monthKey]) {
+                                    dadosAgrupados[monthKey].despesas += valorDespesaFixa;
+                                    dadosAgrupados[monthKey].lucro -= valorDespesaFixa;
+                                    if (!dadosAgrupados[monthKey].categorias[categoriaFinal]) {
+                                        dadosAgrupados[monthKey].categorias[categoriaFinal] = 0;
+                                    }
+                                    dadosAgrupados[monthKey].categorias[categoriaFinal] += valorDespesaFixa;
+                                }
+                            }
+                        } else if (despesaFixa.periodicidade === 'diaria') {
+                            // Calcula contribuição mensal total para despesa diária e distribui
+                            const totalDaysInYear = (new Date(anoAnualSelecionado, 1, 29).getMonth() === 1) ? 366 : 365; // Verifica ano bissexto
+                            const monthlyContribution = (valorDespesaFixa * totalDaysInYear) / 12;
+                            for (let m = 0; m < 12; m++) {
+                                const monthKey = mesesAno[m];
+                                if (dadosAgrupados[monthKey]) {
+                                    dadosAgrupados[monthKey].despesas += monthlyContribution;
+                                    dadosAgrupados[monthKey].lucro -= monthlyContribution;
+                                    if (!dadosAgrupados[monthKey].categorias[categoriaFinal]) {
+                                        dadosAgrupados[monthKey].categorias[categoriaFinal] = 0;
+                                    }
+                                    dadosAgrupados[monthKey].categorias[categoriaFinal] += monthlyContribution;
+                                }
+                            }
+                        } else if (despesaFixa.periodicidade === 'semanal') {
+                            // Calcula contribuição mensal total para despesa semanal e distribui
+                            const totalWeeksInYear = 52; // Aproximadamente
+                            const monthlyContribution = (valorDespesaFixa * totalWeeksInYear) / 12;
+                            for (let m = 0; m < 12; m++) {
+                                const monthKey = mesesAno[m];
+                                if (dadosAgrupados[monthKey]) {
+                                    dadosAgrupados[monthKey].despesas += monthlyContribution;
+                                    dadosAgrupados[monthKey].lucro -= monthlyContribution;
+                                    if (!dadosAgrupados[monthKey].categorias[categoriaFinal]) {
+                                        dadosAgrupados[monthKey].categorias[categoriaFinal] = 0;
+                                    }
+                                    dadosAgrupados[monthKey].categorias[categoriaFinal] += monthlyContribution;
+                                }
+                            }
+                        } else if (despesaFixa.periodicidade === 'anual') {
+                            // Aplica despesa anual no mês de vencimento no ano selecionado
+                            const monthKey = mesesAno[parseInt(despesaFixa.mesVencimento) - 1];
+                            if (dadosAgrupados[monthKey]) {
+                                dadosAgrupados[monthKey].despesas += valorDespesaFixa;
+                                dadosAgrupados[monthKey].lucro -= valorDespesaFixa;
+                                if (!dadosAgrupados[monthKey].categorias[categoriaFinal]) {
+                                    dadosAgrupados[monthKey].categorias[categoriaFinal] = 0;
+                                }
+                                dadosAgrupados[monthKey].categorias[categoriaFinal] += valorDespesaFixa;
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Popula categoriasGastosTotal somando todas as categorias de todos os pontos de dados
+            Object.values(dadosAgrupados).forEach(dataPoint => {
+                Object.entries(dataPoint.categorias).forEach(([cat, val]) => {
+                    categoriasGastosTotal[cat] = (categoriasGastosTotal[cat] || 0) + val;
+                });
+            });
+
+            return { dadosAgrupados, labelsParaGrafico, categoriasGastosTotal };
+        }
+
 
     function calcularResumoMensal(registros, despesasFixas) { // Recebe despesasFixas
         const mesSelecionado = parseInt(filtroMesResumoMensal.value);
@@ -1028,6 +1088,8 @@
         const totalDiasNoMes = new Date(anoSelecionado, mesSelecionado + 1, 0).getDate();
         despesasFixas.forEach(despesaFixa => {
             const valorDespesaFixa = despesaFixa.valor;
+            const mesVencimentoDespesa = parseInt(despesaFixa.mesVencimento) - 1; // Ajuste para 0-11
+            const anoVencimentoDespesa = parseInt(despesaFixa.anoVencimento);
 
             if (despesaFixa.periodicidade === 'diaria') {
                 totalDespesas += valorDespesaFixa * totalDiasNoMes;
@@ -1042,7 +1104,15 @@
                 }
                 totalDespesas += valorDespesaFixa * countWeeks;
             } else if (despesaFixa.periodicidade === 'mensal') {
-                totalDespesas += valorDespesaFixa;
+                // Despesa mensal é adicionada se o vencimento for para o mês/ano selecionado
+                if (mesVencimentoDespesa === mesSelecionado && anoVencimentoDespesa === anoSelecionado) {
+                    totalDespesas += valorDespesaFixa;
+                }
+            } else if (despesaFixa.periodicidade === 'anual') {
+                // Despesa anual é adicionada se o mês/ano de vencimento for para o mês/ano selecionado
+                if (mesVencimentoDespesa === mesSelecionado && anoVencimentoDespesa === anoSelecionado) {
+                    totalDespesas += valorDespesaFixa;
+                }
             }
         });
 
@@ -1095,6 +1165,8 @@
             despesasFixas.forEach(despesaFixa => {
                 const valorDespesaFixa = despesaFixa.valor;
                 let shouldAdd = false;
+                const mesVencimentoDespesa = parseInt(despesaFixa.mesVencimento) - 1; // Ajuste para 0-11
+                const anoVencimentoDespesa = parseInt(despesaFixa.anoVencimento);
 
                 if (despesaFixa.periodicidade === 'diaria') {
                     shouldAdd = true;
@@ -1103,7 +1175,16 @@
                         shouldAdd = true;
                     }
                 } else if (despesaFixa.periodicidade === 'mensal') {
-                    if (dataAtual.getDate() === despesaFixa.diaDoMes) {
+                    if (dataAtual.getDate() === despesaFixa.diaDoMes &&
+                        mesVencimentoDespesa === mesSelecionado &&
+                        anoVencimentoDespesa === anoSelecionado) {
+                        shouldAdd = true;
+                    }
+                } else if (despesaFixa.periodicidade === 'anual') {
+                    // Adicionar despesa anual no dia e mês de vencimento, se estiver no ano selecionado
+                    if (dataAtual.getDate() === despesaFixa.diaDoMes &&
+                        mesVencimentoDespesa === mesSelecionado &&
+                        anoVencimentoDespesa === anoSelecionado) {
                         shouldAdd = true;
                     }
                 }
@@ -1399,18 +1480,19 @@
       
       popularSeletoresAnoComRegistros(registros);
       
-      calcularResumoMensal(registros, despesasFixas); // Passa despesasFixas
-      renderizarTabelaRegistros(registros, despesasFixas); // Passa despesasFixas
+      // Passa despesasFixas para as funções de cálculo e renderização
+      calcularResumoMensal(registros, despesasFixas);
+      renderizarTabelaRegistros(registros, despesasFixas);
       renderizarGraficoMeta('graficoMetaMensal', 'metaMonthlyProgressContainer', 'noDataMetaMensalProgress', 'metaMonthlyDetails', registros, todasAsMetas, 'mensal');
       renderizarGraficoMeta('graficoMetaSemanal', 'metaWeeklyProgressContainer', 'noDataMetaSemanalProgress', 'metaWeeklyDetails', registros, todasAsMetas, 'semanal');
 
 
-      const { dados: dadosAgrupadosPorPeriodo, labels: labelsParaGrafico } = agruparDadosPorPeriodo(registros, despesasFixas); // Passa despesasFixas
+      const { dadosAgrupados: dadosAgrupadosPorPeriodo, labelsParaGrafico: labelsParaGrafico, categoriasGastosTotal: categoriasGastosTotalRetornadas } = agruparDadosPorPeriodo(registros, despesasFixas);
       
       const receita = labelsParaGrafico.map(k => dadosAgrupadosPorPeriodo[k]?.receita || 0);
       const lucro = labelsParaGrafico.map(k => dadosAgrupadosPorPeriodo[k]?.lucro || 0);
       const plataformasTotal = { Uber: 0, '99': 0 };
-      const categoriasGastosTotal = {};
+      const categoriasGastosTotal = {}; // ESTE OBJETO AGORA SERÁ PREENCHIDO CORRETAMENTE COM BASE EM DADOSAGRUPADOSPORPERIODO
 
       Object.values(dadosAgrupadosPorPeriodo).forEach(dados => {
           plataformasTotal['Uber'] += dados.plataformas.Uber;
