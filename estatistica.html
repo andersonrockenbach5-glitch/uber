@@ -368,8 +368,8 @@
       margin-top: 4rem;
       padding: 1rem;
       background-color: transparent;
-      color: var(--text-color-light);
       opacity: 0.8;
+      color: var(--text-color-light);
     }
   </style>
 </head>
@@ -486,7 +486,8 @@
     </div>
 
     <div class="card p-4">
-      <h3 class="mb-2">Gastos por Categoria</h3> <div id="gastosContainer" class="chart-container-placeholder">
+      <h3 class="mb-2">Gastos por Categoria</h3> 
+      <div id="gastosContainer" class="chart-container-placeholder">
         <canvas id="graficoGastos"></canvas>
         <div class="no-data-message hidden" id="noDataGastos">Nenhum gasto registrado no período selecionado.</div>
       </div>
@@ -603,6 +604,40 @@
             }
         };
 
+        // NOVA FUNÇÃO: Carregar Despesas Fixas
+       const carregarDespesasFixas = async () => {
+        if (!currentUserId) return [];
+        try {
+            const despesasFixasRef = collection(db, `users/${currentUserId}/despesasFixas`);
+            const q = query(despesasFixasRef);
+            const querySnapshot = await getDocs(q);
+            const despesasFixas = [];
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                despesasFixas.push({
+                    id: doc.id,
+                    ...data,
+                    valor: parseFloat(data.valor) || 0,
+                    // Use 'frequencia' do Firestore como 'periodicidade'
+                    periodicidade: data.frequencia || 'mensal',
+                    // Use 'diaVencimento' do Firestore para 'diaDoMes' (para mensal/quinzenal/anual)
+                    // e para 'diaDaSemana' (para semanal).
+                    diaDoMes: parseInt(data.diaVencimento) || 1, // Será o dia do mês (1-31)
+                    // Para dia da semana (semanal), ajuste o valor de 1-7 (Firestore) para 0-6 (JavaScript Date.getDay())
+                    diaDaSemana: parseInt(data.diaVencimento) ? parseInt(data.diaVencimento) - 1 : 0,
+                    // Use 'mesVencimento' do Firestore para 'mesDaCobranca' (para anual)
+                    mesDaCobranca: parseInt(data.mesVencimento) || 1,
+                    categoria: data.categoria || 'outros'
+                });
+            });
+            console.log('Despesas Fixas Carregadas:', despesasFixas);
+            return despesasFixas;
+        } catch (error) {
+            console.error('Erro ao carregar despesas fixas do Firestore:', error);
+            return [];
+        }
+    };
+
         const carregarMetas = async () => {
             if (!currentUserId) return [];
             try {
@@ -625,13 +660,16 @@
                         tipoMetaMapping = 'receita'; 
                         valorMetaActual = parseFloat(data.metaMensalCalculada) || 0; 
                     }
-                    metas.push({
+                        metas.push({
                         id: doc.id,
                         ...data,
                         nomeMeta: nomeMetaDisplay, 
                         valorMeta: valorMetaActual, 
-                        tipoMeta: tipoMetaMapping, 
+                        tipoMeta: tipoMetaMapping,
+                        tipoOriginal: data.tipo, // ← necessário para filtro correto
+                        diasTrabalhadosSemana: data.diasTrabalhadosSemana || 7 // ← usado na meta semanal
                     });
+
                 });
                 return metas;
             } catch (error) {
@@ -639,22 +677,30 @@
                 return [];
             }
         };
-        function desenharGraficoMeta(canvasId, valorAlvo, valorAtual) {
+        function desenharGraficoMeta(canvasId, valorAlvo, valorAtual, labelText) {
             const porcentagem = Math.min((valorAtual / valorAlvo) * 100, 100).toFixed(1);
 
             const ctx = document.getElementById(canvasId).getContext('2d');
+            
+            // Destruir gráfico existente se houver
+            let chartStatus = Chart.getChart(canvasId);
+            if (chartStatus != undefined) {
+                chartStatus.destroy();
+            }
+
             return new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Progresso', 'Restante'],
                     datasets: [{
                         data: [valorAtual, Math.max(valorAlvo - valorAtual, 0)],
-                        backgroundColor: ['#28a745', '#e0e0e0'],
+                        backgroundColor: ['#28a745', '#e0e0e0'], // Verde para progresso, cinza para restante
                         borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     cutout: '70%',
                     plugins: {
                         tooltip: {
@@ -662,7 +708,7 @@
                                 label: function (context) {
                                     const label = context.label || '';
                                     const valor = context.parsed;
-                                    return `${label}: R$ ${valor.toFixed(2)}`;
+                                    return `${label}: ${formatarMoeda(valor)}`;
                                 }
                             }
                         },
@@ -671,13 +717,17 @@
                         },
                         title: {
                             display: true,
-                            text: `${porcentagem}%`
+                            text: `${porcentagem}% ${labelText ? `(${labelText})` : ''}`,
+                            font: {
+                                size: 20,
+                                weight: 'bold'
+                            },
+                            color: '#333'
                         }
                     }
                 }
             });
         }
-
 
     Chart.defaults.color = '#333';
     Chart.defaults.borderColor = 'rgba(0, 0, 0, 0.1)';
@@ -790,7 +840,7 @@
     }
 
 
-    function agruparDadosPorPeriodo(registros) {
+    function agruparDadosPorPeriodo(registros, despesasFixas) { // Recebe despesasFixas
         const dadosAgrupados = {};
         
         const periodoSelecionado = filtroPeriodo.value;
@@ -831,6 +881,7 @@
             'outros': 'outros'
         };
 
+        // Adicionar despesas dos registros diários
         registrosFiltrados.forEach(({ data, receita, gorjetas, despesas, plataforma, categoriaDespesa }) => {
             const lucro = (parseFloat(receita || 0) + parseFloat(gorjetas || 0)) - parseFloat(despesas || 0); 
             const receitaTotalDia = parseFloat(receita || 0) + parseFloat(gorjetas || 0); 
@@ -850,7 +901,7 @@
                 if (plataforma === 'Uber' || plataforma === '99') dadosAgrupados[chave].plataformas[plataforma]++;
 
                 if (categoriaDespesa) {
-                    let categoriaKey = categoriaDespesa.trim().toLowerCase();
+                    let categoriaKey = String(categoriaDespesa).trim().toLowerCase(); // Safely convert to string
                     if (canonicalCategoryMap[categoriaKey]) {
                         categoriaKey = canonicalCategoryMap[categoriaKey];
                     }
@@ -863,10 +914,94 @@
             }
         });
 
+        // Adicionar despesas fixas
+        despesasFixas.forEach(despesaFixa => {
+            const valorDespesaFixa = despesaFixa.valor;
+            
+            let categoriaFixaKey = 'outros'; // Default category if undefined
+            if (despesaFixa.categoria) {
+                categoriaFixaKey = String(despesaFixa.categoria).trim().toLowerCase();
+            }
+
+            if (canonicalCategoryMap[categoriaFixaKey]) {
+                categoriaFixaKey = canonicalCategoryMap[categoriaFixaKey];
+            }
+
+            if (periodoSelecionado === 'mensal') {
+                const totalDiasNoMes = new Date(anoMensalSelecionado, mesSelecionado + 1, 0).getDate();
+                for (let dia = 1; dia <= totalDiasNoMes; dia++) {
+                    const dataAtual = new Date(anoMensalSelecionado, mesSelecionado, dia);
+                    let shouldAdd = false;
+
+                    if (despesaFixa.periodicidade === 'diaria') {
+                        shouldAdd = true;
+                    } else if (despesaFixa.periodicidade === 'semanal') {
+                        // Verifica se o dia da semana da despesa fixa corresponde ao dia da semana atual
+                        // 0 = Domingo, 1 = Segunda, ..., 6 = Sábado
+                        if (dataAtual.getDay() === despesaFixa.diaDaSemana) {
+                            shouldAdd = true;
+                        }
+                    } else if (despesaFixa.periodicidade === 'mensal') {
+                        // Se o dia do mês da despesa fixa é igual ao dia atual
+                        if (dataAtual.getDate() === despesaFixa.diaDoMes) {
+                            shouldAdd = true;
+                        }
+                    }
+
+                    if (shouldAdd) {
+                        const chave = String(dia).padStart(2, '0');
+                        if (dadosAgrupados[chave]) {
+                            dadosAgrupados[chave].despesas += valorDespesaFixa;
+                            dadosAgrupados[chave].lucro -= valorDespesaFixa; // Lucro é afetado pela despesa
+                            if (!dadosAgrupados[chave].categorias[categoriaFixaKey]) {
+                                dadosAgrupados[chave].categorias[categoriaFixaKey] = 0;
+                            }
+                            dadosAgrupados[chave].categorias[categoriaFixaKey] += valorDespesaFixa;
+                        }
+                    }
+                }
+            } else if (periodoSelecionado === 'anual') {
+                for (let mes = 0; mes < 12; mes++) {
+                    let totalAdditions = 0;
+                    if (despesaFixa.periodicidade === 'diaria') {
+                        const diasNoMes = new Date(anoAnualSelecionado, mes + 1, 0).getDate();
+                        totalAdditions = diasNoMes;
+                    } else if (despesaFixa.periodicidade === 'semanal') {
+                        // Cálculo mais preciso do número de ocorrências semanais no mês para o resumo anual
+                        // Isso é uma estimativa para o gráfico anual
+                        const firstDayOfMonth = new Date(anoAnualSelecionado, mes, 1);
+                        const lastDayOfMonth = new Date(anoAnualSelecionado, mes + 1, 0);
+                        let currentDay = new Date(firstDayOfMonth);
+                        let weeklyOccurrences = 0;
+                        while (currentDay <= lastDayOfMonth) {
+                            if (currentDay.getDay() === despesaFixa.diaDaSemana) {
+                                weeklyOccurrences++;
+                            }
+                            currentDay.setDate(currentDay.getDate() + 1);
+                        }
+                        totalAdditions = weeklyOccurrences;
+                    } else if (despesaFixa.periodicidade === 'mensal') {
+                        totalAdditions = 1; // Uma vez por mês
+                    }
+                    
+                    const chave = mesesAno[mes];
+                    if (dadosAgrupados[chave]) {
+                        const valorTotalNoMes = valorDespesaFixa * totalAdditions;
+                        dadosAgrupados[chave].despesas += valorTotalNoMes;
+                        dadosAgrupados[chave].lucro -= valorTotalNoMes;
+                        if (!dadosAgrupados[chave].categorias[categoriaFixaKey]) {
+                            dadosAgrupados[chave].categorias[categoriaFixaKey] = 0;
+                        }
+                        dadosAgrupados[chave].categorias[categoriaFixaKey] += valorTotalNoMes;
+                    }
+                }
+            }
+        });
+
         return { dados: dadosAgrupados, labels: labelsParaGrafico };
     }
 
-    function calcularResumoMensal(registros) {
+    function calcularResumoMensal(registros, despesasFixas) { // Recebe despesasFixas
         const mesSelecionado = parseInt(filtroMesResumoMensal.value);
         const anoSelecionado = parseInt(filtroAnoResumoMensal.value);
 
@@ -889,6 +1024,29 @@
             }
         });
 
+        // Adicionar despesas fixas ao resumo mensal
+        const totalDiasNoMes = new Date(anoSelecionado, mesSelecionado + 1, 0).getDate();
+        despesasFixas.forEach(despesaFixa => {
+            const valorDespesaFixa = despesaFixa.valor;
+
+            if (despesaFixa.periodicidade === 'diaria') {
+                totalDespesas += valorDespesaFixa * totalDiasNoMes;
+            } else if (despesaFixa.periodicidade === 'semanal') {
+                // Cálculo mais preciso do número de ocorrências semanais no mês
+                let countWeeks = 0;
+                for (let dia = 1; dia <= totalDiasNoMes; dia++) {
+                    const dataAtual = new Date(anoSelecionado, mesSelecionado, dia);
+                    if (dataAtual.getDay() === despesaFixa.diaDaSemana) {
+                        countWeeks++;
+                    }
+                }
+                totalDespesas += valorDespesaFixa * countWeeks;
+            } else if (despesaFixa.periodicidade === 'mensal') {
+                totalDespesas += valorDespesaFixa;
+            }
+        });
+
+
         const totalLucro = totalReceita - totalDespesas;
 
         totalReceitaMensalElement.textContent = formatarMoeda(totalReceita);
@@ -897,7 +1055,7 @@
         diasTrabalhadosMensalElement.textContent = diasTrabalhados.size; 
     }
 
-    function renderizarTabelaRegistros(registros) {
+    function renderizarTabelaRegistros(registros, despesasFixas) { // Recebe despesasFixas
         const mesSelecionado = parseInt(filtroMesTabela.value);
         const anoSelecionado = parseInt(filtroAnoTabela.value);
 
@@ -908,6 +1066,7 @@
 
         const resumoDiario = new Map();
 
+        // Processar registros diários
         registrosFiltrados.forEach(registro => {
             const dateString = registro.data.toLocaleDateString('pt-BR');
             if (!resumoDiario.has(dateString)) {
@@ -922,17 +1081,53 @@
             daySummary.lucro += (receitaTotalRegistro - parseFloat(registro.despesas || 0));
         });
 
+        // Adicionar despesas fixas ao resumo diário
+        const totalDiasNoMes = new Date(anoSelecionado, mesSelecionado + 1, 0).getDate();
+        for (let dia = 1; dia <= totalDiasNoMes; dia++) {
+            const dataAtual = new Date(anoSelecionado, mesSelecionado, dia);
+            const dateString = dataAtual.toLocaleDateString('pt-BR');
+            
+            if (!resumoDiario.has(dateString)) {
+                resumoDiario.set(dateString, { receita: 0, despesa: 0, lucro: 0 });
+            }
+            const daySummary = resumoDiario.get(dateString);
+
+            despesasFixas.forEach(despesaFixa => {
+                const valorDespesaFixa = despesaFixa.valor;
+                let shouldAdd = false;
+
+                if (despesaFixa.periodicidade === 'diaria') {
+                    shouldAdd = true;
+                } else if (despesaFixa.periodicidade === 'semanal') {
+                    if (dataAtual.getDay() === despesaFixa.diaDaSemana) {
+                        shouldAdd = true;
+                    }
+                } else if (despesaFixa.periodicidade === 'mensal') {
+                    if (dataAtual.getDate() === despesaFixa.diaDoMes) {
+                        shouldAdd = true;
+                    }
+                }
+
+                if (shouldAdd) {
+                    daySummary.despesa += valorDespesaFixa;
+                    daySummary.lucro -= valorDespesaFixa;
+                }
+            });
+        }
+
+
         const dadosTabela = Array.from(resumoDiario.entries()).map(([data, totais]) => ({
             data,
             receita: totais.receita,
             gastos: totais.despesa,
             lucro: totais.lucro
         })).sort((a, b) => {
-            const [dA, mA, yA] = a.data.split('/');
-            const [dB, mB, yB] = b.data.split('/');
-            const dateA = new Date(`${yA}-${mA}-${dA}`);
-            const dateB = new Date(`${yB}-${mB}-${dB}`);
-            return dateA - dateB;
+            // Ordena as datas corretamente
+            const parseDateString = (dateStr) => {
+                const [d, m, y] = dateStr.split('/');
+                return new Date(`${y}-${m}-${d}`);
+            };
+            return parseDateString(a.data) - parseDateString(b.data);
         });
 
         dailySummaryTableBody.innerHTML = '';
@@ -977,40 +1172,49 @@
         let valorAtingidoNoPeriodo = 0;
         let periodoDisplay = '';
         let registrosParaFiltragem = [];
+        
+            if (tipoMetaGrafico === 'mensal') {
+            let metaMensalDireta = metas.find(m => m.tipoOriginal === 'ganhos_mensais');
+            let metaDiariaParaMensal = metas.find(m => m.tipoOriginal === 'ganhos_diarios' && m.metaMensalCalculada !== undefined); // PROCURA META DIÁRIA COM CÁLCULO MENSAL
 
-        if (tipoMetaGrafico === 'mensal') {
-            metaSelecionada = metas.find(m => m.tipo === 'ganhos_mensais');
+            if (metaMensalDireta) {
+                metaSelecionada = metaMensalDireta;
+                valorMetaParaPeriodo = parseFloat(metaSelecionada.metaMensalCalculada) || 0; // USAR metaMensalCalculada
+            } else if (metaDiariaParaMensal) {
+                metaSelecionada = metaDiariaParaMensal;
+                valorMetaParaPeriodo = parseFloat(metaSelecionada.metaMensalCalculada) || 0; // USAR metaMensalCalculada DA META DIÁRIA
+            }
+
             const currentMonth = new Date().getMonth();
             const currentYear = new Date().getFullYear();
             periodoDisplay = new Date(currentYear, currentMonth, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-            
-            if (metaSelecionada) {
-                valorMetaParaPeriodo = metaSelecionada.valorMeta;
-            }
-
             registrosParaFiltragem = registros.filter(registro => {
                 return registro.data.getMonth() === currentMonth && registro.data.getFullYear() === currentYear;
             });
 
-        } else if (tipoMetaGrafico === 'semanal') {
-            const metaDiaria = metas.find(m => m.tipo === 'ganhos_diarios');
-            const metaMensal = metas.find(m => m.tipo === 'ganhos_mensais');
+            } else if (tipoMetaGrafico === 'semanal') {
+            const metaDiaria = metas.find(m => m.tipoOriginal === 'ganhos_diarios');
+            const metaMensal = metas.find(m => m.tipoOriginal === 'ganhos_mensais');
+
 
             const { weekStart, weekEnd } = getCurrentWeekDateRange();
             periodoDisplay = `${weekStart.toLocaleDateString('pt-BR')} - ${weekEnd.toLocaleDateString('pt-BR')}`;
             
             if (metaDiaria) {
                 metaSelecionada = metaDiaria;
-                valorMetaParaPeriodo = metaDiaria.valorMeta * 7;
+                const diasTrabalho = parseInt(metaDiaria.diasTrabalhadosSemana) || 7;
+                valorMetaParaPeriodo = metaDiaria.valorMeta * diasTrabalho;
+
             } else if (metaMensal) {
-                metaSelecionada = metaMensal; // Usamos a meta mensal como base para o display de detalhes
-                valorMetaParaPeriodo = metaMensal.valorMeta / 4; // Aproximação de 4 semanas por mês
+                metaSelecionada = metaMensal;
+                valorMetaParaPeriodo = metaMensal.valorMeta / 4;
             }
 
             registrosParaFiltragem = registros.filter(registro => {
                 return registro.data >= weekStart && registro.data <= weekEnd;
             });
         }
+
 
         if (!metaSelecionada || valorMetaParaPeriodo === 0) {
             graficoCanvas.style.display = 'none';
@@ -1029,8 +1233,10 @@
             valorAtingidoNoPeriodo += receitaTotalRegistro;
         });
 
+        // MUDANÇA AQUI: Calcule a porcentagem sem Math.min para permitir > 100%
+        // Esta variável 'porcentagemAtingida' será acessível pelo plugin 'centerText'
         let porcentagemAtingida = (valorAtingidoNoPeriodo / valorMetaParaPeriodo) * 100;
-        if (porcentagemAtingida > 100) porcentagemAtingida = 100; 
+        // if (porcentagemAtingida > 100) porcentagemAtingida = 100; // REMOVIDO PARA PERMITIR VALORES ACIMA DE 100%
 
         const valorRestante = Math.max(0, valorMetaParaPeriodo - valorAtingidoNoPeriodo);
 
@@ -1060,7 +1266,8 @@
             data: {
                 labels: ['Progresso Atingido', 'Restante'],
                 datasets: [{
-                    data: [valorAtingidoNoPeriodo, valorRestante],
+                    // Se o valor atingido for maior que a meta, o "restante" deve ser 0 para a representação visual
+                    data: [valorAtingidoNoPeriodo, Math.max(0, valorMetaParaPeriodo - valorAtingidoNoPeriodo)], // MUDANÇA AQUI para o "Restante"
                     backgroundColor: ['#28a745', '#e9ecef'],
                     borderColor: ['#ffffff', '#ffffff'],
                     borderWidth: 2
@@ -1122,15 +1329,22 @@
             plugins: [{
                 id: 'centerText',
                 beforeDraw: function(chart) {
-                    const { ctx, width, height } = chart;
+                    const { ctx, width, height, chartArea } = chart; // Use chartArea
                     ctx.restore();
+
+                    const currentPorcentagem = porcentagemAtingida; 
+                    
                     const fontSize = (height / 114).toFixed(2);
                     ctx.font = `bold ${fontSize}em sans-serif`;
                     ctx.textBaseline = 'middle';
 
-                    let text = `${porcentagemAtingida.toFixed(0)}%`;
-                    let textX = Math.round((width - ctx.measureText(text).width) / 2);
-                    let textY = height / 2;
+                    let text = `${currentPorcentagem.toFixed(0)}%`; 
+                    let textMetrics = ctx.measureText(text);
+
+                    // Centralizar horizontalmente
+                    let textX = chartArea.left + (chartArea.right - chartArea.left) / 2 - textMetrics.width / 2;
+                    // Centralizar verticalmente (usando o centro do chartArea)
+                    let textY = chartArea.top + (chartArea.bottom - chartArea.top) / 2;
 
                     ctx.fillStyle = '#333';
                     ctx.fillText(text, textX, textY);
@@ -1180,17 +1394,18 @@
 
 
       const registros = await carregarRegistros();
+      const despesasFixas = await carregarDespesasFixas(); // Carrega as despesas fixas
       todasAsMetas = await carregarMetas(); 
       
       popularSeletoresAnoComRegistros(registros);
       
-      calcularResumoMensal(registros);
-      renderizarTabelaRegistros(registros);
+      calcularResumoMensal(registros, despesasFixas); // Passa despesasFixas
+      renderizarTabelaRegistros(registros, despesasFixas); // Passa despesasFixas
       renderizarGraficoMeta('graficoMetaMensal', 'metaMonthlyProgressContainer', 'noDataMetaMensalProgress', 'metaMonthlyDetails', registros, todasAsMetas, 'mensal');
       renderizarGraficoMeta('graficoMetaSemanal', 'metaWeeklyProgressContainer', 'noDataMetaSemanalProgress', 'metaWeeklyDetails', registros, todasAsMetas, 'semanal');
 
 
-      const { dados: dadosAgrupadosPorPeriodo, labels: labelsParaGrafico } = agruparDadosPorPeriodo(registros);
+      const { dados: dadosAgrupadosPorPeriodo, labels: labelsParaGrafico } = agruparDadosPorPeriodo(registros, despesasFixas); // Passa despesasFixas
       
       const receita = labelsParaGrafico.map(k => dadosAgrupadosPorPeriodo[k]?.receita || 0);
       const lucro = labelsParaGrafico.map(k => dadosAgrupadosPorPeriodo[k]?.lucro || 0);
@@ -1208,7 +1423,7 @@
       let chartTypeReceitaLucro = 'line';
 
       // --- GRÁFICO RECEITA VS LUCRO ---
-      if (receita.some(v => v > 0) || lucro.some(v => v > 0)) {
+      if (receita.some(v => v > 0) || lucro.some(v => v > 0) || despesasFixas.length > 0) { // Adicionado despesasFixas.length > 0
           graficoReceitaLucro = new Chart(document.getElementById('graficoReceitaLucro'), {
             type: chartTypeReceitaLucro,
             data: {
@@ -1301,7 +1516,9 @@
                   datasets: [{ 
                     label: 'Valor (R$)', 
                     data: valoresGastos, 
-                    backgroundColor: backgroundColorsForCategories 
+                    backgroundColor: backgroundColorsForCategories,
+                    barThickness: 40, // Adiciona uma espessura de barra fixa em pixels
+                    maxBarThickness: 60 // Define uma espessura máxima, se houver espaço
                   }]
               },
               options: { 
@@ -1336,8 +1553,7 @@
                         }
                     }
                   }
-                }
-                ,
+                },
                 scales: {
                     x: {
                         ticks: {
@@ -1345,13 +1561,30 @@
                                 return formatarMoeda(value);
                             }
                         }
+                    },
+                    y: {
+                        // Ajuste para garantir que todas as barras sejam visíveis sem cortar
+                        // Isso é útil se houver muitas categorias e o gráfico for muito pequeno
+                        grid: {
+                            display: false
+                        }
                     }
                 }
               }
           });
+
+          // Ajustar a altura do contêiner com base no número de barras
+          const canvas = document.getElementById('graficoGastos');
+          const parentContainer = document.getElementById('gastosContainer');
+          const estimatedBarHeight = 50; // barThickness + padding/margin
+          const minHeight = 250; // Altura mínima padrão
+          const calculatedHeight = Math.max(minHeight, categorias.length * estimatedBarHeight + 50); // Adiciona um pouco de padding
+          parentContainer.style.height = `${calculatedHeight}px`;
+
       } else {
           document.getElementById('graficoGastos').style.display = 'none';
           noDataGastos.classList.remove('hidden');
+          document.getElementById('gastosContainer').style.height = 'auto'; // Reset height if no data
       }
 
       // --- GRÁFICO DISTRIBUIÇÃO POR PLATAFORMA ---
